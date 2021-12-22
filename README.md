@@ -1,6 +1,5 @@
 # Important
 
-Issues of this repository are tracked on https://github.com/aspnetboilerplate/aspnetboilerplate. Please create your issues on https://github.com/aspnetboilerplate/aspnetboilerplate/issues.
 
 # Introduction
 
@@ -13,19 +12,9 @@ User Interface is based on [AdminLTE theme](https://github.com/ColorlibHQ/AdminL
  
 # Download
 
-Create & download your project from https://aspnetboilerplate.com/Templates
 
 # Screenshots
 
-#### Sample Dashboard Page
-![](_screenshots/module-zero-core-template-ui-home.png)
-
-#### User Creation Modal
-![](_screenshots/module-zero-core-template-ui-user-create-modal.png)
-
-#### Login Page
-
-![](_screenshots/module-zero-core-template-ui-login.png)
 
 # Documentation
 
