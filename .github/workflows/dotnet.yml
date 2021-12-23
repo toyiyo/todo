@@ -57,5 +57,5 @@ jobs:
       shell: powershell
       run: |
         .\.sonar\scanner\dotnet-sonarscanner begin /k:"toyiyo_todo" /o:"toyiyo" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-        dotnet build aspnet-core/toyiyo.todo.sln --no-restore
+        dotnet build aspnet-core/toyiyo.todo.sln
         .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
