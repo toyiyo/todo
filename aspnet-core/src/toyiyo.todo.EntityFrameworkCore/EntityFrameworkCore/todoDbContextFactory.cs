@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
 using toyiyo.todo.Configuration;
 using toyiyo.todo.Web;
 
@@ -21,7 +21,7 @@ namespace toyiyo.todo.EntityFrameworkCore
              */
             var configuration = AppConfigurations.Get(WebContentDirectoryFinder.CalculateContentRootFolder());
 
-            todoDbContextConfigurer.Configure(builder, configuration.GetConnectionString(todoConsts.ConnectionStringName));
+            todoDbContextConfigurer.Configure(builder, Environment.GetEnvironmentVariable("ToyiyoDb"));
 
             return new todoDbContext(builder.Options);
         }

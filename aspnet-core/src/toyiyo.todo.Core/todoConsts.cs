@@ -6,7 +6,7 @@ namespace toyiyo.todo
     {
         public const string LocalizationSourceName = "todo";
 
-        public const string ConnectionStringName = "Default";
+        public const string ConnectionStringName = "ToyiyoDb";
 
         public const bool MultiTenancyEnabled = true;
 
