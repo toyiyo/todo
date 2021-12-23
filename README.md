@@ -27,6 +27,9 @@ User Interface is based on [AdminLTE theme](https://github.com/ColorlibHQ/AdminL
 
 # Getting started
 
+## Data Store
+* for development, install a local postgres instance, or use [our Heroku free option](https://data.heroku.com/datastores/5d9a293a-04f9-4210-b48c-b483cacc4cc4)
+
 ## known issues
 
 ### secrets.json file
