@@ -1,9 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <AssemblyName>toyiyo.todo.Web.Mvc</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>toyiyo.todo.Web.Mvc</PackageId>
-    <UserSecretsId>toyiyo-todo-56C2EF2F-ABD6-4EFC-AAF2-2E81C34E8FB1</UserSecretsId>
     <RootNamespace>toyiyo.todo.Web</RootNamespace>
     <TargetFramework>net6.0</TargetFramework>
     <AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
@@ -13,6 +12,7 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <MvcRazorExcludeRefAssembliesFromPublish>false</MvcRazorExcludeRefAssembliesFromPublish>
     <PreserveCompilationReferences>true</PreserveCompilationReferences>
+    <UserSecretsId>f8debf2b-9b60-4a11-b540-7a0fbb9b8ec7</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <None Include="app.config" />

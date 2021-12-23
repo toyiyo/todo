@@ -8,7 +8,7 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <UserSecretsId>toyiyo-todo-56C2EF2F-ABD6-4EFC-AAF2-2E81C34E8FB1</UserSecretsId>
+    <UserSecretsId>f8debf2b-9b60-4a11-b540-7a0fbb9b8ec7</UserSecretsId>
     <RootNamespace>toyiyo.todo</RootNamespace>
   </PropertyGroup>
   <ItemGroup>

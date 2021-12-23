@@ -6,7 +6,7 @@
     <AssemblyName>toyiyo.todo.Web.Host</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>toyiyo.todo.Web.Host</PackageId>
-    <UserSecretsId>toyiyo-todo-56C2EF2F-ABD6-4EFC-AAF2-2E81C34E8FB1</UserSecretsId>
+    <UserSecretsId>tf8debf2b-9b60-4a11-b540-7a0fbb9b8ec7</UserSecretsId>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <LangVersion>7.2</LangVersion>
