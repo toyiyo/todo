@@ -6,6 +6,7 @@ using Abp.Reflection.Extensions;
 using toyiyo.todo.Configuration;
 using toyiyo.todo.EntityFrameworkCore;
 using toyiyo.todo.Migrator.DependencyInjection;
+using System;
 
 namespace toyiyo.todo.Migrator
 {
@@ -25,9 +26,7 @@ namespace toyiyo.todo.Migrator
 
         public override void PreInitialize()
         {
-            Configuration.DefaultNameOrConnectionString = _appConfiguration.GetConnectionString(
-                todoConsts.ConnectionStringName
-            );
+            Configuration.DefaultNameOrConnectionString = Environment.GetEnvironmentVariable("ToyiyoDb");
 
             Configuration.BackgroundJobs.IsJobExecutionEnabled = false;
             Configuration.ReplaceService(

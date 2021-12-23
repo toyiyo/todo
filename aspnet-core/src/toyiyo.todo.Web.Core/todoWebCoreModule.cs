@@ -35,9 +35,7 @@ namespace toyiyo.todo
 
         public override void PreInitialize()
         {
-            Configuration.DefaultNameOrConnectionString = _appConfiguration.GetConnectionString(
-                todoConsts.ConnectionStringName
-            );
+            Configuration.DefaultNameOrConnectionString = Environment.GetEnvironmentVariable("ToyiyoDb");
 
             // Use database for language management
             Configuration.Modules.Zero().LanguageManagement.EnableDbLocalization();

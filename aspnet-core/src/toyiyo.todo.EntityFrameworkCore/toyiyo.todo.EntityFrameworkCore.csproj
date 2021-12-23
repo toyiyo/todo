@@ -22,8 +22,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\toyiyo.todo.Core\toyiyo.todo.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
 </Project>
