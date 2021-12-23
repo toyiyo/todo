@@ -1,3 +1,5 @@
+![Build and Test](https://github.com/toyiyo/todo/actions/workflows/dotnet.yml/badge.svg)
+
 # Important
 
 
