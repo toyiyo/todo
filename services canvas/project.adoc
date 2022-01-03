@@ -1,0 +1,103 @@
+= Project Service canvas
+
+This canvas describes the `Projects Service`
+
+[cols="8*"]
+|===
+3+a| Name: 5+a| Projects Service
+
+3+a| *Description:*
+5+a|
+
+The Project Service provides an API for creating, managing, and archiving Projects.
+
+8+a| *Capabilities*
+8+a|
+Project Management
+8+| *Service API*
+3+| Commands 3+| Queries 2+| Events Published
+3+a| Synchronous:
+
+* N/A
+
+Asynchronous:
+
+* create()
+* archive()
+* comment()
+* prioritize()
+* setDeadline()
+* assign()
+* unassign()
+* setStatus()
+* describe()
+* inviteMembersTo()
+
+
+3+a| 
+
+* getProject()
+* getProjects()
+* getHistoryOnProject() 
+ 
+2+a| Project event channel:
+
+* Project Created
+* Project Authorized
+* Project Revised
+* Project Cancelled
+* ...
+
+3+| Non-functional requirements 5+a|
+
+* SLOs - to be defined
+
+8+| *Observability*
+8+| Key metrics
+8+a|
+
+to be defined - examples
+
+* placed_Projects
+* approved_Projects
+* rejected_Projects
+* ...
+
+4+| Health check endpoint
+4+| /projects/health
+
+
+
+8+| *Implementation*
+8+| Domain Model
+8+a| * Project aggregate
+8+| *Dependencies*
+4+| Invokes 4+| Subscribes to
+4+a|
+
+Consumer Service:
+
+* validateProject()
+
+Kitchen service:
+
+* createTicket()
+* confirmCreateTicket()
+* cancelCreateTicket()
+
+Accounting Service
+
+* authorize()
+
+ 4+a| Restaurant Service
+
+* Restaurant Created event
+* Restaurant Menu Revised event
+
+Saga reply channels:
+
+* Create Project Saga
+* Revise Project Saga
+* Cancel Project Saga
+
+|===
