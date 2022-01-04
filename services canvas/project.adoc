@@ -22,31 +22,42 @@ Project Management
 
 Asynchronous:
 
-* create()
-* archive()
-* comment()
-* prioritize()
-* setDeadline()
-* assign()
+* create(title)
+* archive(id)
+* comment(comment)
+* prioritize(priority
+* setTitle(title)
+* setDescription(description)
+* setDueDate(dueDate)
+* setOwner(owner)
+* assign(assigned)
 * unassign()
-* setStatus()
-* describe()
-* inviteMembersTo()
+* setStatus(status)
+* inviteMembers(members)
+* removeMembers(members)
 
 
 3+a| 
 
-* getProject()
-* getProjects()
-* getHistoryOnProject() 
+* getProject(id)
+* getProjects(filter)
+* getHistoryOnProject(id) 
  
 2+a| Project event channel:
 
-* Project Created
-* Project Authorized
-* Project Revised
-* Project Cancelled
-* ...
+* created
+* archived
+* commented
+* prioritized
+* titleChanged
+* descriptionChanged
+* dueDateChanged
+* ownerChanged
+* assigned
+* unassigned
+* statusChanged
+* memberInvited
+* memberRemoved
 
 3+| Non-functional requirements 5+a|
 
@@ -75,29 +86,16 @@ to be defined - examples
 4+| Invokes 4+| Subscribes to
 4+a|
 
-Consumer Service:
-
-* validateProject()
-
-Kitchen service:
-
-* createTicket()
-* confirmCreateTicket()
-* cancelCreateTicket()
-
-Accounting Service
+Billing Service
 
 * authorize()
 
- 4+a| Restaurant Service
+ 4+a| N/A Service
 
-* Restaurant Created event
-* Restaurant Menu Revised event
+* N/A event
 
 Saga reply channels:
 
-* Create Project Saga
-* Revise Project Saga
-* Cancel Project Saga
+* N/A Project Saga
 
 |===
