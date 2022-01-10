@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\toyiyo.todo.Application\toyiyo.todo.Application.csproj" />
     <ProjectReference Include="..\..\src\toyiyo.todo.EntityFrameworkCore\toyiyo.todo.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\src\toyiyo.todo.Core\toyiyo.todo.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />

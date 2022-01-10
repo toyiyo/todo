@@ -28,6 +28,12 @@ namespace toyiyo.todo.Projects
 
         public static Project Create(string title, User user, int tenantId)
         {
+            //validate parameters
+            if (title == null || user == null || tenantId <= 0)
+            {
+                throw new ArgumentNullException("title, user and tenantId are required");
+            }
+
             var @project = new Project
             {
                 Id = Guid.NewGuid(),

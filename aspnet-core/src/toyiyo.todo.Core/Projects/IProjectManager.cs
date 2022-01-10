@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace toyiyo.todo.Projects
 {
-    internal interface IProjectManager
+    public interface IProjectManager
     {
         Task<Project> Create(Project inputProject);
         Task<Project> Get(Guid id);
