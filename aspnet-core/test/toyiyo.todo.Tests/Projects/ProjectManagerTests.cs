@@ -20,7 +20,6 @@ namespace toyiyo.todo.Tests.Projects
         public async Task CreateProject_ReturnsNewProject()
         {
             // Arrange
-            await _sessionAppService.GetCurrentLoginInformations();
             var currentUser = await GetCurrentUserAsync();
             var currentTenant = await GetCurrentTenantAsync();
 
