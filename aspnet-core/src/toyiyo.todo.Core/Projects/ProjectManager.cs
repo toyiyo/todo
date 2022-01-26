@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Abp.Collections.Extensions;
 using Abp.Domain.Repositories;
 using Abp.Domain.Services;
+using Abp.Domain.Uow;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,8 @@ namespace toyiyo.todo.Projects
             var project = await _projectRepository.GetAsync(id);
             return project;
         }
-
+        //GetAll() repository method requires a unit of work to be open. see https://aspnetboilerplate.com/Pages/Documents/Unit-Of-Work#irepository-getall-method
+        [UnitOfWork]
         public async Task<List<Project>> GetAll(GetAllProjectsInput input) {
             //repository methods already filter by tenant, we can check other attributes by adding "or" "||" to the whereif clause
             return await _projectRepository.GetAll()

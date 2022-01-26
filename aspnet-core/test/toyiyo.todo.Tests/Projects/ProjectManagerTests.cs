@@ -4,6 +4,7 @@ using toyiyo.todo.Projects;
 using toyiyo.todo.Sessions;
 using Xunit;
 using Shouldly;
+using System.Linq;
 
 namespace toyiyo.todo.Tests.Projects
 {
@@ -30,6 +31,45 @@ namespace toyiyo.todo.Tests.Projects
             // Assert
             result.ShouldNotBeNull();
             result.Title.ShouldBe("test");
+        }
+
+        [Fact]
+        public async Task GetProject_ReturnsProject()
+        {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var currentTenant = await GetCurrentTenantAsync();
+            var project = Project.Create("test", currentUser, currentTenant.Id);
+            await _projectManager.Create(project);
+
+            // Act
+            var result = await _projectManager.Get(project.Id);
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.Title.ShouldBe("test");
+        }
+
+        [Fact]
+        public async Task GetAllProjects_ReturnsProjects()
+        {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var currentTenant = await GetCurrentTenantAsync();
+            var project = Project.Create("test", currentUser, currentTenant.Id);
+            await _projectManager.Create(project);
+
+            // Act
+            var result = await _projectManager.GetAll(new GetAllProjectsInput(){
+                MaxResultCount = 10,
+                SkipCount = 0,
+                keyword = "test"
+            });
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.Count.ShouldBe(1);
+            result.First().Title.ShouldBe("test");
         }
     }
 }
