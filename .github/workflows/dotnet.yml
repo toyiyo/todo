@@ -50,7 +50,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       shell: powershell
       run: |
-        .\.sonar\scanner\dotnet-sonarscanner begin /k:"toyiyo_todo" /o:"toyiyo" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.xunit.reportsPaths="**/coverage.cobertura.xml"
+        .\.sonar\scanner\dotnet-sonarscanner begin /k:"toyiyo_todo" /o:"toyiyo" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage.cobertura.xml"
         dotnet restore aspnet-core/toyiyo.todo.sln
         dotnet build aspnet-core/toyiyo.todo.sln --no-restore
         dotnet test aspnet-core/toyiyo.todo.sln --no-build --verbosity normal --collect:"XPlat Code Coverage"
