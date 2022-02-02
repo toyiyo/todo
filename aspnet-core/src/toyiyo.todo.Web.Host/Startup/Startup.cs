@@ -20,6 +20,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 using System.IO;
+using Abp.Timing;
 
 namespace toyiyo.todo.Web.Host.Startup
 {
@@ -36,6 +37,7 @@ namespace toyiyo.todo.Web.Host.Startup
         {
             _hostingEnvironment = env;
             _appConfiguration = env.GetAppConfiguration();
+            Clock.Provider = ClockProviders.Utc;
         }
 
         public IServiceProvider ConfigureServices(IServiceCollection services)

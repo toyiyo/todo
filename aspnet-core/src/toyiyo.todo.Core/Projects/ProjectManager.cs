@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Abp.Collections.Extensions;
 using Abp.Domain.Repositories;
@@ -31,7 +32,7 @@ namespace toyiyo.todo.Projects
             //repository methods already filter by tenant, we can check other attributes by adding "or" "||" to the whereif clause
             return await _projectRepository.GetAll()
             .WhereIf(!input.keyword.IsNullOrWhiteSpace(), p => p.Title.Contains(input.keyword))
-            .OrderByDescending(p => p.CreationTime)
+            .OrderBy<Project>(input.Sorting)
             .Skip(input.SkipCount)
             .Take(input.MaxResultCount)
             .ToListAsync();

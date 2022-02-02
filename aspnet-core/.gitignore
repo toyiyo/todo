@@ -255,3 +255,4 @@ src/toyiyo.todo.Web.Mvc/secrets.json
 src/toyiyo.todo.Web.Host/secrets.json
 src/toyiyo.todo.Migrator/secrets.json
 src/toyiyo.todo.Web.Mvc/App_Data/Logs/*.*
+src/toyiyo.todo.Web.Host/App_Data/Logs/*.*
