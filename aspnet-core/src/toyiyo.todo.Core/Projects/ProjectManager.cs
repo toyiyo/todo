@@ -32,7 +32,7 @@ namespace toyiyo.todo.Projects
             //repository methods already filter by tenant, we can check other attributes by adding "or" "||" to the whereif clause
             return await _projectRepository.GetAll()
             .WhereIf(!input.keyword.IsNullOrWhiteSpace(), p => p.Title.Contains(input.keyword))
-            .OrderBy<Project>(input.Sorting)
+            .OrderBy<Project>(input?.Sorting ?? "CreationTime DESC")
             .Skip(input.SkipCount)
             .Take(input.MaxResultCount)
             .ToListAsync();
