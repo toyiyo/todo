@@ -14,7 +14,7 @@ namespace toyiyo.todo.Projects {
             _projectManager = projectManager;
         }
         /// <summary> Creates a new Project. </summary>
-        public async Task<ProjectDto> Create(ProjectDto input) {
+        public async Task<ProjectDto> Create(CreateProjectInputDto input) {
             var tenant = await GetCurrentTenantAsync();
             var project = Project.Create(input.Title, await GetCurrentUserAsync(), tenant.Id);
             await _projectManager.Create(project);

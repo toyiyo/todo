@@ -5,9 +5,9 @@ using toyiyo.todo.Projects.Dto;
 
 namespace toyiyo.todo.Projects
 {
-    internal interface IProjectAppService
+    public interface IProjectAppService
     {
-        Task<ProjectDto> Create(ProjectDto input);
+        Task<ProjectDto> Create(CreateProjectInputDto input);
         Task<ProjectDto> Get(Guid id);
         Task<PagedResultDto<ProjectDto>> GetAll(GetAllProjectsInput input);
     }
