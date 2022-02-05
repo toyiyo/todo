@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
+using Abp.Authorization;
+using toyiyo.todo.Authorization;
 using toyiyo.todo.Projects.Dto;
 
 namespace toyiyo.todo.Projects {
+    [AbpAuthorize(PermissionNames.Pages_Projects)]
     public class ProjectAppService : todoAppServiceBase, IProjectAppService {
         private readonly IProjectManager _projectManager;
         public ProjectAppService(IProjectManager projectManager) {
