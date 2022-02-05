@@ -57,7 +57,7 @@ namespace toyiyo.todo.Tests.Projects
             await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
 
             // Act
-            var result = await _projectAppService.GetAll(null);
+            var result = await _projectAppService.GetAll(new GetAllProjectsInput(){});
 
             // Assert
             result.ShouldNotBeNull();
