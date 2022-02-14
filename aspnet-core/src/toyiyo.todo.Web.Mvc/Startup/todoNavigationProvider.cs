@@ -27,7 +27,7 @@ namespace toyiyo.todo.Web.Startup
                         L("Projects"),
                         url: "Projects",
                         icon: "fas fa-list",
-                        requiresAuthentication: true
+                        permissionDependency: new SimplePermissionDependency(PermissionNames.Pages_Projects)
                     )
                 ).AddItem(
                     new MenuItemDefinition(
