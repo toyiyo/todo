@@ -4,6 +4,8 @@ using toyiyo.todo.Controllers;
 using toyiyo.todo.Authorization;
 using toyiyo.todo.Projects;
 using System.Threading.Tasks;
+using System;
+using toyiyo.todo.Web.Models.Projects;
 
 namespace toyiyo.todo.Web.Controllers
 {
@@ -26,8 +28,19 @@ namespace toyiyo.todo.Web.Controllers
             };
 
             var projects = (await ProjectAppService.GetAll(input)).Items;
-            //todo: add view model and map to view model
-            return View(projects);
+            var model = new ProjectListViewModel()
+            {
+                Projects = projects
+            };
+            return View(model);
+        }
+
+        public async Task<IActionResult> EditModal(Guid projectId)
+        {
+            var output = await ProjectAppService.Get(projectId);
+            var model = ObjectMapper.Map<EditProjectModalViewModel>(output);
+
+            return PartialView("_EditModal", model);
         }
     }
 }
