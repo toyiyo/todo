@@ -4,6 +4,9 @@
     <text name="HomePage" value="Home page" />
     <text name="About" value="About" />
     <text name="Projects" value="Projects" />
+    <text name="CreateNewProject" value="Create new project" />
+    <text name="ProjectName" value="Project name" />
+    <text name="ProjectDescription" value="Project description" />
     <text name="WelcomeMessage" value="Welcome to todo!" />
     <text name="FormIsNotValidMessage" value="Form is not valid. Please check and fix errors." />
     <text name="TenantNameCanNotBeEmpty" value="Tenant name can not be empty" />

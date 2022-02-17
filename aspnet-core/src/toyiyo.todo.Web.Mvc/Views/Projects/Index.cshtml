@@ -1,19 +1,28 @@
 @using toyiyo.todo.Web.Startup
+@model toyiyo.todo.Web.Models.Projects.ProjectListViewModel
 @{
     ViewBag.Title = L("Projects");
     ViewBag.CurrentPageName = PageNames.Projects;
 }
+@section scripts {}
 
-<div class="content-header">
+<section class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-12">
-                <h1 class="m-0 text-dark">@L("Projects")</h1>
-            </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <h1>@L("Projects")</h1>
+        </div>
+        <div class="col-sm-6">
+            <a href="javascript:;" data-toggle="modal" data-target="#ProjectCreateModal" class="btn bg-blue float-sm-right">
+                <i class="fa fa-plus-square"></i>
+                @L("Create")
+                </a>
         </div>
     </div>
-</div>
-<section class="content">
-<div class="container-fluid">
-<div>Projects page</div>
 </section>
+
+<section class="content">
+
+</section>
+
+@await Html.PartialAsync("~/Views/Projects/_CreateModal.cshtml", Model)
