@@ -1,10 +1,10 @@
 using Abp.AutoMapper;
-using toyiyo.todo.Projects;
+using toyiyo.todo.Projects.Dto;
 
 namespace toyiyo.todo.Web.Models.Projects
 {
-    [AutoMapFrom(typeof(CreateProjectInputDto))]
-    public class EditProjectModalViewModel : CreateProjectInputDto
+    [AutoMapFrom(typeof(ProjectDto))]
+    public class EditProjectModalViewModel : ProjectDto
     {
         public EditProjectModalViewModel()
         {
