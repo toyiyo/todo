@@ -28,10 +28,12 @@ namespace toyiyo.todo.Projects
         }
         //GetAll() repository method requires a unit of work to be open. see https://aspnetboilerplate.com/Pages/Documents/Unit-Of-Work#irepository-getall-method
         [UnitOfWork]
-        public async Task<List<Project>> GetAll(GetAllProjectsInput input) {
+        public async Task<List<Project>> GetAll(GetAllProjectsInput input)
+        {
             //repository methods already filter by tenant, we can check other attributes by adding "or" "||" to the whereif clause
+            //todo: figure out how to ignore case when searching for title in postgresql
             return await _projectRepository.GetAll()
-            .WhereIf(!input.keyword.IsNullOrWhiteSpace(), p => p.Title.Contains(input.keyword))
+            .WhereIf(!input.keyword.IsNullOrWhiteSpace(), p => p.Title.ToUpper().Contains(input.keyword.ToUpper()))
             .OrderBy<Project>(input?.Sorting ?? "CreationTime DESC")
             .Skip(input.SkipCount)
             .Take(input.MaxResultCount)
