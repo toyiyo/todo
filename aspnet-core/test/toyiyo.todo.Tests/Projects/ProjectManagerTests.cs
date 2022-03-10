@@ -57,7 +57,7 @@ namespace toyiyo.todo.Tests.Projects
             // Arrange
             var currentUser = await GetCurrentUserAsync();
             var currentTenant = await GetCurrentTenantAsync();
-            var project = Project.Create("test", currentUser, currentTenant.Id);
+            var project = Project.Create("Test", currentUser, currentTenant.Id);
             await _projectManager.Create(project);
 
             // Act
@@ -71,7 +71,7 @@ namespace toyiyo.todo.Tests.Projects
             // Assert
             result.ShouldNotBeNull();
             result.Count.ShouldBe(1);
-            result.First().Title.ShouldBe("test");
+            result.First().Title.ShouldBe("Test");
         }
 
         [Fact]

@@ -64,5 +64,24 @@ namespace toyiyo.todo.Tests.Projects
             result.Items.Count.ShouldBe(1);
             result.Items.First().Title.ShouldBe("test");
         }
+
+        [Fact]
+        public async Task GetAllProjects_FilterByTitle_ReturnsProjects()
+        {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var currentTenant = await GetCurrentTenantAsync();
+            await _projectAppService.Create(new CreateProjectInputDto() { Title = "Test" });
+
+            // Act
+            var result = await _projectAppService.GetAll(new GetAllProjectsInput(){
+                keyword = "test"
+            });
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.Items.Count.ShouldBe(1);
+            result.Items.First().Title.ShouldBe("Test");
+        }
     }
 }
