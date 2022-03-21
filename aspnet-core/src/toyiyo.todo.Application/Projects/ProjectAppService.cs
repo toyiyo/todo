@@ -30,5 +30,12 @@ namespace toyiyo.todo.Projects {
             var projects = await _projectManager.GetAll(input);
             return new PagedResultDto<ProjectDto>(projects.Count, ObjectMapper.Map<List<ProjectDto>>(projects));
         }
+
+        /// <summary> Sets the project's title </summary>
+        public async Task<ProjectDto> SetTitle(ProjectDto input) {
+            var project = Project.SetTitle(await _projectManager.Get(input.Id), input.Title, await GetCurrentUserAsync());
+            await _projectManager.Update(project);
+            return ObjectMapper.Map<ProjectDto>(project);
+        }
     }
 }

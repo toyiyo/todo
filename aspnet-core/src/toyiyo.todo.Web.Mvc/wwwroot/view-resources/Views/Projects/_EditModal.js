@@ -12,7 +12,7 @@
         var project = _$form.serializeFormToObject();
 
         abp.ui.setBusy(_$form);
-        _projectService.update(project).done(function () {
+        _projectService.setTitle(project).done(function () {
             _$modal.modal('hide');
             abp.notify.info(l('SavedSuccessfully'));
             abp.event.trigger('project.edited', project);

@@ -7,6 +7,7 @@
     <text name="CreateNewProject" value="Create new project" />
     <text name="ProjectName" value="Project name" />
     <text name="ProjectTitle" value="Project title" />
+    <text name="EditProject" value="Edit project" />
     <text name="ProjectDescription" value="Project description" />
     <text name="WelcomeMessage" value="Welcome to todo!" />
     <text name="FormIsNotValidMessage" value="Form is not valid. Please check and fix errors." />

@@ -45,5 +45,11 @@ namespace toyiyo.todo.Projects
             var project = await _projectRepository.InsertAsync(inputProject);
             return project;
         }
+
+        public async Task<Project> Update(Project inputProject)
+        {
+            var project = await _projectRepository.UpdateAsync(inputProject);
+            return project;
+        }
     }
 }

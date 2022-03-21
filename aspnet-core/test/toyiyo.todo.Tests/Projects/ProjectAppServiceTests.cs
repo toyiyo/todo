@@ -83,5 +83,21 @@ namespace toyiyo.todo.Tests.Projects
             result.Items.Count.ShouldBe(1);
             result.Items.First().Title.ShouldBe("Test");
         }
+
+        [Fact]
+        public async Task UpdateProject_ReturnsUpdatedProject()
+        {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var currentTenant = await GetCurrentTenantAsync();
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+
+            // Act
+            var result = await _projectAppService.SetTitle(new ProjectDto() { Id = project.Id, Title = "test2" });
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.Title.ShouldBe("test2");
+        }
     }
 }

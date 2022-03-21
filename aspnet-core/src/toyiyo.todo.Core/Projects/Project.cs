@@ -10,9 +10,10 @@ namespace toyiyo.todo.Projects
     public class Project : FullAuditedEntity<Guid>, IMustHaveTenant
     {
         public const int MaxTitleLength = 500; //todo: max length should be defined in the configuration
+        //note: protected setter forces users to use "Set..." methods to set the value
         [Required]
         [StringLength(MaxTitleLength)]
-        public string Title { get; set; }
+        public string Title { get; protected set; }
         [Required]
         public virtual int TenantId { get; set; }
 
@@ -46,6 +47,21 @@ namespace toyiyo.todo.Projects
             };
 
             return @project;
+        }
+
+        public static Project SetTitle(Project project, string title, User user)
+        {
+            //validate parameters
+            if (project == null || title == null || user == null)
+            {
+                throw new ArgumentNullException("project, title and user are required");
+            }
+
+            project.Title = title;
+            project.LastModificationTime = Clock.Now;
+            project.LastModifierUserId = user.Id;
+
+            return project;
         }
     }
 }

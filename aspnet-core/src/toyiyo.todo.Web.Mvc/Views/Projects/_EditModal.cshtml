@@ -5,13 +5,13 @@
     Layout = null;
 }
 @await Html.PartialAsync("~/Views/Shared/Modals/_ModalHeader.cshtml", new ModalHeaderViewModel(L("EditProject")))
-<form name="RoleEditForm" role="form" class="form-horizontal">
+<form name="ProjectEditForm" role="form" class="form-horizontal">
     <input type="hidden" name="Id" value="@Model.Id" />
     <div class="modal-body">
         <div class="form-group row required">
-            <label class="col-md-3 col-form-label" for="projecttitle">@L("RoleName")</label>
+            <label class="col-md-3 col-form-label" for="title">@L("ProjectTitle")</label>
             <div class="col-md-9">
-                <input id="projecttitle" class="form-control" type="text" name="projecttitle" value="@Model.Title" required maxlength="32" minlength="2">
+                <input id="title" class="form-control" type="text" name="title" value="@Model.Title" required maxlength="32" minlength="2">
             </div>
         </div>
     </div>

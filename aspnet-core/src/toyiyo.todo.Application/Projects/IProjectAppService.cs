@@ -10,5 +10,6 @@ namespace toyiyo.todo.Projects
         Task<ProjectDto> Create(CreateProjectInputDto input);
         Task<ProjectDto> Get(Guid id);
         Task<PagedResultDto<ProjectDto>> GetAll(GetAllProjectsInput input);
+        Task<ProjectDto> SetTitle(ProjectDto input);
     }
 }
