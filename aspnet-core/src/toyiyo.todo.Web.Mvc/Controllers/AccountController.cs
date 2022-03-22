@@ -196,7 +196,7 @@ namespace toyiyo.todo.Web.Controllers
                 {
                     Debug.Assert(externalLoginInfo != null);
 
-                    if (string.Equals(externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Email), model.EmailAddress, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(externalLoginInfo?.Principal.FindFirstValue(ClaimTypes.Email), model.EmailAddress, StringComparison.OrdinalIgnoreCase))
                     {
                         user.IsEmailConfirmed = true;
                     }

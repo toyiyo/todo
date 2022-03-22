@@ -15,7 +15,7 @@
                 <input id="TenancyName" name="TenancyName" class="form-control" type="text" maxlength="@AbpTenantBase.MaxTenancyNameLength.ToString()" value="@Model.TenancyName">
             </div>
         </div>
-        <span><i class="fa fa-info-circle"></i> @L("LeaveEmptyToSwitchToHost")</span>
+        <span><i class="fa fa-info-circle" aria-hidden="true"></i> @L("LeaveEmptyToSwitchToHost")</span>
     </div>
     @await Html.PartialAsync("~/Views/Shared/Modals/_ModalFooterWithSaveAndCancel.cshtml")
 </form>
