@@ -205,8 +205,8 @@ namespace toyiyo.todo.Web.Controllers
                     {
                         new UserLogin
                         {
-                            LoginProvider = externalLoginInfo.LoginProvider,
-                            ProviderKey = externalLoginInfo.ProviderKey,
+                            LoginProvider = externalLoginInfo?.LoginProvider,
+                            ProviderKey = externalLoginInfo?.ProviderKey,
                             TenantId = user.TenantId
                         }
                     };

@@ -96,8 +96,6 @@
             dataType: 'html',
             success: function (content) {
                 $('#ProjectEditModal div.modal-content').html(content);
-            },
-            error: function (e) {
             }
         })
     });
