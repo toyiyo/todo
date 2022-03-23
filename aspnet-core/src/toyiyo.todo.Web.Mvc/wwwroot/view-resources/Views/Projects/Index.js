@@ -18,7 +18,16 @@
         listAction: {
             ajaxFunction: abp.services.app.project.getAll,
             inputFilter: function () {
-                return $('#ProjectsSearchForm').serializeFormToObject(true);
+                return {
+                    keyword: $('#ProjectsSearchForm input[type=search]').val()
+                }
+            },
+            dataFilter : function(data){
+                var json = jQuery.parseJSON( data );
+                json.recordsTotal = json.TotalCount;
+                json.recordsFiltered = json.TotalCount;
+                json.data = json.list;
+                return JSON.stringify( json );
             }
         },
         buttons: [
@@ -51,9 +60,6 @@
                     return [
                         `   <button type="button" class="btn btn-sm bg-secondary edit-project" data-project-id="${row.id}" data-toggle="modal" data-target="#ProjectEditModal">`,
                         `       <i class="fas fa-pencil-alt"></i> ${l('Edit')}`,
-                        '   </button>',
-                        `   <button type="button" class="btn btn-sm bg-danger delete-project" data-project-id="${row.id}" data-project-name="${row.name}">`,
-                        `       <i class="fas fa-trash"></i> ${l('Delete')}`,
                         '   </button>',
                     ].join('');
                 }

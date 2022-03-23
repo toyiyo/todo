@@ -19,21 +19,9 @@ namespace toyiyo.todo.Web.Controllers
 
         public IProjectAppService ProjectAppService { get; }
 
-        public async Task<ActionResult> IndexAsync()
-        {
-            var input = new GetAllProjectsInput()
-            {
-                MaxResultCount = 10,
-                SkipCount = 0
-            };
 
-            var projects = (await ProjectAppService.GetAll(input)).Items;
-            var model = new ProjectListViewModel()
-            {
-                Projects = projects
-            };
-            return View(model);
-        }
+
+        public async Task<IActionResult> Index() => View();
 
         public async Task<IActionResult> EditModal(Guid projectId)
         {
