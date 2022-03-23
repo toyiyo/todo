@@ -4,12 +4,14 @@ using toyiyo.todo.Authorization.Roles;
 using toyiyo.todo.Authorization.Users;
 using toyiyo.todo.MultiTenancy;
 using Abp.Localization;
+using toyiyo.todo.Projects;
 
 namespace toyiyo.todo.EntityFrameworkCore
 {
     public class todoDbContext : AbpZeroDbContext<Tenant, Role, User, todoDbContext>
     {
         /* Define a DbSet for each entity of the application */
+        public DbSet<Project> Projects { get; set; }
 
         public todoDbContext(DbContextOptions<todoDbContext> options)
             : base(options)

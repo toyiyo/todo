@@ -196,7 +196,7 @@ namespace toyiyo.todo.Web.Controllers
                 {
                     Debug.Assert(externalLoginInfo != null);
 
-                    if (string.Equals(externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Email), model.EmailAddress, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(externalLoginInfo?.Principal.FindFirstValue(ClaimTypes.Email), model.EmailAddress, StringComparison.OrdinalIgnoreCase))
                     {
                         user.IsEmailConfirmed = true;
                     }
@@ -205,8 +205,8 @@ namespace toyiyo.todo.Web.Controllers
                     {
                         new UserLogin
                         {
-                            LoginProvider = externalLoginInfo.LoginProvider,
-                            ProviderKey = externalLoginInfo.ProviderKey,
+                            LoginProvider = externalLoginInfo?.LoginProvider,
+                            ProviderKey = externalLoginInfo?.ProviderKey,
                             TenantId = user.TenantId
                         }
                     };
@@ -376,7 +376,7 @@ namespace toyiyo.todo.Web.Controllers
 
         public string GetAppHomeUrl()
         {
-            return Url.Action("Index", "About");
+            return Url.Action("Index", "Home");
         }
 
         #endregion

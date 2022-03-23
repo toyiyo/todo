@@ -15,19 +15,19 @@ namespace toyiyo.todo.Web.Startup
             context.Manager.MainMenu
                 .AddItem(
                     new MenuItemDefinition(
-                        PageNames.About,
-                        L("About"),
-                        url: "About",
-                        icon: "fas fa-info-circle"
-                    )
-                )
-                .AddItem(
-                    new MenuItemDefinition(
                         PageNames.Home,
                         L("HomePage"),
                         url: "",
                         icon: "fas fa-home",
                         requiresAuthentication: true
+                    )
+                ).AddItem(
+                    new MenuItemDefinition(
+                        PageNames.Projects,
+                        L("Projects"),
+                        url: "Projects",
+                        icon: "fas fa-list",
+                        permissionDependency: new SimplePermissionDependency(PermissionNames.Pages_Projects)
                     )
                 ).AddItem(
                     new MenuItemDefinition(
