@@ -1,4 +1,4 @@
-= Project Service canvas
+= Jobs Service canvas
 
 This canvas describes the `Job Service`
 
