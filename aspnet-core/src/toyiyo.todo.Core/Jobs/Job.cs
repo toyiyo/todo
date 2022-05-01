@@ -113,7 +113,7 @@ namespace toyiyo.todo.Jobs
         public static Job SetDueDate(Job job, DateTime dueDate, User user)
         {
             //validate parameters
-            if (job == null || dueDate == null || user == null)
+            if (job == null || dueDate == DateTime.MinValue || user == null)
             {
                 throw new ArgumentNullException(nameof(job) + " " + nameof(dueDate) + " " + nameof(user));
             }
