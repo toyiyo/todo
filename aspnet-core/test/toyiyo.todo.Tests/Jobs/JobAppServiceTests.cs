@@ -6,6 +6,7 @@ using toyiyo.todo.Sessions;
 using toyiyo.todo.Jobs;
 using Xunit;
 using static toyiyo.todo.Jobs.Job;
+using System;
 
 namespace toyiyo.todo.Tests.Jobs
 {
@@ -164,6 +165,23 @@ namespace toyiyo.todo.Tests.Jobs
 
             // Assert
             job2.JobStatus.ShouldBe(Status.Done);
+        }
+
+        [Fact]
+        public async Task SetDueDate_ReturnsJob()
+        {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var currentTenant = await GetCurrentTenantAsync();
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppServices.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job" });
+            var dueDate = DateTime.Now + TimeSpan.FromDays(1);
+            // Act
+            var job2 = await _jobAppServices.SetDueDate(new JobSetDueDateInputDto() { Id = job.Id, DueDate = dueDate });
+
+            // Assert
+            job2.DueDate.ShouldBe(dueDate);
+           
         }
     }
 }

@@ -62,5 +62,12 @@ namespace toyiyo.todo.Jobs
             await _jobManager.Update(job);
             return ObjectMapper.Map<JobDto>(job);
         }
+
+        public async Task<JobDto> SetDueDate(JobSetDueDateInputDto jobSetDueDateInputDto)
+        {
+            var job = Job.SetDueDate(await _jobManager.Get(jobSetDueDateInputDto.Id), jobSetDueDateInputDto.DueDate, await GetCurrentUserAsync());
+            await _jobManager.Update(job);
+            return ObjectMapper.Map<JobDto>(job);
+        }
     }
 }
