@@ -10,6 +10,7 @@
     <text name="EditProject" value="Edit project" />
     <text name="ProjectList" value="Project list" />
     <text name="ProjectDescription" value="Project description" />
+    <text name="Jobs" value="Jobs" />
     <text name="WelcomeMessage" value="Welcome to todo!" />
     <text name="FormIsNotValidMessage" value="Form is not valid. Please check and fix errors." />
     <text name="TenantNameCanNotBeEmpty" value="Tenant name can not be empty" />

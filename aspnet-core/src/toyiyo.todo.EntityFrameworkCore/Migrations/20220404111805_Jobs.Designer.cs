@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using toyiyo.todo.EntityFrameworkCore;
@@ -11,9 +12,10 @@ using toyiyo.todo.EntityFrameworkCore;
 namespace toyiyo.todo.Migrations
 {
     [DbContext(typeof(todoDbContext))]
-    partial class todoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220404111805_Jobs")]
+    partial class Jobs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1489,6 +1491,9 @@ namespace toyiyo.todo.Migrations
                     b.Property<bool>("IsTwoFactorEnabled")
                         .HasColumnType("boolean");
 
+                    b.Property<Guid?>("JobId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -1549,6 +1554,8 @@ namespace toyiyo.todo.Migrations
 
                     b.HasIndex("DeleterUserId");
 
+                    b.HasIndex("JobId");
+
                     b.HasIndex("LastModifierUserId");
 
                     b.HasIndex("TenantId", "NormalizedEmailAddress");
@@ -1558,7 +1565,7 @@ namespace toyiyo.todo.Migrations
                     b.ToTable("AbpUsers");
                 });
 
-            modelBuilder.Entity("toyiyo.todo.Jobs.Job", b =>
+            modelBuilder.Entity("toyiyo.todo.jobs.Job", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1616,8 +1623,6 @@ namespace toyiyo.todo.Migrations
                     b.HasIndex("AssigneeId");
 
                     b.HasIndex("OwnerId");
-
-                    b.HasIndex("ProjectId");
 
                     b.ToTable("Jobs");
                 });
@@ -1933,6 +1938,10 @@ namespace toyiyo.todo.Migrations
                         .WithMany()
                         .HasForeignKey("DeleterUserId");
 
+                    b.HasOne("toyiyo.todo.jobs.Job", null)
+                        .WithMany("Members")
+                        .HasForeignKey("JobId");
+
                     b.HasOne("toyiyo.todo.Authorization.Users.User", "LastModifierUser")
                         .WithMany()
                         .HasForeignKey("LastModifierUserId");
@@ -1944,7 +1953,7 @@ namespace toyiyo.todo.Migrations
                     b.Navigation("LastModifierUser");
                 });
 
-            modelBuilder.Entity("toyiyo.todo.Jobs.Job", b =>
+            modelBuilder.Entity("toyiyo.todo.jobs.Job", b =>
                 {
                     b.HasOne("toyiyo.todo.Authorization.Users.User", "Assignee")
                         .WithMany()
@@ -1954,17 +1963,9 @@ namespace toyiyo.todo.Migrations
                         .WithMany()
                         .HasForeignKey("OwnerId");
 
-                    b.HasOne("toyiyo.todo.Projects.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Assignee");
 
                     b.Navigation("Owner");
-
-                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("toyiyo.todo.MultiTenancy.Tenant", b =>
@@ -2063,6 +2064,11 @@ namespace toyiyo.todo.Migrations
                     b.Navigation("Settings");
 
                     b.Navigation("Tokens");
+                });
+
+            modelBuilder.Entity("toyiyo.todo.jobs.Job", b =>
+                {
+                    b.Navigation("Members");
                 });
 #pragma warning restore 612, 618
         }

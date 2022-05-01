@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using toyiyo.todo.EntityFrameworkCore;
@@ -11,9 +12,10 @@ using toyiyo.todo.EntityFrameworkCore;
 namespace toyiyo.todo.Migrations
 {
     [DbContext(typeof(todoDbContext))]
-    partial class todoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220411113211_LinkToProject")]
+    partial class LinkToProject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1489,6 +1491,9 @@ namespace toyiyo.todo.Migrations
                     b.Property<bool>("IsTwoFactorEnabled")
                         .HasColumnType("boolean");
 
+                    b.Property<Guid?>("JobId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -1548,6 +1553,8 @@ namespace toyiyo.todo.Migrations
                     b.HasIndex("CreatorUserId");
 
                     b.HasIndex("DeleterUserId");
+
+                    b.HasIndex("JobId");
 
                     b.HasIndex("LastModifierUserId");
 
@@ -1933,6 +1940,10 @@ namespace toyiyo.todo.Migrations
                         .WithMany()
                         .HasForeignKey("DeleterUserId");
 
+                    b.HasOne("toyiyo.todo.Jobs.Job", null)
+                        .WithMany("Members")
+                        .HasForeignKey("JobId");
+
                     b.HasOne("toyiyo.todo.Authorization.Users.User", "LastModifierUser")
                         .WithMany()
                         .HasForeignKey("LastModifierUserId");
@@ -2063,6 +2074,11 @@ namespace toyiyo.todo.Migrations
                     b.Navigation("Settings");
 
                     b.Navigation("Tokens");
+                });
+
+            modelBuilder.Entity("toyiyo.todo.Jobs.Job", b =>
+                {
+                    b.Navigation("Members");
                 });
 #pragma warning restore 612, 618
         }

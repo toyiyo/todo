@@ -48,7 +48,10 @@
                 data: 'title',
                 className: 'title',
                 defaultContent: '',
-                sortable: true
+                sortable: true,
+                fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
+                    $(nTd).html('<a href="' + 'Projects/' + oData.id + '/jobs' + '">' + sData + '</a>');
+                }
             },
             {
                 targets: 1,
