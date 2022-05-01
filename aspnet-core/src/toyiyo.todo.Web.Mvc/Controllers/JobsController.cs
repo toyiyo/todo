@@ -12,9 +12,9 @@ namespace toyiyo.todo.Web.Controllers
     [AbpMvcAuthorize]
     public class JobsController : todoControllerBase
     {
-        public JobsController(IJobAppService JobAppService)
+        public JobsController(IJobAppService jobAppService)
         {
-            JobAppService = JobAppService;
+            JobAppService = jobAppService;
         }
 
         public IJobAppService JobAppService { get; }
