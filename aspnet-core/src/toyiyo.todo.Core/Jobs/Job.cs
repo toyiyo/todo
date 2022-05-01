@@ -43,7 +43,7 @@ namespace toyiyo.todo.Jobs
         {
             if (title == null || user == null || tenantId <= 0 || project == null)
             {
-                throw new ArgumentNullException("project id, title, user and tenantId are required");
+                throw new ArgumentNullException(nameof(title) + " " + nameof(user) + " " + nameof(tenantId) + " " + nameof(project));
             }
 
             var job = new Job
@@ -70,7 +70,7 @@ namespace toyiyo.todo.Jobs
             //validate parameters
             if (job == null || title == null || user == null)
             {
-                throw new ArgumentNullException("job, title and user are required");
+                throw new ArgumentNullException(nameof(job) + " " + nameof(title) + " " + nameof(user));
             }
 
             job.Title = title;
@@ -85,7 +85,7 @@ namespace toyiyo.todo.Jobs
             //validate parameters
             if (job == null || description == null || user == null)
             {
-                throw new ArgumentNullException("job, description and user are required");
+                throw new ArgumentNullException(nameof(job) + " " + nameof(description) + " " + nameof(user));
             }
 
             job.Description = description;
@@ -100,7 +100,7 @@ namespace toyiyo.todo.Jobs
             //validate parameters
             if (job == null || user == null)
             {
-                throw new ArgumentNullException("job, status and user are required");
+                throw new ArgumentNullException(nameof(job) + " " + nameof(user));
             }
 
             job.JobStatus = status;
@@ -115,12 +115,12 @@ namespace toyiyo.todo.Jobs
             //validate parameters
             if (job == null || dueDate == null || user == null)
             {
-                throw new ArgumentNullException("job, dueDate and user are required");
+                throw new ArgumentNullException(nameof(job) + " " + nameof(dueDate) + " " + nameof(user));
             }
 
             if (dueDate < DateTime.Now)
             {
-                throw new ArgumentOutOfRangeException("dueDate must be in the future");
+                throw new ArgumentOutOfRangeException(nameof(dueDate));
             }
 
             job.DueDate = dueDate;
