@@ -24,6 +24,7 @@ namespace toyiyo.todo.Web.Controllers
         public async Task<IActionResult> Index(Guid id)
         {
             //var output = await JobAppService.GetAll(new EntityDto(id));
+            ViewBag.ProjectId = id;
             return View();
         }
 
