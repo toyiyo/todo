@@ -39,13 +39,26 @@
         columnDefs: [
             {
                 targets: 0,
-                data: 'title',
-                className: 'title',
+                data: null,
                 defaultContent: '',
                 sortable: false,
+                render: (data, type, row, meta) => {
+                    if (row.jobStatus != 0) {
+                        return `<i class="far fa-check-circle fa-2x job-status" data-job-status="${row.jobStatus}" data-job-id="${row.id}"></i>`;
+                    } else {
+                        return `<i class="far fa-circle fa-2x job-status" data-job-status="${row.jobStatus}" data-job-id="${row.id}"></i>`;
+                    }
+                }
             },
             {
                 targets: 1,
+                data: 'title',
+                className: 'title',
+                defaultContent: '',
+                sortable: false
+            },
+            {
+                targets: 2,
                 data: null,
                 sortable: false,
                 autoWidth: false,
@@ -53,7 +66,7 @@
                 render: (data, type, row, meta) => {
                     return [
                         `   <button type="button" class="btn btn-sm bg-secondary edit-job" data-job-id="${row.id}" data-toggle="modal" data-target="#JobEditModal">`,
-                        `       <i class="fas fa-pencil-alt"></i> ${l('Edit')}`,
+                        `       <i class="fas fa-pencil-alt"></i>`,
                         '   </button>',
                     ].join('');
                 }
@@ -86,6 +99,27 @@
             });
     });
 
+    //update job status
+        $(document).on('click', '.job-status', function (e) {
+        var jobId = $(this).attr("data-job-id");
+        var currentJobStatus = $(this).attr("data-job-status");
+        var newJobStatus = currentJobStatus == 0 ? 2 : 0;
+        var JobSetStatusInputDto = {
+            id: jobId,
+            jobStatus: newJobStatus
+        }
+
+        e.preventDefault();
+        _jobService
+            .setStatus(JobSetStatusInputDto)
+            .done(function () {
+                abp.notify.info(l('SavedSuccessfully'));
+                abp.event.trigger('job.edited', JobSetStatusInputDto);
+            })
+            .always(function () {
+                abp.ui.clearBusy(_$modal);
+            });
+    });
 
     $(document).on('click', '.edit-job', function (e) {
         var jobId = $(this).attr("data-job-id");

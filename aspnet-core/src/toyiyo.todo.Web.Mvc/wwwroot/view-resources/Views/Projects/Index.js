@@ -78,7 +78,6 @@
         }
 
         var project = _$form.serializeFormToObject();
-        project.grantedPermissions = [];
 
         abp.ui.setBusy(_$modal);
         _projectService
