@@ -16,12 +16,12 @@
                     projectId: $('#ProjectId').val()
                 }
             },
-            dataFilter : function(data){
-                var json = jQuery.parseJSON( data );
+            dataFilter: function (data) {
+                var json = jQuery.parseJSON(data);
                 json.recordsTotal = json.TotalCount;
                 json.recordsFiltered = json.TotalCount;
                 json.data = json.list;
-                return JSON.stringify( json );
+                return JSON.stringify(json);
             }
         },
         buttons: [
@@ -75,7 +75,7 @@
     });
 
 
-    _$form.submit( (e) => {
+    _$form.submit((e) => {
         e.preventDefault();
 
         if (!_$form.valid()) {
@@ -100,7 +100,7 @@
     });
 
     //update job status
-        $(document).on('click', '.job-status', function (e) {
+    $(document).on('click', '.job-status', function (e) {
         var jobId = $(this).attr("data-job-id");
         var currentJobStatus = $(this).attr("data-job-status");
         var newJobStatus = currentJobStatus == 0 ? 2 : 0;
@@ -136,7 +136,10 @@
     });
 
     abp.event.on('job.edited', (data) => {
-        _$jobsTable.ajax.reload();
+        //since we have HTML rather than object data (how do we get the object data?), we need to query the server again and refresh the row
+        _jobService.get(data.id).done(function (result) {
+            _$table.dataTable().fnUpdate(result, $(`i[data-job-id=${data.id}]`).parents('tr')[0], undefined, false);
+        })
     });
 
     _$modal.on('shown.bs.modal', () => {
