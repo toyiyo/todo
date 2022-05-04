@@ -6,7 +6,7 @@
 }
 @await Html.PartialAsync("~/Views/Shared/Modals/_ModalHeader.cshtml", new ModalHeaderViewModel(L("EditJob")))
 <form name="JobEditForm" role="form" class="form-horizontal">
-    <input type="hidden" name="Id" value="@Model.Id" />
+    <input type="hidden" name="id" value="@Model.Id" />
     <div class="modal-body">
         <div class="form-group row required">
             <label class="col-md-3 col-form-label" for="title">@L("JobTitle")</label>
