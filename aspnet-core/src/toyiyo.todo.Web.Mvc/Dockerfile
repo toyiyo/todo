@@ -3,12 +3,16 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
 WORKDIR /app
 COPY . .
 
-# Restore as distinct layers
-WORKDIR /app/aspnet-core/src/toyiyo.todo.Web.Mvc
 # install libman library
 RUN dotnet tool install -g Microsoft.Web.LibraryManager.Cli
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+# Restore as distinct layers
+WORKDIR /app/aspnet-core/src/toyiyo.todo.Web.Mvc
+
 # restore dependencies
-RUN dotnet restore && libman restore
+RUN dotnet restore
+RUN libman restore
 
 # Build and publish a release
 WORKDIR /app
