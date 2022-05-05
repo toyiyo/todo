@@ -128,6 +128,12 @@
     ]
   },
   {
+    "outputFileName": "wwwroot/view-resources/Views/Jobs/Index.min.js",
+    "inputFiles": [
+      "wwwroot/view-resources/Views/Jobs/Index.js"
+    ]
+  },
+  {
     "outputFileName": "wwwroot/view-resources/Views/Account/Login.min.js",
     "inputFiles": [
       "wwwroot/view-resources/Views/Account/Login.js"
