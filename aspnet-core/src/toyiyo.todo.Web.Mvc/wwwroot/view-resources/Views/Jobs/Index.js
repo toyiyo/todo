@@ -8,6 +8,7 @@
     var _$jobsTable = _$table.DataTable({
         paging: false,
         serverSide: true,
+        length: 100,
         listAction: {
             ajaxFunction: abp.services.app.job.getAll,
             inputFilter: function () {
@@ -24,13 +25,7 @@
                 return JSON.stringify(json);
             }
         },
-        buttons: [
-            {
-                name: 'refresh',
-                text: '<i class="fas fa-redo-alt"></i>',
-                action: () => _$jobsTable.draw(false)
-            }
-        ],
+        buttons: [],
         responsive: {
             details: {
                 type: 'column'
