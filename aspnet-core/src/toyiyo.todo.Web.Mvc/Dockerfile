@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
 
-WORKDIR /app
+WORKDIR /aspnet-core/src/toyiyo.todo.Web.Mvc
 COPY . .
 
 RUN dotnet tool install -g Microsoft.Web.LibraryManager.Cli
