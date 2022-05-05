@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using Abp.Authorization.Users;
 using Abp.Extensions;
+using toyiyo.todo.Jobs;
 
 namespace toyiyo.todo.Authorization.Users
 {
     public class User : AbpUser<User>
     {
         public const string DefaultPassword = "123qwe";
+        /* EF Relations */
+        //public virtual ICollection<Job> Jobs { get; protected set; }
 
         public static string CreateRandomPassword()
         {

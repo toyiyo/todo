@@ -48,7 +48,10 @@
                 data: 'title',
                 className: 'title',
                 defaultContent: '',
-                sortable: true
+                sortable: true,
+                fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
+                    $(nTd).html('<a href="' + 'Projects/' + oData.id + '/jobs' + '">' + sData + '</a>');
+                }
             },
             {
                 targets: 1,
@@ -75,7 +78,6 @@
         }
 
         var project = _$form.serializeFormToObject();
-        project.grantedPermissions = [];
 
         abp.ui.setBusy(_$modal);
         _projectService

@@ -5,6 +5,7 @@ using toyiyo.todo.Authorization.Users;
 using toyiyo.todo.MultiTenancy;
 using Abp.Localization;
 using toyiyo.todo.Projects;
+using toyiyo.todo.Jobs;
 
 namespace toyiyo.todo.EntityFrameworkCore
 {
@@ -12,6 +13,7 @@ namespace toyiyo.todo.EntityFrameworkCore
     {
         /* Define a DbSet for each entity of the application */
         public DbSet<Project> Projects { get; set; }
+        public DbSet<Job> Jobs { get; set; }
 
         public todoDbContext(DbContextOptions<todoDbContext> options)
             : base(options)

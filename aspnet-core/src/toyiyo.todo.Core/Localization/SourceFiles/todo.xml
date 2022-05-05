@@ -10,6 +10,7 @@
     <text name="EditProject" value="Edit project" />
     <text name="ProjectList" value="Project list" />
     <text name="ProjectDescription" value="Project description" />
+    <text name="Jobs" value="Jobs" />
     <text name="WelcomeMessage" value="Welcome to todo!" />
     <text name="FormIsNotValidMessage" value="Form is not valid. Please check and fix errors." />
     <text name="TenantNameCanNotBeEmpty" value="Tenant name can not be empty" />
@@ -124,5 +125,7 @@
     <text name="ResetPasswordStepOneInfo">1. Enter your administrator password</text>
     <text name="ResetPasswordStepTwoInfo">2. Copy this random password so you can send it to the user</text>
     <text name="UsersActivation">Users activation</text>
+    <text name="AddNew">Add New</text>
+    <text name="Add">Add</text>
   </texts>
 </localizationDictionary>

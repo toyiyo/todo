@@ -13,6 +13,7 @@ namespace toyiyo.todo.Authorization
             context.CreatePermission(PermissionNames.Pages_Roles, L("Roles"));
             context.CreatePermission(PermissionNames.Pages_Tenants, L("Tenants"), multiTenancySides: MultiTenancySides.Host);
             context.CreatePermission(PermissionNames.Pages_Projects, L("Projects"), multiTenancySides: MultiTenancySides.Tenant);
+            context.CreatePermission(PermissionNames.Pages_Jobs, L("Jobs"), multiTenancySides: MultiTenancySides.Tenant);
         }
 
         private static ILocalizableString L(string name)
