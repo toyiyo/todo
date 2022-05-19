@@ -12,7 +12,7 @@ namespace toyiyo.todo.Jobs
         Task<PagedResultDto<JobDto>> GetAll(GetAllJobsInput input);
         Task<JobDto> SetTitle(JobSetTitleInputDto input);
         Task<JobDto> SetDescription(JobSetDescriptionInputDto jobSetDescriptionInputDto);
-        Task<JobDto> SetStatus(JobSetStatusInputDto jobSetStatusInputDto);
+        Task<JobDto> SetJobStatus(JobSetStatusInputDto jobSetStatusInputDto);
         Task<JobDto> SetDueDate(JobSetDueDateInputDto jobSetDueDateInputDto);
     }
 }

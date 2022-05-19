@@ -59,6 +59,26 @@ namespace toyiyo.todo.Tests.Jobs
         }
 
         [Fact]
+        public async Task GetAllJobs_FilterByJobStatus()
+        {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var currentTenant = await GetCurrentTenantAsync();
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppServices.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job" });
+            await _jobAppServices.SetJobStatus(new JobSetStatusInputDto() { Id = job.Id, JobStatus = Status.Done });
+
+            // Act
+            var openJobs = await _jobAppServices.GetAll(new GetAllJobsInput() { JobStatus = Status.Open });
+            var doneJobs = await _jobAppServices.GetAll(new GetAllJobsInput() { JobStatus = Status.Done });
+
+            // Assert
+            doneJobs.Items.Count.ShouldBe(1);
+            doneJobs.Items.First().Id.ShouldBe(job.Id);
+            openJobs.Items.Count.ShouldBe(0);
+        }
+
+        [Fact]
         public async Task GetAllJobs_ReturnsJobsSortedByCreateDateDesc()
         {
             // Arrange
@@ -161,7 +181,7 @@ namespace toyiyo.todo.Tests.Jobs
             var job = await _jobAppServices.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job" });
 
             // Act
-            var job2 = await _jobAppServices.SetStatus(new JobSetStatusInputDto() { Id = job.Id, JobStatus = Status.Done });
+            var job2 = await _jobAppServices.SetJobStatus(new JobSetStatusInputDto() { Id = job.Id, JobStatus = Status.Done });
 
             // Assert
             job2.JobStatus.ShouldBe(Status.Done);

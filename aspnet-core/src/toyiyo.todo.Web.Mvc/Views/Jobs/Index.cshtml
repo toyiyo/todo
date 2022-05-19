@@ -14,6 +14,7 @@
     </environment>
 }
 <input type="hidden" name="ProjectId" id="ProjectId" value="@ViewBag.ProjectId" />
+<input type="hidden" name="SelectedJobStatus" id="SelectedJobStatus" value="0" />
 <section class="content-header">
     <div class="container-fluid">
         <div class="row">
@@ -52,6 +53,27 @@
                                     </form>
                             </div>
                         </div>
+                        <div>
+                            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link active job-status-filter" id="pills-home-tab" data-job-status-filter="0" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Home</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link job-status-filter" id="pills-profile-tab" data-job-status-filter="1" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Profile</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link job-status-filter" id="pills-contact-tab" data-job-status-filter="2" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Contact</a>
+                                </li>
+                            </ul>
+                        </div>
+@* <div class="tab-content" id="pills-tabContent">
+      <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">home</div>
+      <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">profile</div>
+      <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">contact</div>
+    </div> *@
+
+                        <!--introduce navivation for different statuses https://getbootstrap.com/docs/4.6/components/navs/#javascript-behavior-->
+                        <!--update from table to listgroup https://getbootstrap.com/docs/5.1/components/list-group/#checkboxes-and-radios-->
                         <div class="table-responsive">
                             <table id="JobsTable" class="table">
                                 <tbody></tbody>

@@ -14,7 +14,8 @@
             inputFilter: function () {
                 return {
                     keyword: $('#JobsSearchForm input[type=search]').val(),
-                    projectId: $('#ProjectId').val()
+                    jobStatus: $('#SelectedJobStatus').val(),
+                    projectId: $('#ProjectId').val(),                    
                 }
             },
             dataFilter: function (data) {
@@ -69,7 +70,7 @@
         ]
     });
 
-
+    //create job
     _$form.submit((e) => {
         e.preventDefault();
 
@@ -106,7 +107,7 @@
 
         e.preventDefault();
         _jobService
-            .setStatus(JobSetStatusInputDto)
+            .setJobStatus(JobSetStatusInputDto)
             .done(function () {
                 abp.notify.info(l('SavedSuccessfully'));
                 abp.event.trigger('job.edited', JobSetStatusInputDto);
@@ -116,6 +117,13 @@
             });
     });
 
+    //handle filtering by job status
+    $(document).on('click', '.job-status-filter', function (e) {
+        $('#SelectedJobStatus').val($(this).attr('data-job-status-filter'));
+        _$jobsTable.ajax.reload();
+    });
+    
+    //edit job
     $(document).on('click', '.edit-job', function (e) {
         var jobId = $(this).attr("data-job-id");
 
