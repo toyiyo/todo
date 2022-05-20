@@ -140,9 +140,10 @@
 
     abp.event.on('job.edited', (data) => {
         //since we have HTML rather than object data (how do we get the object data?), we need to query the server again and refresh the row
-        _jobService.get(data.id).done(function (result) {
-            _$table.dataTable().fnUpdate(result, $(`i[data-job-id=${data.id}]`).parents('tr')[0], undefined, false);
-        })
+        // _jobService.get(data.id).done(function (result) {
+        //     _$table.dataTable().fnUpdate(result, $(`i[data-job-id=${data.id}]`).parents('tr')[0], undefined, false);
+        // })
+        _$jobsTable.ajax.reload();
     });
 
     _$modal.on('shown.bs.modal', () => {
