@@ -41,7 +41,7 @@
                 width: '1em',
                 render: (data, type, row, meta) => {
                     if (row.jobStatus != 0) {
-                        return `<i class="far fa-check-circle fa-2x job-status" data-job-status="${row.jobStatus}" data-job-id="${row.id}" data-toggle="tooltip" data-placement="bottom" title="Send to Backlog"></i>`;
+                        return `<i class="fas fa-check-circle fa-2x job-status" data-job-status="${row.jobStatus}" data-job-id="${row.id}" data-toggle="tooltip" data-placement="bottom" title="Send to Backlog"></i>`;
                     } else {
                         return `<i class="far fa-circle fa-2x job-status" data-job-status="${row.jobStatus}" data-job-id="${row.id}" data-toggle="tooltip" data-placement="bottom" title="Mark as complete"></i>`;
                     }
