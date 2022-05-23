@@ -15,7 +15,7 @@
                 return {
                     keyword: $('#JobsSearchForm input[type=search]').val(),
                     jobStatus: $('#SelectedJobStatus').val(),
-                    projectId: $('#ProjectId').val(),                    
+                    projectId: $('#ProjectId').val()                  
                 }
             },
             dataFilter: function (data) {
@@ -38,11 +38,12 @@
                 data: null,
                 defaultContent: '',
                 sortable: false,
+                width: '1em',
                 render: (data, type, row, meta) => {
                     if (row.jobStatus != 0) {
-                        return `<i class="far fa-check-circle fa-2x job-status" data-job-status="${row.jobStatus}" data-job-id="${row.id}"></i>`;
+                        return `<i class="far fa-check-circle fa-2x job-status" data-job-status="${row.jobStatus}" data-job-id="${row.id}" data-toggle="tooltip" data-placement="bottom" title="Send to Backlog"></i>`;
                     } else {
-                        return `<i class="far fa-circle fa-2x job-status" data-job-status="${row.jobStatus}" data-job-id="${row.id}"></i>`;
+                        return `<i class="far fa-circle fa-2x job-status" data-job-status="${row.jobStatus}" data-job-id="${row.id}" data-toggle="tooltip" data-placement="bottom" title="Mark as complete"></i>`;
                     }
                 }
             },
@@ -59,6 +60,7 @@
                 sortable: false,
                 autoWidth: false,
                 defaultContent: '',
+                width: '1em',
                 render: (data, type, row, meta) => {
                     return [
                         `   <button type="button" class="btn btn-sm bg-secondary edit-job" data-job-id="${row.id}" data-toggle="modal" data-target="#JobEditModal">`,
@@ -115,6 +117,25 @@
             .always(function () {
                 abp.ui.clearBusy(_$modal);
             });
+    });
+
+
+    //on hover for job-status, update the icon to a checkmark
+    $(document).on('mouseenter', '.job-status', function (e) {
+        var jobStatus = $(this).attr("data-job-status");
+        if (jobStatus == 0) {
+            $(this).removeClass("far fa-circle");
+            $(this).addClass("fas fa-check-circle");
+        }
+    });
+
+    //on hover for job-status, update the icon to a circle
+    $(document).on('mouseleave', '.job-status', function (e) {
+        var jobStatus = $(this).attr("data-job-status");
+        if (jobStatus == 0) {
+            $(this).removeClass("fas fa-check-circle");
+            $(this).addClass("far fa-circle");
+        }
     });
 
     //handle filtering by job status
