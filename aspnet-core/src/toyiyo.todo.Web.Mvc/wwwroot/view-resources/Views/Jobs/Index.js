@@ -6,9 +6,9 @@
         _$table = $('#JobsTable');
 
     var _$jobsTable = _$table.DataTable({
-        paging: false,
+        paging: true,
         serverSide: true,
-        length: 100,
+        lengthMenu: [ [25, 50, 2147483647], [25, 50, "All"] ],
         listAction: {
             ajaxFunction: abp.services.app.job.getAll,
             inputFilter: function () {
