@@ -5,6 +5,10 @@
         _$form = $('#JobCreateForm'),
         _$table = $('#JobsTable');
         
+        const backlogFavicon = 'far fa-circle';
+        const inProgressFavicon = 'fa fa-spinner';
+        const doneFavicon = 'far fa-check-circle';
+
         const getStatusDropdown =  function(jobStatus, id, favicon){
            return `<div class="dropdown show">
         <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -12,9 +16,9 @@
         </a>
       
         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-            <a class="dropdown-item fas fa-circle" selected-job-status=0 href="#"> Backlog</a>
-            <a class="dropdown-item fas fa-spinner" selected-job-status=1 href="#"> In progress</a>
-            <a class="dropdown-item far fa-check-circle" selected-job-status=2 href="#"> Done</a>
+            <a class="dropdown-item ${backlogFavicon}" selected-job-status=0 href="#"> Backlog</a>
+            <a class="dropdown-item ${inProgressFavicon}" selected-job-status=1 href="#"> In progress</a>
+            <a class="dropdown-item far ${doneFavicon}" selected-job-status=2 href="#"> Done</a>
         </div>
       </div>`
         }
@@ -55,11 +59,11 @@
                 width: '1em',
                 render: (data, type, row, meta) => {
                     if (row.jobStatus === 2) {
-                        return getStatusDropdown(row.jobStatus, row.id, 'far fa-check-circle');
+                        return getStatusDropdown(row.jobStatus, row.id, doneFavicon);
                     } else if (row.jobStatus === 1) {
-                        return getStatusDropdown(row.jobStatus, row.id, 'fa-duotone fa-spinner');
+                        return getStatusDropdown(row.jobStatus, row.id, inProgressFavicon);
                     } else if (row.jobStatus === 0) { 
-                        return getStatusDropdown(row.jobStatus, row.id, 'far fa-circle');
+                        return getStatusDropdown(row.jobStatus, row.id, backlogFavicon);
                     }
                 }
             },
