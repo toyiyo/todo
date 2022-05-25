@@ -4,6 +4,20 @@
         _$modal = $('#JobCreateModal'),
         _$form = $('#JobCreateForm'),
         _$table = $('#JobsTable');
+        
+        const getStatusDropdown =  function(jobStatus, id, favicon){
+           return `<div class="dropdown show">
+        <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="${favicon} fa-2x job-status" data-job-status="${jobStatus}" data-job-id="${id}"></i>
+        </a>
+      
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <a class="dropdown-item fas fa-circle" selected-job-status=0 href="#"> Backlog</a>
+            <a class="dropdown-item fas fa-spinner" selected-job-status=1 href="#"> In progress</a>
+            <a class="dropdown-item far fa-check-circle" selected-job-status=2 href="#"> Done</a>
+        </div>
+      </div>`
+        }
 
     var _$jobsTable = _$table.DataTable({
         paging: true,
@@ -40,10 +54,12 @@
                 sortable: false,
                 width: '1em',
                 render: (data, type, row, meta) => {
-                    if (row.jobStatus != 0) {
-                        return `<i class="fas fa-check-circle fa-2x job-status" data-job-status="${row.jobStatus}" data-job-id="${row.id}" data-toggle="tooltip" data-placement="bottom" title="Send to Backlog"></i>`;
-                    } else {
-                        return `<i class="far fa-circle fa-2x job-status" data-job-status="${row.jobStatus}" data-job-id="${row.id}" data-toggle="tooltip" data-placement="bottom" title="Mark as complete"></i>`;
+                    if (row.jobStatus === 2) {
+                        return getStatusDropdown(row.jobStatus, row.id, 'far fa-check-circle');
+                    } else if (row.jobStatus === 1) {
+                        return getStatusDropdown(row.jobStatus, row.id, 'fa-duotone fa-spinner');
+                    } else if (row.jobStatus === 0) { 
+                        return getStatusDropdown(row.jobStatus, row.id, 'far fa-circle');
                     }
                 }
             },
@@ -98,10 +114,11 @@
     });
 
     //update job status
-    $(document).on('click', '.job-status', function (e) {
-        var jobId = $(this).attr("data-job-id");
-        var currentJobStatus = $(this).attr("data-job-status");
-        var newJobStatus = currentJobStatus == 0 ? 2 : 0;
+    $(document).on('click', '.dropdown-item', function (e) {
+        //re-think this selector
+        var jobId = $(this).parent().parent().find("i.job-status").attr("data-job-id");
+        var newJobStatus = $(this).attr("selected-job-status");
+
         var JobSetStatusInputDto = {
             id: jobId,
             jobStatus: newJobStatus
@@ -117,25 +134,6 @@
             .always(function () {
                 abp.ui.clearBusy(_$modal);
             });
-    });
-
-
-    //on hover for job-status, update the icon to a checkmark
-    $(document).on('mouseenter', '.job-status', function (e) {
-        var jobStatus = $(this).attr("data-job-status");
-        if (jobStatus == 0) {
-            $(this).removeClass("far fa-circle");
-            $(this).addClass("fas fa-check-circle");
-        }
-    });
-
-    //on hover for job-status, update the icon to a circle
-    $(document).on('mouseleave', '.job-status', function (e) {
-        var jobStatus = $(this).attr("data-job-status");
-        if (jobStatus == 0) {
-            $(this).removeClass("fas fa-check-circle");
-            $(this).addClass("far fa-circle");
-        }
     });
 
     //handle filtering by job status
