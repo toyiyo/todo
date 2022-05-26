@@ -74,7 +74,7 @@ namespace toyiyo.todo.Tests.Jobs
 
             // Assert
             doneJobs.Items.Count.ShouldBe(1);
-            doneJobs.Items.First().Id.ShouldBe(job.Id);
+            doneJobs.Items[0].Id.ShouldBe(job.Id);
             openJobs.Items.Count.ShouldBe(0);
         }
 

@@ -141,7 +141,7 @@
     });
 
     //handle filtering by job status
-    $(document).on('click', '.job-status-filter', function (e) {
+    $(document).on('click', '.job-status-filter', function (_e) {
         $('#SelectedJobStatus').val($(this).attr('data-job-status-filter'));
         _$jobsTable.ajax.reload();
     });
@@ -161,7 +161,7 @@
         })
     });
 
-    abp.event.on('job.edited', (data) => {
+    abp.event.on('job.edited', (_data) => {
         //since we have HTML rather than object data (how do we get the object data?), we need to query the server again and refresh the row
         // _jobService.get(data.id).done(function (result) {
         //     _$table.dataTable().fnUpdate(result, $(`i[data-job-id=${data.id}]`).parents('tr')[0], undefined, false);

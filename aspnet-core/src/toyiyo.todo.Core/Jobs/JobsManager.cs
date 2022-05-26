@@ -35,7 +35,7 @@ namespace toyiyo.todo.Jobs
             return await _jobRepository.GetAll()
             .WhereIf(!input.ProjectId.Equals(Guid.Empty), x => x.Project.Id == input.ProjectId)
             .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), p => p.Title.ToUpper().Contains(input.Keyword.ToUpper()))
-            .WhereIf(!(input.JobStatus == null), p => p.JobStatus == input.JobStatus)
+            .WhereIf(input.JobStatus != null, p => p.JobStatus == input.JobStatus)
             .Include(p => p.Project)
             .Include(p => p.Assignee)
             //.Include(p => p.Members)
