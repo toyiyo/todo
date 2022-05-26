@@ -4,17 +4,36 @@
         _$modal = $('#JobCreateModal'),
         _$form = $('#JobCreateForm'),
         _$table = $('#JobsTable');
+        
+        const backlogFavicon = 'far fa-circle';
+        const inProgressFavicon = 'fa fa-spinner';
+        const doneFavicon = 'far fa-check-circle';
+
+        const getStatusDropdown =  function(jobStatus, id, favicon){
+           return `<div class="dropdown show">
+        <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="${favicon} fa-2x job-status" data-job-status="${jobStatus}" data-job-id="${id}"></i>
+        </a>
+      
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <a class="dropdown-item ${backlogFavicon}" selected-job-status=0 href="#"> Backlog</a>
+            <a class="dropdown-item ${inProgressFavicon}" selected-job-status=1 href="#"> In progress</a>
+            <a class="dropdown-item far ${doneFavicon}" selected-job-status=2 href="#"> Done</a>
+        </div>
+      </div>`
+        }
 
     var _$jobsTable = _$table.DataTable({
-        paging: false,
+        paging: true,
         serverSide: true,
-        length: 100,
+        lengthMenu: [ [25, 50, 2147483647], [25, 50, "All"] ],
         listAction: {
             ajaxFunction: abp.services.app.job.getAll,
             inputFilter: function () {
                 return {
                     keyword: $('#JobsSearchForm input[type=search]').val(),
-                    projectId: $('#ProjectId').val()
+                    jobStatus: $('#SelectedJobStatus').val(),
+                    projectId: $('#ProjectId').val()                  
                 }
             },
             dataFilter: function (data) {
@@ -37,11 +56,14 @@
                 data: null,
                 defaultContent: '',
                 sortable: false,
+                width: '1em',
                 render: (data, type, row, meta) => {
-                    if (row.jobStatus != 0) {
-                        return `<i class="far fa-check-circle fa-2x job-status" data-job-status="${row.jobStatus}" data-job-id="${row.id}"></i>`;
-                    } else {
-                        return `<i class="far fa-circle fa-2x job-status" data-job-status="${row.jobStatus}" data-job-id="${row.id}"></i>`;
+                    if (row.jobStatus === 2) {
+                        return getStatusDropdown(row.jobStatus, row.id, doneFavicon);
+                    } else if (row.jobStatus === 1) {
+                        return getStatusDropdown(row.jobStatus, row.id, inProgressFavicon);
+                    } else if (row.jobStatus === 0) { 
+                        return getStatusDropdown(row.jobStatus, row.id, backlogFavicon);
                     }
                 }
             },
@@ -58,6 +80,7 @@
                 sortable: false,
                 autoWidth: false,
                 defaultContent: '',
+                width: '1em',
                 render: (data, type, row, meta) => {
                     return [
                         `   <button type="button" class="btn btn-sm bg-secondary edit-job" data-job-id="${row.id}" data-toggle="modal" data-target="#JobEditModal">`,
@@ -69,7 +92,7 @@
         ]
     });
 
-
+    //create job
     _$form.submit((e) => {
         e.preventDefault();
 
@@ -95,10 +118,11 @@
     });
 
     //update job status
-    $(document).on('click', '.job-status', function (e) {
-        var jobId = $(this).attr("data-job-id");
-        var currentJobStatus = $(this).attr("data-job-status");
-        var newJobStatus = currentJobStatus == 0 ? 2 : 0;
+    $(document).on('click', '.dropdown-item', function (e) {
+        //re-think this selector
+        var jobId = $(this).parent().parent().find("i.job-status").attr("data-job-id");
+        var newJobStatus = $(this).attr("selected-job-status");
+
         var JobSetStatusInputDto = {
             id: jobId,
             jobStatus: newJobStatus
@@ -106,7 +130,7 @@
 
         e.preventDefault();
         _jobService
-            .setStatus(JobSetStatusInputDto)
+            .setJobStatus(JobSetStatusInputDto)
             .done(function () {
                 abp.notify.info(l('SavedSuccessfully'));
                 abp.event.trigger('job.edited', JobSetStatusInputDto);
@@ -116,6 +140,13 @@
             });
     });
 
+    //handle filtering by job status
+    $(document).on('click', '.job-status-filter', function (_e) {
+        $('#SelectedJobStatus').val($(this).attr('data-job-status-filter'));
+        _$jobsTable.ajax.reload();
+    });
+    
+    //edit job
     $(document).on('click', '.edit-job', function (e) {
         var jobId = $(this).attr("data-job-id");
 
@@ -130,11 +161,12 @@
         })
     });
 
-    abp.event.on('job.edited', (data) => {
+    abp.event.on('job.edited', (_data) => {
         //since we have HTML rather than object data (how do we get the object data?), we need to query the server again and refresh the row
-        _jobService.get(data.id).done(function (result) {
-            _$table.dataTable().fnUpdate(result, $(`i[data-job-id=${data.id}]`).parents('tr')[0], undefined, false);
-        })
+        // _jobService.get(data.id).done(function (result) {
+        //     _$table.dataTable().fnUpdate(result, $(`i[data-job-id=${data.id}]`).parents('tr')[0], undefined, false);
+        // })
+        _$jobsTable.ajax.reload();
     });
 
     _$modal.on('shown.bs.modal', () => {

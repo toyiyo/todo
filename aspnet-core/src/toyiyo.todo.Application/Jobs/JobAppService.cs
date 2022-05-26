@@ -48,7 +48,7 @@ namespace toyiyo.todo.Jobs
             return ObjectMapper.Map<JobDto>(job);
         }
 
-        public async Task<JobDto> SetStatus(JobSetStatusInputDto jobSetStatusInputDto)
+        public async Task<JobDto> SetJobStatus(JobSetStatusInputDto jobSetStatusInputDto)
         {
             var job = Job.SetStatus(await _jobManager.Get(jobSetStatusInputDto.Id), jobSetStatusInputDto.JobStatus, await GetCurrentUserAsync());
             await _jobManager.Update(job);

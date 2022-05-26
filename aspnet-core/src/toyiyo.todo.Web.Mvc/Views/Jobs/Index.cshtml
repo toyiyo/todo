@@ -14,6 +14,7 @@
     </environment>
 }
 <input type="hidden" name="ProjectId" id="ProjectId" value="@ViewBag.ProjectId" />
+<input type="hidden" name="SelectedJobStatus" id="SelectedJobStatus" value="0" />
 <section class="content-header">
     <div class="container-fluid">
         <div class="row">
@@ -52,6 +53,23 @@
                                     </form>
                             </div>
                         </div>
+                    <div class="p-2 mx-4 border-black-25 border-bottom"></div>
+                        <div class="row m-1 p-3  justify-content-end">
+                            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link active job-status-filter" id="pills-backlog-tab" data-job-status-filter="0" data-toggle="pill" href="#pills-backlog" role="tab" aria-controls="pills-backlog" aria-selected="true">Backlog</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link job-status-filter" id="pills-in progress-tab" data-job-status-filter="1" data-toggle="pill" href="#pills-in-progress" role="tab" aria-controls="pills-in-progress" aria-selected="false">In progress</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link job-status-filter" id="pills-done-tab" data-job-status-filter="2" data-toggle="pill" href="#pills-done" role="tab" aria-controls="pills-done" aria-selected="false">Done</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!--introduce navivation for different statuses https://getbootstrap.com/docs/4.6/components/navs/#javascript-behavior-->
+                        <!--update from table to listgroup https://getbootstrap.com/docs/5.1/components/list-group/#checkboxes-and-radios-->
                         <div class="table-responsive">
                             <table id="JobsTable" class="table">
                                 <tbody></tbody>
@@ -66,6 +84,7 @@
 </section>
 
 @await Html.PartialAsync("~/Views/Jobs/_CreateModal.cshtml", Model)
+
 
 <div class="modal fade" id="JobEditModal" tabindex="-1" role="dialog" aria-labelledby="JobEditModalLabel" data-backdrop="static">
     <div class="modal-dialog modal-lg" role="document">
