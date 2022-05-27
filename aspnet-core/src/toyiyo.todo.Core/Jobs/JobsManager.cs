@@ -29,20 +29,31 @@ namespace toyiyo.todo.Jobs
         //GetAll() repository method requires a unit of work to be open. see https://aspnetboilerplate.com/Pages/Documents/Unit-Of-Work#irepository-getall-method
         [UnitOfWork]
         public async Task<List<Job>> GetAll(GetAllJobsInput input)
-        {
-            //repository methods already filter by tenant, we can check other attributes by adding "or" "||" to the whereif clause
-            return await _jobRepository.GetAll()
-            .WhereIf(!input.ProjectId.Equals(Guid.Empty), x => x.Project.Id == input.ProjectId)
-            .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), p => p.Title.ToUpper().Contains(input.Keyword.ToUpper()))
-            .WhereIf(input.JobStatus != null, p => p.JobStatus == input.JobStatus)
+        {            
+
+            return await GetAllJobsQueryable(input)
             .Include(p => p.Project)
             .Include(p => p.Assignee)
-            //.Include(p => p.Members)
             .Include(p => p.Owner)
             .OrderBy<Job>(input?.Sorting ?? "CreationTime DESC")
             .Skip(input.SkipCount)
             .Take(input.MaxResultCount)
             .ToListAsync();
+        }
+
+        [UnitOfWork]
+        public async Task<int> GetAllCount(GetAllJobsInput input)
+        {
+            return await GetAllJobsQueryable(input).CountAsync();
+        }
+
+        private IQueryable<Job> GetAllJobsQueryable(GetAllJobsInput input)
+        {
+            //repository methods already filter by tenant, we can check other attributes by adding "or" "||" to the whereif clause
+            return _jobRepository.GetAll()
+            .WhereIf(!input.ProjectId.Equals(Guid.Empty), x => x.Project.Id == input.ProjectId)
+            .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), p => p.Title.ToUpper().Contains(input.Keyword.ToUpper()))
+            .WhereIf(input.JobStatus != null, p => p.JobStatus == input.JobStatus);
         }
 
         public async Task<Job> Create(Job inputJob)

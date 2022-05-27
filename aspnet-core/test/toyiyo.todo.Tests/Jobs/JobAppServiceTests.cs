@@ -139,6 +139,27 @@ namespace toyiyo.todo.Tests.Jobs
             jobs.Items.First().Title.ShouldBe("A");
             jobs.Items[1].Title.ShouldBe("Z");
         }
+
+        [Fact]
+        public async Task GetAllJobs_Paging()
+        {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var currentTenant = await GetCurrentTenantAsync();
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppServices.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job" });
+            var job2 = await _jobAppServices.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job2", Description = "test job2" });
+
+            // Act
+            var jobs = await _jobAppServices.GetAll(new GetAllJobsInput() { ProjectId = project.Id, MaxResultCount = 1 });
+
+            // Assert items count is 1 and total count is 2 and is sorted by creation date desc
+            jobs.ShouldNotBeNull();
+            jobs.Items.Count.ShouldBe(1);
+            jobs.TotalCount.ShouldBe(2);
+            jobs.Items.First().Title.ShouldBe("test job2");
+        }
+
         [Fact]
         public async Task SetTitle_ReturnsJob()
         {

@@ -9,6 +9,8 @@ namespace toyiyo.todo.Jobs
         Task<Job> Create(Job inputJob);
         Task<Job> Get(Guid id);
         Task<List<Job>> GetAll(GetAllJobsInput input);
+
+        Task<int> GetAllCount(GetAllJobsInput input);
         Task<Job> Update(Job inputJob);
     }
 }

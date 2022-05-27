@@ -38,7 +38,8 @@ namespace toyiyo.todo.Jobs
         public async Task<PagedResultDto<JobDto>> GetAll(GetAllJobsInput input)
         {
             var jobs = await _jobManager.GetAll(input);
-            return new PagedResultDto<JobDto>(jobs.Count, ObjectMapper.Map<List<JobDto>>(jobs));
+            var jobsTotalCount = await _jobManager.GetAllCount(input);
+            return new PagedResultDto<JobDto>(jobsTotalCount, ObjectMapper.Map<List<JobDto>>(jobs));
         }
 
         public async Task<JobDto> SetDescription(JobSetDescriptionInputDto jobSetDescriptionInputDto)
