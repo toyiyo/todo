@@ -26,7 +26,7 @@
     var _$jobsTable = _$table.DataTable({
         paging: true,
         serverSide: true,
-        lengthMenu: [ [25, 50, 2147483647], [25, 50, "All"] ],
+        //lengthMenu: [ [25, 50, 2147483647], [25, 50, "All"] ],
         listAction: {
             ajaxFunction: abp.services.app.job.getAll,
             inputFilter: function () {
@@ -39,7 +39,7 @@
             dataFilter: function (data) {
                 var json = jQuery.parseJSON(data);
                 json.recordsTotal = json.TotalCount;
-                json.recordsFiltered = json.TotalCount;
+                json.recordsFiltered = json.Items.length;
                 json.data = json.list;
                 return JSON.stringify(json);
             }

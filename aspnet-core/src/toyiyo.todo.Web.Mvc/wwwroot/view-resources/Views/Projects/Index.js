@@ -24,8 +24,8 @@
             },
             dataFilter : function(data){
                 var json = jQuery.parseJSON( data );
-                json.recordsTotal = json.TotalCount;
-                json.recordsFiltered = json.TotalCount;
+                json.recordsTotal = json.totalCount;
+                json.recordsFiltered = json.items.length;
                 json.data = json.list;
                 return JSON.stringify( json );
             }

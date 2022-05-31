@@ -149,6 +149,7 @@ namespace toyiyo.todo.Tests.Jobs
             var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
             var job = await _jobAppServices.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job" });
             var job2 = await _jobAppServices.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job2", Description = "test job2" });
+            var job3 = await _jobAppServices.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job3", Description = "test job3" });
 
             // Act
             var jobs = await _jobAppServices.GetAll(new GetAllJobsInput() { ProjectId = project.Id, MaxResultCount = 1 });
@@ -156,8 +157,8 @@ namespace toyiyo.todo.Tests.Jobs
             // Assert items count is 1 and total count is 2 and is sorted by creation date desc
             jobs.ShouldNotBeNull();
             jobs.Items.Count.ShouldBe(1);
-            jobs.TotalCount.ShouldBe(2);
-            jobs.Items.First().Title.ShouldBe("test job2");
+            jobs.TotalCount.ShouldBe(3);
+            jobs.Items[0].Title.ShouldBe("test job3");
         }
 
         [Fact]
