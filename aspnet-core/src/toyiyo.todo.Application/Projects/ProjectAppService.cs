@@ -28,7 +28,8 @@ namespace toyiyo.todo.Projects {
         /// <summary> Gets all Projects. Keyword filters by Title</summary>
         public async Task<PagedResultDto<ProjectDto>> GetAll(GetAllProjectsInput input) {
             var projects = await _projectManager.GetAll(input);
-            return new PagedResultDto<ProjectDto>(projects.Count, ObjectMapper.Map<List<ProjectDto>>(projects));
+            var projectsTotalCount = await _projectManager.GetAllCount(input);
+            return new PagedResultDto<ProjectDto>(projectsTotalCount, ObjectMapper.Map<List<ProjectDto>>(projects));
         }
 
         /// <summary> Sets the project's title </summary>

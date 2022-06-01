@@ -32,12 +32,24 @@ namespace toyiyo.todo.Projects
         {
             //repository methods already filter by tenant, we can check other attributes by adding "or" "||" to the whereif clause
             //todo: figure out how to ignore case when searching for title in postgresql
-            return await _projectRepository.GetAll()
-            .WhereIf(!input.keyword.IsNullOrWhiteSpace(), p => p.Title.ToUpper().Contains(input.keyword.ToUpper()))
+            return await GetAllProjectsQueryable(input)
             .OrderBy<Project>(input?.Sorting ?? "CreationTime DESC")
-            .Skip(input.SkipCount)
-            .Take(input.MaxResultCount)
+            .Skip(input?.SkipCount ?? 0)
+            .Take(input?.MaxResultCount ?? int.MaxValue)
             .ToListAsync();
+        }
+
+        [UnitOfWork]
+        public async Task<int> GetAllCount(GetAllProjectsInput input)
+        {
+            return await GetAllProjectsQueryable(input).CountAsync();
+        }
+
+        private IQueryable<Project> GetAllProjectsQueryable(GetAllProjectsInput input)
+        {
+            //repository methods already filter by tenant, we can check other attributes by adding "or" "||" to the whereif clause
+            return _projectRepository.GetAll()
+            .WhereIf(!input.keyword.IsNullOrWhiteSpace(), p => p.Title.ToUpper().Contains(input.keyword.ToUpper()));
         }
 
         public async Task<Project> Create(Project inputProject)

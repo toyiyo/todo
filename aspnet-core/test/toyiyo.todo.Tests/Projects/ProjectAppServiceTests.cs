@@ -99,5 +99,26 @@ namespace toyiyo.todo.Tests.Projects
             result.ShouldNotBeNull();
             result.Title.ShouldBe("test2");
         }
+
+        [Fact]
+        public async Task GetAllProjects_Paging()
+        {
+                    // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var currentTenant = await GetCurrentTenantAsync();
+            await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            await _projectAppService.Create(new CreateProjectInputDto() { Title = "test2" });
+            await _projectAppService.Create(new CreateProjectInputDto() { Title = "test3" });
+
+            // Act
+            var result = await _projectAppService.GetAll(new GetAllProjectsInput(){ MaxResultCount = 1});
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.Items.Count.ShouldBe(1);
+            result.TotalCount.ShouldBe(3);
+            result.Items[0].Title.ShouldBe("test3");  
+
+        }
     }
 }
