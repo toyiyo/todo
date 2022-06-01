@@ -34,8 +34,8 @@ namespace toyiyo.todo.Projects
             //todo: figure out how to ignore case when searching for title in postgresql
             return await GetAllProjectsQueryable(input)
             .OrderBy<Project>(input?.Sorting ?? "CreationTime DESC")
-            .Skip(input.SkipCount)
-            .Take(input.MaxResultCount)
+            .Skip(input?.SkipCount ?? 0)
+            .Take(input?.MaxResultCount ?? int.MaxValue)
             .ToListAsync();
         }
 

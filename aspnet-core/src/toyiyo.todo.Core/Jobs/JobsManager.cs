@@ -36,8 +36,8 @@ namespace toyiyo.todo.Jobs
             .Include(p => p.Assignee)
             .Include(p => p.Owner)
             .OrderBy<Job>(input?.Sorting ?? "CreationTime DESC")
-            .Skip(input.SkipCount)
-            .Take(input.MaxResultCount)
+            .Skip(input?.SkipCount ?? 0)
+            .Take(input?.MaxResultCount ?? int.MaxValue)
             .ToListAsync();
         }
 
