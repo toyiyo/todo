@@ -16,9 +16,9 @@
         </a>
       
         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-            <a class="dropdown-item ${backlogFavicon}" selected-job-status=0 href="#"> Backlog</a>
-            <a class="dropdown-item ${inProgressFavicon}" selected-job-status=1 href="#"> In progress</a>
-            <a class="dropdown-item far ${doneFavicon}" selected-job-status=2 href="#"> Done</a>
+            <a class="dropdown-item job-status-selector ${backlogFavicon}" selected-job-status=0 href="#"> Backlog</a>
+            <a class="dropdown-item job-status-selector ${inProgressFavicon}" selected-job-status=1 href="#"> In progress</a>
+            <a class="dropdown-item job-status-selector ${doneFavicon}" selected-job-status=2 href="#"> Done</a>
         </div>
       </div>`
         }
@@ -118,7 +118,7 @@
     });
 
     //update job status
-    $(document).on('click', '.dropdown-item', function (e) {
+    $(document).on('click', '.job-status-selector', function (e) {
         //re-think this selector
         var jobId = $(this).parent().parent().find("i.job-status").attr("data-job-id");
         var newJobStatus = $(this).attr("selected-job-status");
