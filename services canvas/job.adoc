@@ -22,44 +22,44 @@ Jobs Management
 
 Asynchronous:
 
-* create(title, projectId)
-* archive(jobid)
-* comment(comment)
-* prioritize(priority)
-* setTitle(title)
-* setDescription(description)
-* setDueDate(dueDate)
-* setOwner(owner)
-* assign(user)
-* unassign()
-* setStatus(status)
-* inviteMembers(members)
-* removeMembers(members)
-* moveToProject(projectId)
+* [*] create(title, projectId)
+* [] archive(jobid)
+* [] comment(comment)
+* [] prioritize(priority)
+* [*] setTitle(title)
+* [] setDescription(description)
+* [] setDueDate(dueDate)
+* [] setOwner(owner)
+* [] assign(user)
+* [] unassign()
+* [*] setJobStatus(status)
+* [] inviteMembers(members)
+* [] removeMembers(members)
+* [] moveToProject(projectId)
 
 
 3+a| 
 
-* getJob(id)
-* getJobs(filter)
-* getHistoryOnJob(id) 
+* [*] getJob(id)
+* [*] getJobs(filter)
+* [] getHistoryOnJob(id) 
  
 2+a| Jobs event channel:
 
-* created
-* archived
-* commented
-* prioritized
-* titleChanged
-* descriptionChanged
-* dueDateChanged
-* ownerChanged
-* assigned
-* unassigned
-* statusChanged
-* memberInvited
-* memberRemoved
-* movedToProject
+* [] created
+* [] archived
+* [] commented
+* [] prioritized
+* [] titleChanged
+* [] descriptionChanged
+* [] dueDateChanged
+* [] ownerChanged
+* [] assigned
+* [] unassigned
+* [] statusChanged
+* [] memberInvited
+* [] memberRemoved
+* [] movedToProject
 
 3+| Non-functional requirements 5+a|
 
@@ -71,12 +71,12 @@ Asynchronous:
 
 to be defined - examples
 
-* jobs_created
-* jobs_completed
+* [] jobs_created
+* [] jobs_completed
 * ...
 
 4+| Health check endpoint
-4+| /jobs/health
+4+| * [] /jobs/health
 
 
 
@@ -89,14 +89,14 @@ to be defined - examples
 
 Billing Service
 
-* authorize()
+* [] authorize()
 
  4+a| N/A Service
 
-* N/A event
+* [] N/A event
 
 Saga reply channels:
 
-* N/A Project Saga
+* [] N/A Project Saga
 
 |===
