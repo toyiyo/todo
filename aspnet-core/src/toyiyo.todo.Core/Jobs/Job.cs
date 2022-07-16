@@ -85,9 +85,9 @@ namespace toyiyo.todo.Jobs
         public static Job SetDescription(Job job, string description, User user)
         {
             //validate parameters
-            if (job == null || description == null || user == null)
+            if (job == null || user == null)
             {
-                throw new ArgumentNullException(nameof(job) + " " + nameof(description) + " " + nameof(user));
+                throw new ArgumentNullException(nameof(job) + " " + nameof(user));
             }
 
             job.Description = description;

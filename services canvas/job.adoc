@@ -27,7 +27,7 @@ Asynchronous:
 * [] comment(comment)
 * [] prioritize(priority)
 * [*] setTitle(title)
-* [] setDescription(description)
+* [*] setDescription(description)
 * [] setDueDate(dueDate)
 * [] setOwner(owner)
 * [] assign(user)
