@@ -7,7 +7,7 @@ namespace toyiyo.todo.Jobs
     public class JobSetDescriptionInputDto : EntityDto<Guid>
     {
         [Required]
-        [StringLength(Job.MaxTitleLength)]
+        [StringLength(Job.MaxDescriptionLength)]
         public string Description { get; set; }
     }
 }

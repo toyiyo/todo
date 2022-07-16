@@ -12,13 +12,20 @@
         var job = _$form.serializeFormToObject();
 
         abp.ui.setBusy(_$form);
-        _jobService.setTitle(job).done(function () {
-            _$modal.modal('hide');
-            abp.notify.info(l('SavedSuccessfully'));
-            abp.event.trigger('job.edited', job);
-        }).always(function () {
-            abp.ui.clearBusy(_$form);
-        });
+        //calling multiple services in parallel will fetch data from the DB in parallel.
+        //once the first update passes through, the second update overwrites the info from the first update.
+        //This is due to the initial load.
+        //to fix it, we must update one field at a time, or create a call to update all fields in bulk
+
+
+        _jobService.setTitle(job).done(
+            () => _jobService.setDescription(job).done(
+                () =>
+                    _$modal.modal('hide'),
+                abp.notify.info(l('SavedSuccessfully')),
+                abp.event.trigger('job.edited', job)
+            )).always(
+                () => abp.ui.clearBusy(_$form));
     }
 
     _$form.closest('div.modal-content').find(".save-button").click(function (e) {

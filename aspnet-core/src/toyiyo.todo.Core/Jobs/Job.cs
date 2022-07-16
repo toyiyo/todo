@@ -13,12 +13,14 @@ namespace toyiyo.todo.Jobs
     {
         public enum Status {Open, InProgress, Done };
         public const int MaxTitleLength = 500; //todo: max length should be defined in the configuration
+        public const int MaxDescriptionLength = 2000000; // 2MB limit | 307692 - 400000 words | 1230.8 - 1600.0 pages
         //note: protected setter forces users to use "Set..." methods to set the value
         [Required]
         public Project Project { get; protected set; }
         [Required]
         [StringLength(MaxTitleLength)]
         public string Title { get; protected set; }
+        [StringLength(MaxDescriptionLength)]
         public string Description {get; protected set;}
         public DateTime DueDate { get; protected set; }
         public User Owner { get; protected set; }

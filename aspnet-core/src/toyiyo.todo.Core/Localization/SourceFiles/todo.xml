@@ -13,6 +13,7 @@
     <text name="EditJob" value="Edit job" />
     <text name="JobTitle" value="Job title" />
     <text name="Jobs" value="Jobs" />
+    <text name="JobDescription" value="Job Description" />
     <text name="WelcomeMessage" value="Welcome to todo!" />
     <text name="FormIsNotValidMessage" value="Form is not valid. Please check and fix errors." />
     <text name="TenantNameCanNotBeEmpty" value="Tenant name can not be empty" />
