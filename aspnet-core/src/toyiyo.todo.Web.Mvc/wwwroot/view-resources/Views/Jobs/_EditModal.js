@@ -24,7 +24,6 @@
         //We need to get the div contents and manually add them to the job object
         var job = _$form.serializeFormToObject();
         job.description = editor.getMarkdown();
-        //editor.getMarkdown();
 
         abp.ui.setBusy(_$form);
         //calling multiple services in parallel will fetch data from the DB in parallel.
