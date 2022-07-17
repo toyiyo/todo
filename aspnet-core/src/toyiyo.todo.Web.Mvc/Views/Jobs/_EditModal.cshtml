@@ -7,6 +7,7 @@
 @await Html.PartialAsync("~/Views/Shared/Modals/_ModalHeader.cshtml", new ModalHeaderViewModel(L("EditJob")))
 <form name="JobEditForm" role="form" class="form-horizontal">
     <input type="hidden" name="id" value="@Model.Id" />
+    <input type="hidden" name="descriptionFromServer" id="descriptionFromServer" value="@Model.Description" />
     <div class="modal-body">
         <div class="form-group row required">
             <label class="col-md-3 col-form-label" for="title">@L("JobTitle")</label>
@@ -17,7 +18,7 @@
         <div class="form group row">
             <label class="col-md-3 col-form-label" for="description">@L("JobDescription")</label>
             <div class="col-md-9">
-                <textarea id="Description" class="form-control" name="Description" maxlength= "2000000" minlength="2">@Model.Description</textarea>
+                <div id="Description" class="form-control" name="Description" maxlength= "2000000" minlength="2"></div>
             </div>
         </div>        
     </div>
