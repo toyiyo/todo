@@ -25,7 +25,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace toyiyo.todo.Users
 {
-    [AbpAuthorize(PermissionNames.Pages_Users)]
+    [AbpAuthorize]
     public class UserAppService : AsyncCrudAppService<User, UserDto, long, PagedUserResultRequestDto, CreateUserDto, UserDto>, IUserAppService
     {
         private readonly UserManager _userManager;
@@ -52,7 +52,7 @@ namespace toyiyo.todo.Users
             _abpSession = abpSession;
             _logInManager = logInManager;
         }
-
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         public override async Task<UserDto> CreateAsync(CreateUserDto input)
         {
             CheckCreatePermission();
@@ -76,6 +76,7 @@ namespace toyiyo.todo.Users
             return MapToEntityDto(user);
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         public override async Task<UserDto> UpdateAsync(UserDto input)
         {
             CheckUpdatePermission();
@@ -94,6 +95,7 @@ namespace toyiyo.todo.Users
             return await GetAsync(input);
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         public override async Task DeleteAsync(EntityDto<long> input)
         {
             var user = await _userManager.GetUserByIdAsync(input.Id);
@@ -118,12 +120,14 @@ namespace toyiyo.todo.Users
             });
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         public async Task<ListResultDto<RoleDto>> GetRoles()
         {
             var roles = await _roleRepository.GetAllListAsync();
             return new ListResultDto<RoleDto>(ObjectMapper.Map<List<RoleDto>>(roles));
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         public async Task ChangeLanguage(ChangeUserLanguageDto input)
         {
             await SettingManager.ChangeSettingForUserAsync(
@@ -187,6 +191,7 @@ namespace toyiyo.todo.Users
             identityResult.CheckErrors(LocalizationManager);
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users_PasswordChange)]
         public async Task<bool> ChangePassword(ChangePasswordDto input)
         {
             await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
@@ -212,6 +217,7 @@ namespace toyiyo.todo.Users
             return true;
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users_PasswordChange)]
         public async Task<bool> ResetPassword(ResetPasswordDto input)
         {
             if (_abpSession.UserId == null)
