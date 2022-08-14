@@ -32,6 +32,7 @@
     <text name="RememberMe" value="Remember me" />
     <text name="LogIn" value="Log in" />
     <text name="LoginFailed" value="Login failed!" />
+    <text name="NoAccountQuestion" value="don't have an account?" />
     <text name="NameSurname" value="Name surname" />
     <text name="UserName" value="User name" />
     <text name="Name" value="Name" />

@@ -17,16 +17,16 @@
 <form id="LoginForm" asp-action="Login" method="post">
     <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
     <input type="hidden" name="returnUrlHash" />
-    <div class="input-group mb-3">
-        <input type="text" name="usernameOrEmailAddress" class="form-control" placeholder="@L("UserNameOrEmail")" required autofocus maxlength="@AbpUserBase.MaxEmailAddressLength">
+    <div class="form-outline input-group mb-3">
+        <input type="text" name="usernameOrEmailAddress" class="form-control form-control-lg" placeholder="@L("UserNameOrEmail")" required autofocus maxlength="@AbpUserBase.MaxEmailAddressLength">
         <div class="input-group-append">
             <div class="input-group-text">
                 <span class="fas fa-user"></span>
             </div>
         </div>
     </div>
-    <div class="input-group mb-3">
-        <input type="password" class="form-control" name="Password" autocomplete="password" placeholder="@L("Password")" required maxlength="@AbpUserBase.MaxPlainPasswordLength">
+    <div class="form-outline input-group mb-3">
+        <input type="password" class="form-control form-control-lg" name="Password" autocomplete="password" placeholder="@L("Password")" required maxlength="@AbpUserBase.MaxPlainPasswordLength">
         <div class="input-group-append">
             <div class="input-group-text">
                 <span class="fas fa-lock"></span>
@@ -61,7 +61,7 @@
     {
         <div class="row">
             <div class="col-12">
-                <a asp-action="Register" class="text-center"><i class="fa fa-plus-circle" aria-hidden="true"></i> @L("Register")</a>
+                <a asp-action="Register" class="text-center">@L("NoAccountQuestion") @L("Register")</a>
             </div>
         </div>
     }
