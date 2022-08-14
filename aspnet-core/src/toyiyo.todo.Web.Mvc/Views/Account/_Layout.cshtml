@@ -11,7 +11,7 @@
     AbpAntiForgeryManager.SetCookie(Context);
 
     var pageTitle = !string.IsNullOrWhiteSpace(ViewBag.Title) ? ViewBag.Title + " / " : "";
-    pageTitle += "todo";
+    pageTitle += "Toyiyo";
 }
 <!DOCTYPE html>
 <html lang="@LanguageManager.CurrentLanguage.Name">
@@ -44,7 +44,6 @@
                 @RenderBody()
             </div>
             <div class="card-footer">
-                <vc:account-languages></vc:account-languages>
             </div>
         </div>
       </div>

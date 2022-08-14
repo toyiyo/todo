@@ -131,6 +131,15 @@ namespace toyiyo.todo.Web.Controllers
         #endregion
 
         #region Register
+        public ActionResult RegisterCompanyAdmin() {
+            return RegisterCompanyAdminView(new RegisterCompanyAdminViewModel());
+        }
+
+        public ActionResult RegisterCompanyAdminView(RegisterCompanyAdminViewModel model) {
+            ViewBag.IsMultiTenancyEnabled = _multiTenancyConfig.IsEnabled;
+
+            return View("RegisterCompanyAdmin", model);
+        }
 
         public ActionResult Register()
         {
