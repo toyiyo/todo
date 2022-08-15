@@ -36,7 +36,7 @@
     <text name="NameSurname" value="Name surname" />
     <text name="UserName" value="User name" />
     <text name="Name" value="Name" />
-    <text name="Surname" value="Surname" />
+    <text name="Surname" value="last name" />
     <text name="EmailAddress" value="Email address" />
     <text name="Tenants" value="Companies" />
     <text name="SavedSuccessfully" value="Saved successfully" />
