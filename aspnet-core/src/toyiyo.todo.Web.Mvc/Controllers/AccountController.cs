@@ -31,7 +31,6 @@ using toyiyo.todo.Sessions;
 using toyiyo.todo.Web.Models.Account;
 using toyiyo.todo.Web.Views.Shared.Components.TenantChange;
 using toyiyo.todo.Editions;
-using toyiyo.todo.Authorization.Users;
 using toyiyo.todo.Authorization.Roles;
 
 namespace toyiyo.todo.Web.Controllers
@@ -143,16 +142,16 @@ namespace toyiyo.todo.Web.Controllers
         #endregion
 
         #region Register
-        public ActionResult RegisterCompanyAdmin()
-        {
-            return RegisterCompanyAdminView(new RegisterCompanyAdminViewModel());
-        }
 
         public ActionResult RegisterCompanyAdminView(RegisterCompanyAdminViewModel model)
         {
             ViewBag.IsMultiTenancyEnabled = _multiTenancyConfig.IsEnabled;
 
             return View("RegisterCompanyAdmin", model);
+        }
+        public ActionResult RegisterCompanyAdmin()
+        {
+            return RegisterCompanyAdminView(new RegisterCompanyAdminViewModel());
         }
 
         [HttpPost]
@@ -193,7 +192,7 @@ namespace toyiyo.todo.Web.Controllers
                     // Create admin user for the tenant
                     var adminUser = toyiyo.todo.Authorization.Users.User.CreateTenantAdminUser(tenant.Id, model.EmailAddress);
                     await _userManager.InitializeOptionsAsync(tenant.Id);
-                    //todo: get rid of default passwords everywhere!
+
                     CheckErrors(await _userManager.CreateAsync(adminUser, model.Password));
                     await CurrentUnitOfWork.SaveChangesAsync(); // To get admin user's id
 
