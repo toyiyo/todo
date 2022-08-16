@@ -19,7 +19,7 @@
     @if (ViewBag.ErrorMessage != null)
     {
         <div class="alert alert-danger">
-            <i class="fas fa-warning"></i> @ViewBag.ErrorMessage
+            <i class="fas fa-warning" aria-hidden="true"></i> @ViewBag.ErrorMessage
         </div>
     }
     <input type="hidden" name="IsExternalLogin" value="@Model.IsExternalLogin.ToString()" />
