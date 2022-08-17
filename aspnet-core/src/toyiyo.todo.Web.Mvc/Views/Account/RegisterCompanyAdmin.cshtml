@@ -1,7 +1,8 @@
 ﻿@using Abp.Authorization.Users
-@model toyiyo.todo.Web.Models.Account.RegisterViewModel
+@using Abp.MultiTenancy
+@model toyiyo.todo.Web.Models.Account.RegisterCompanyAdminViewModel
 @{
-    ViewBag.Title = L("Register");
+    ViewBag.Title = L("RegisterNewCompany");
 }
 @section scripts
 {
@@ -13,8 +14,8 @@
         <script src="~/view-resources/Views/Account/Register.min.js" asp-append-version="true"></script>
     </environment>
 }
-<h4 class="text-center">@L("Register")</h4>
-<form id="RegisterForm" asp-action="Register" method="post">
+<h4 class="text-center">@L("RegisterNewCompany")</h4>
+<form id="RegisterForm" asp-action="RegisterCompanyAdmin" method="post">
     @if (ViewBag.ErrorMessage != null)
     {
         <div class="alert alert-danger">
@@ -23,22 +24,16 @@
     }
     <input type="hidden" name="IsExternalLogin" value="@Model.IsExternalLogin.ToString()" />
     <input type="hidden" name="ExternalLoginAuthSchema" value="@Model.ExternalLoginAuthSchema" />
-    <div class="form-outline input-group mb-3">
-        <input type="text" name="Name" class="form-control form-control-lg" placeholder="@L("Name")" value="@Model.Name" required maxlength="@AbpUserBase.MaxNameLength">
+    
+     <div class="form-outline input-group mb-3">
+        <input type="text" name="TenancyName" class="form-control form-control-lg" placeholder="@L("TenancyName")" value="@Model.TenancyName" required maxlength="@AbpTenantBase.MaxTenancyNameLength" minlength="2">
         <div class="input-group-append">
             <div class="input-group-text">
-                <span class="fas fa-arrow-left"></span>
+                <span class="fas fa-building"></span>
             </div>
         </div>
-    </div>
-    <div class="form-outline input-group mb-3">
-        <input type="text" name="Surname" class="form-control form-control-lg" placeholder="@L("Surname")" value="@Model.Surname" required maxlength="@AbpUserBase.MaxSurnameLength">
-        <div class="input-group-append">
-            <div class="input-group-text">
-                <span class="fas fa-arrow-left"></span>
-            </div>
-        </div>
-    </div>
+    </div>   
+
     <div class="form-outline input-group mb-3">
         <input type="email" name="EmailAddress" class="form-control form-control-lg" placeholder="@L("EmailAddress")" value="@Model.EmailAddress" required maxlength="@AbpUserBase.MaxEmailAddressLength">
         <div class="input-group-append">
@@ -47,14 +42,7 @@
             </div>
         </div>
     </div>
-    <div class="form-outline input-group mb-3">
-        <input type="text" name="UserName" class="form-control form-control-lg" placeholder="@L("UserName")" value="@Model.UserName" required maxlength="@AbpUserBase.MaxUserNameLength">
-        <div class="input-group-append">
-            <div class="input-group-text">
-                <span class="fas fa-user"></span>
-            </div>
-        </div>
-    </div>
+
     <div class="form-outline input-group mb-3">
         <input type="password" name="Password" class="form-control form-control-lg" placeholder="@L("Password")" required maxlength="@AbpUserBase.MaxPlainPasswordLength">
         <div class="input-group-append">
@@ -72,14 +60,3 @@
         </div>
     </div>
 </form>
-@*<div class="social-auth-links text-center">
-        <p>- OR -</p>
-        <a href="javascript:;" class="btn btn-block btn-primary">
-            <i class="fab fa-facebook mr-2"></i>
-            Sign up using Facebook
-        </a>
-        <a href="javascript:;" class="btn btn-block btn-danger">
-            <i class="fab fa-google-plus mr-2"></i>
-            Sign up using Google+
-        </a>
-    </div>*@

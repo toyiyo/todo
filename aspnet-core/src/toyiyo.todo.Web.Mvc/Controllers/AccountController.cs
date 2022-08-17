@@ -30,6 +30,8 @@ using toyiyo.todo.MultiTenancy;
 using toyiyo.todo.Sessions;
 using toyiyo.todo.Web.Models.Account;
 using toyiyo.todo.Web.Views.Shared.Components.TenantChange;
+using toyiyo.todo.Editions;
+using toyiyo.todo.Authorization.Roles;
 
 namespace toyiyo.todo.Web.Controllers
 {
@@ -46,6 +48,9 @@ namespace toyiyo.todo.Web.Controllers
         private readonly ISessionAppService _sessionAppService;
         private readonly ITenantCache _tenantCache;
         private readonly INotificationPublisher _notificationPublisher;
+        private readonly EditionManager _editionManager;
+        private readonly IAbpZeroDbMigrator _abpZeroDbMigrator;
+        private readonly RoleManager _roleManager;
 
         public AccountController(
             UserManager userManager,
@@ -58,7 +63,10 @@ namespace toyiyo.todo.Web.Controllers
             UserRegistrationManager userRegistrationManager,
             ISessionAppService sessionAppService,
             ITenantCache tenantCache,
-            INotificationPublisher notificationPublisher)
+            INotificationPublisher notificationPublisher,
+            EditionManager editionManager,
+            RoleManager roleManager,
+            IAbpZeroDbMigrator abpZeroDbMigrator)
         {
             _userManager = userManager;
             _multiTenancyConfig = multiTenancyConfig;
@@ -71,6 +79,9 @@ namespace toyiyo.todo.Web.Controllers
             _sessionAppService = sessionAppService;
             _tenantCache = tenantCache;
             _notificationPublisher = notificationPublisher;
+            _editionManager = editionManager;
+            _roleManager = roleManager;
+            _abpZeroDbMigrator = abpZeroDbMigrator;
         }
 
         #region Login / Logout
@@ -131,6 +142,101 @@ namespace toyiyo.todo.Web.Controllers
         #endregion
 
         #region Register
+
+        public ActionResult RegisterCompanyAdminView(RegisterCompanyAdminViewModel model)
+        {
+            ViewBag.IsMultiTenancyEnabled = _multiTenancyConfig.IsEnabled;
+
+            return View("RegisterCompanyAdmin", model);
+        }
+        public ActionResult RegisterCompanyAdmin()
+        {
+            return RegisterCompanyAdminView(new RegisterCompanyAdminViewModel());
+        }
+
+        [HttpPost]
+        [UnitOfWork]
+        public async Task<ActionResult> RegisterCompanyAdmin(RegisterCompanyAdminViewModel model)
+        {
+            try
+            {
+                //create a tenant - 
+                //todo: change logic to call the tenantappservice - same logic we are duplicating here
+                var tenant = new Tenant(model.TenancyName, model.TenancyName);
+
+
+                var defaultEdition = await _editionManager.FindByNameAsync(EditionManager.DefaultEditionName);
+                if (defaultEdition != null)
+                {
+                    tenant.EditionId = defaultEdition.Id;
+                }
+
+                await _tenantManager.CreateAsync(tenant);
+                await CurrentUnitOfWork.SaveChangesAsync(); // To get new tenant's id.
+
+                // Create tenant database
+                _abpZeroDbMigrator.CreateOrMigrateForTenant(tenant);
+
+                // We are working entities of new tenant, so changing tenant filter
+                using (CurrentUnitOfWork.SetTenantId(tenant.Id))
+                {
+                    // Create static roles for new tenant
+                    CheckErrors(await _roleManager.CreateStaticRoles(tenant.Id));
+
+                    await CurrentUnitOfWork.SaveChangesAsync(); // To get static role ids
+
+                    // Grant all permissions to admin role
+                    var adminRole = _roleManager.Roles.Single(r => r.Name == StaticRoleNames.Tenants.Admin);
+                    await _roleManager.GrantAllPermissionsAsync(adminRole);
+
+                    // Create admin user for the tenant
+                    var adminUser = toyiyo.todo.Authorization.Users.User.CreateTenantAdminUser(tenant.Id, model.EmailAddress);
+                    await _userManager.InitializeOptionsAsync(tenant.Id);
+
+                    CheckErrors(await _userManager.CreateAsync(adminUser, model.Password));
+                    await CurrentUnitOfWork.SaveChangesAsync(); // To get admin user's id
+
+                    // Assign admin user to role!
+                    CheckErrors(await _userManager.AddToRoleAsync(adminUser, adminRole.Name));
+                    await CurrentUnitOfWork.SaveChangesAsync();
+
+                    var isEmailConfirmationRequiredForLogin = await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.IsEmailConfirmationRequiredForLogin);
+
+                    if (adminUser.IsActive && (adminUser.IsEmailConfirmed || !isEmailConfirmationRequiredForLogin))
+                    {
+                        AbpLoginResult<Tenant, User> loginResult;
+
+                        loginResult = await GetLoginResultAsync(adminUser.UserName, model.Password, tenant.TenancyName);
+
+                        if (loginResult.Result == AbpLoginResultType.Success)
+                        {
+                            await _signInManager.SignInAsync(loginResult.Identity, false);
+                            return Redirect(GetAppHomeUrl());
+                        }
+
+                        Logger.Warn("New registered user could not be login. This should not be normally. login result: " + loginResult.Result);
+                    }
+                    return View("RegisterResult", new RegisterResultViewModel
+                    {
+                        TenancyName = tenant.TenancyName,
+                        NameAndSurname = adminUser.Name + " " + adminUser.Surname,
+                        UserName = adminUser.UserName,
+                        EmailAddress = adminUser.EmailAddress,
+                        IsEmailConfirmed = adminUser.IsEmailConfirmed,
+                        IsActive = adminUser.IsActive,
+                        IsEmailConfirmationRequiredForLogin = isEmailConfirmationRequiredForLogin
+                    });
+
+                }
+
+            }
+            catch (UserFriendlyException ex)
+            {
+                ViewBag.ErrorMessage = ex.Message;
+
+                return View("RegisterCompanyAdmin", model);
+            }
+        }
 
         public ActionResult Register()
         {
