@@ -54,5 +54,5 @@ jobs:
         dotnet tool install --global dotnet-coverage
         dotnet restore aspnet-core/toyiyo.todo.sln
         dotnet build aspnet-core/toyiyo.todo.sln --no-restore
-        dotnet-coverage collect 'dotnet test' -f xml  -o 'coverage.xml'
+        dotnet-coverage collect 'dotnet test aspnet-core/toyiyo.todo.sln' -f xml  -o 'coverage.xml'
         .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
