@@ -80,7 +80,7 @@ namespace toyiyo.todo.MultiTenancy
                 // Create admin user for the tenant
                 var adminUser = User.CreateTenantAdminUser(tenant.Id, input.AdminEmailAddress);
                 await _userManager.InitializeOptionsAsync(tenant.Id);
-                CheckErrors(await _userManager.CreateAsync(adminUser, User.DefaultPassword));
+                CheckErrors(await _userManager.CreateAsync(adminUser, adminUser.DefaultPassword));
                 await CurrentUnitOfWork.SaveChangesAsync(); // To get admin user's id
 
                 // Assign admin user to role!

@@ -8,9 +8,7 @@ namespace toyiyo.todo.Authorization.Users
 {
     public class User : AbpUser<User>
     {
-        public const string DefaultPassword = "123qwe";
-        /* EF Relations */
-        //public virtual ICollection<Job> Jobs { get; protected set; }
+        public string DefaultPassword = (Environment.GetEnvironmentVariable("DefaultPassword") == null ? "" : Environment.GetEnvironmentVariable("DefaultPassword"));
 
         public static string CreateRandomPassword()
         {
