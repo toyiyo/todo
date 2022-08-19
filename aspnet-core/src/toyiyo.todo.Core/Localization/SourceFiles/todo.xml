@@ -47,7 +47,7 @@
     <text name="Cancel" value="Cancel" />
     <text name="TenantName_Regex_Description" value="Company name must be at least 2 chars, starts with a letter and continue with letter, number, dash or underscore." />
     <text name="DefaultPasswordIs" value="Default password is {0}" />
-    <text name="ResetPasswordMessage" value="Please set a new password"
+    <text name="ResetPasswordMessage" value="Please set a new password" />
     <text name="CanBeEmptyToLoginAsHost" value="Can be empty to login as host." />
     <text name="Register" value="Register" />
     <text name="RegisterNewCompany" value="Register new company" />
