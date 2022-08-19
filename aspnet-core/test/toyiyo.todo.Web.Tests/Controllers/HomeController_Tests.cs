@@ -3,6 +3,7 @@ using toyiyo.todo.Models.TokenAuth;
 using toyiyo.todo.Web.Controllers;
 using Shouldly;
 using Xunit;
+using System;
 
 namespace toyiyo.todo.Web.Tests.Controllers
 {
@@ -14,7 +15,7 @@ namespace toyiyo.todo.Web.Tests.Controllers
             await AuthenticateAsync(null, new AuthenticateModel
             {
                 UserNameOrEmailAddress = "admin",
-                Password = "123qwe"
+                Password = Environment.GetEnvironmentVariable("DefaultPassword")
             });
 
             //Act

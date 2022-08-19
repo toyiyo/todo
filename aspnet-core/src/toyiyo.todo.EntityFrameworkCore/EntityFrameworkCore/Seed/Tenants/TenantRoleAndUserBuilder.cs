@@ -9,6 +9,7 @@ using Abp.MultiTenancy;
 using toyiyo.todo.Authorization;
 using toyiyo.todo.Authorization.Roles;
 using toyiyo.todo.Authorization.Users;
+using System;
 
 namespace toyiyo.todo.EntityFrameworkCore.Seed.Tenants
 {
@@ -73,7 +74,7 @@ namespace toyiyo.todo.EntityFrameworkCore.Seed.Tenants
             if (adminUser == null)
             {
                 adminUser = User.CreateTenantAdminUser(_tenantId, "admin@defaulttenant.com");
-                adminUser.Password = new PasswordHasher<User>(new OptionsWrapper<PasswordHasherOptions>(new PasswordHasherOptions())).HashPassword(adminUser, "123qwe");
+                adminUser.Password = new PasswordHasher<User>(new OptionsWrapper<PasswordHasherOptions>(new PasswordHasherOptions())).HashPassword(adminUser, Environment.GetEnvironmentVariable("DefaultPassword"));
                 adminUser.IsEmailConfirmed = true;
                 adminUser.IsActive = true;
 

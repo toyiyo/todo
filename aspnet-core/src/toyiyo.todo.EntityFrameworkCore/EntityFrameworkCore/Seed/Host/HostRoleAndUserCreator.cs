@@ -9,6 +9,7 @@ using toyiyo.todo.Authorization.Roles;
 using toyiyo.todo.Authorization.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using System;
 
 namespace toyiyo.todo.EntityFrameworkCore.Seed.Host
 {
@@ -81,7 +82,7 @@ namespace toyiyo.todo.EntityFrameworkCore.Seed.Host
                     IsActive = true
                 };
 
-                user.Password = new PasswordHasher<User>(new OptionsWrapper<PasswordHasherOptions>(new PasswordHasherOptions())).HashPassword(user, "123qwe");
+                user.Password = new PasswordHasher<User>(new OptionsWrapper<PasswordHasherOptions>(new PasswordHasherOptions())).HashPassword(user, Environment.GetEnvironmentVariable("DefaultPassword"));
                 user.SetNormalizedNames();
 
                 adminUserForHost = _context.Users.Add(user).Entity;

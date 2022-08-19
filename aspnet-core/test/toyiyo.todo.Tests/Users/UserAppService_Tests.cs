@@ -2,9 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Xunit;
-using Abp.Application.Services.Dto;
 using toyiyo.todo.Users;
 using toyiyo.todo.Users.Dto;
+using System;
 
 namespace toyiyo.todo.Tests.Users
 {
@@ -38,7 +38,7 @@ namespace toyiyo.todo.Tests.Users
                     IsActive = true,
                     Name = "John",
                     Surname = "Nash",
-                    Password = "123qwe",
+                    Password = Environment.GetEnvironmentVariable("DefaultPassword"),
                     UserName = "john.nash"
                 });
 
