@@ -8,7 +8,7 @@ namespace toyiyo.todo.Authorization.Users
 {
     public class User : AbpUser<User>
     {
-        public string DefaultPassword = (Environment.GetEnvironmentVariable("DefaultPassword") == null ? "" : Environment.GetEnvironmentVariable("DefaultPassword"));
+        public readonly string DefaultPassword = (Environment.GetEnvironmentVariable("DefaultPassword") == null ? "" : Environment.GetEnvironmentVariable("DefaultPassword"));
 
         public static string CreateRandomPassword()
         {
