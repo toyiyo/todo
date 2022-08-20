@@ -6,8 +6,11 @@ using Abp.MultiTenancy;
 namespace toyiyo.todo.MultiTenancy.Dto
 {
     [AutoMapFrom(typeof(Tenant))]
-    public class TenantDto : EntityDto
+    public class TenantDto : EntityDto<int>
     {
+        [Required]
+        public int Id {get; set;}
+
         [Required]
         [StringLength(AbpTenantBase.MaxTenancyNameLength)]
         [RegularExpression(AbpTenantBase.TenancyNameRegex)]

@@ -1,2 +1,3 @@
 aspnet-core/src/toyiyo.todo.Web.Mvc/out/*
 out/*
+.vscode/*

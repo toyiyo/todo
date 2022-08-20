@@ -31,5 +31,13 @@ namespace toyiyo.todo.Authorization.Users
 
             return user;
         }
+
+        public static bool ValidateTenantDomainMatchesAdminEmailDomain(string tenancyName, string emailAddress) 
+        {
+            if (!emailAddress.Contains(tenancyName)){
+                throw new ArgumentException("Email must match the domain registered");
+            } 
+            return true;  
+        }
     }
 }

@@ -251,9 +251,16 @@ paket-files/
 .idea/
 *.sln.iml
 
+# independent
 src/toyiyo.todo.Web.Mvc/secrets.json
 src/toyiyo.todo.Web.Host/secrets.json
 src/toyiyo.todo.Migrator/secrets.json
 src/toyiyo.todo.Web.Mvc/App_Data/Logs/*.*
 src/toyiyo.todo.Web.Host/App_Data/Logs/*.*
 aspnet-core/src/toyiyo.todo.Web.Mvc/out/*.*
+aspnet-core/src/toyiyo.todo.Web.Mvc/out/*
+out/*
+
+# vscode
+.vscode/launch.json
+.vscode/tasks.json
