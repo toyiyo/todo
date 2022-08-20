@@ -186,7 +186,6 @@ namespace toyiyo.todo.Web.Controllers
                         throw new Exception("Can not external login!");
                     }
 
-                    model.EmailAddress = model.EmailAddress;
                     model.Password = Authorization.Users.User.CreateRandomPassword();
                 }
                 else
