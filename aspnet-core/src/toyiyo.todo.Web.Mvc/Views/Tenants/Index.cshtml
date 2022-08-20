@@ -49,7 +49,7 @@
                                 <thead>
                                     <tr>
                                         <th></th>
-                                        <th>@L("TenancyName")</th>
+                                        <th>@L("DomainName")</th>
                                         <th>@L("Name")</th>
                                         <th>@L("IsActive")</th>
                                         <th style="width: 150px">@L("Actions")</th>
@@ -64,7 +64,6 @@
         </div>
     </div>
 </section>
-
 @await Html.PartialAsync("~/Views/Tenants/_CreateModal.cshtml")
 
 <div class="modal fade" id="TenantEditModal" tabindex="-1" role="dialog" aria-labelledby="TenantEditModalLabel" data-backdrop="static">

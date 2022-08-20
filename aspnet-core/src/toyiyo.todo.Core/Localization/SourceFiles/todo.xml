@@ -25,6 +25,8 @@
     <text name="UserLockedOutMessage">The user account has been locked out. Please try again later.</text>
     <text name="PleaseEnterLoginInformation" value="Please enter login information" />
     <text name="TenancyName" value="Company name" />
+    <text name="DomainName" value="Domain name" />
+    <text name="CompanyName" value="Company name" />
     <text name="UserNameOrEmail" value="User name or email" />
     <text name="Password" value="Password" />
     <text name="ResetPassword" value="Reset Password" />
