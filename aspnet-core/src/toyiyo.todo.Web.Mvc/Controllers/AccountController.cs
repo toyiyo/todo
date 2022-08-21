@@ -183,8 +183,6 @@ namespace toyiyo.todo.Web.Controllers
 
                 Debug.Assert(user.TenantId != null);
 
-                //var tenant = await _tenantManager.GetByIdAsync(user.TenantId.Value);
-
                 // Directly login if possible
                 if (user.IsActive && (user.IsEmailConfirmed || !isEmailConfirmationRequiredForLogin))
                 {
@@ -273,7 +271,7 @@ namespace toyiyo.todo.Web.Controllers
                 externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
                 if (externalLoginInfo == null)
                 {
-                    throw new Exception("Can not external login!");
+                    throw new UserFriendlyException("Can not login externally!");
                 }
 
                 model.Password = Authorization.Users.User.CreateRandomPassword();
@@ -289,7 +287,7 @@ namespace toyiyo.todo.Web.Controllers
             return externalLoginInfo;
         }
 
-        private CreateTenantDto CreateTenantDto(RegisterCompanyAdminViewModel model)
+        private static CreateTenantDto CreateTenantDto(RegisterCompanyAdminViewModel model)
         {
             return new CreateTenantDto()
             {
@@ -380,7 +378,7 @@ namespace toyiyo.todo.Web.Controllers
                     externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
                     if (externalLoginInfo == null)
                     {
-                        throw new Exception("Can not external login!");
+                        throw new UserFriendlyException("Can not login externally!");
                     }
 
                     model.UserName = model.EmailAddress;
