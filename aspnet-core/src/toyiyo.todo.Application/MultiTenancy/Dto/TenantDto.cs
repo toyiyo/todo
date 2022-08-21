@@ -9,9 +9,6 @@ namespace toyiyo.todo.MultiTenancy.Dto
     public class TenantDto : EntityDto<int>
     {
         [Required]
-        public int Id {get; set;}
-
-        [Required]
         [StringLength(AbpTenantBase.MaxTenancyNameLength)]
         [RegularExpression(AbpTenantBase.TenancyNameRegex)]
         public string TenancyName { get; set; }
