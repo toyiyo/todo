@@ -26,7 +26,7 @@
     <input type="hidden" name="ExternalLoginAuthSchema" value="@Model.ExternalLoginAuthSchema" />
     
      <div class="form-outline input-group mb-3">
-        <input type="text" name="TenancyName" class="form-control form-control-lg" placeholder="@L("DomainName")" value="@Model.TenancyName" required maxlength="@AbpTenantBase.MaxTenancyNameLength" minlength="2">
+        <input type="text" name="TenancyName" class="form-control form-control-lg" placeholder="@L("DomainName")" value="@Model.TenancyName" maxlength="@AbpTenantBase.MaxTenancyNameLength" minlength="2" pattern="@AbpTenantBase.TenancyNameRegex" required="required">
         <div class="input-group-append">
             <div class="input-group-text">
                 <span class="fas fa-building"></span>

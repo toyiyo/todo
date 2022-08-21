@@ -201,14 +201,17 @@ namespace toyiyo.todo.Web.Controllers
 
                 return NavigateToRegisterResultsView(tenantDto, user, isEmailConfirmationRequiredForLogin);
             }
-            catch (UserFriendlyException ex)
-            {
-                ViewBag.ErrorMessage = ex.Message;
-
-                return View("RegisterCompanyAdmin", model);
-            }
+            catch (UserFriendlyException ex) {return SetErrorAndRedirect(model, ex);}
+            catch (Exception ex) {return SetErrorAndRedirect(model, ex);}
 
 
+        }
+
+        private ActionResult SetErrorAndRedirect(RegisterCompanyAdminViewModel model, Exception ex)
+        {
+            ViewBag.ErrorMessage = ex.Message;
+
+            return View("RegisterCompanyAdmin", model);
         }
 
         private ActionResult NavigateToRegisterResultsView(TenantDto tenantDto, User user, bool isEmailConfirmationRequiredForLogin)

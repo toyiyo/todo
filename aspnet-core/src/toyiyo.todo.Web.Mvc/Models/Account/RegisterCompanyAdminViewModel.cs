@@ -1,11 +1,8 @@
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Abp.Auditing;
 using Abp.Authorization.Users;
-using Abp.Extensions;
 using Abp.MultiTenancy;
 using Abp.Runtime.Validation;
-using toyiyo.todo.Validation;
 
 namespace toyiyo.todo.Web.Models.Account
 {
