@@ -26,7 +26,7 @@
     <input type="hidden" name="ExternalLoginAuthSchema" value="@Model.ExternalLoginAuthSchema" />
     
      <div class="form-outline input-group mb-3">
-        <input type="text" name="TenancyName" class="form-control form-control-lg" placeholder="@L("TenancyName")" value="@Model.TenancyName" required maxlength="@AbpTenantBase.MaxTenancyNameLength" minlength="2">
+        <input type="text" name="TenancyName" class="form-control form-control-lg" placeholder="@L("DomainName")" value="@Model.TenancyName" maxlength="@AbpTenantBase.MaxTenancyNameLength" minlength="2" pattern="@AbpTenantBase.TenancyNameRegex" required="required">
         <div class="input-group-append">
             <div class="input-group-text">
                 <span class="fas fa-building"></span>
@@ -34,8 +34,17 @@
         </div>
     </div>   
 
+     <div class="form-outline input-group mb-3">
+        <input type="text" name="Name" class="form-control form-control-lg" placeholder="@L("CompanyName")" value="@Model.Name" required maxlength="@AbpTenantBase.MaxNameLength" minlength="2">
+        <div class="input-group-append">
+            <div class="input-group-text">
+                <span class="fas fa-building"></span>
+            </div>
+        </div>
+    </div>  
+
     <div class="form-outline input-group mb-3">
-        <input type="email" name="EmailAddress" class="form-control form-control-lg" placeholder="@L("EmailAddress")" value="@Model.EmailAddress" required maxlength="@AbpUserBase.MaxEmailAddressLength">
+        <input type="email" name="EmailAddress" class="form-control form-control-lg" placeholder="@L("AdminEmailAddress")" value="@Model.EmailAddress" required maxlength="@AbpUserBase.MaxEmailAddressLength">
         <div class="input-group-append">
             <div class="input-group-text">
                 <span class="fas fa-envelope"></span>

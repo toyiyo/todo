@@ -25,6 +25,8 @@
     <text name="UserLockedOutMessage">The user account has been locked out. Please try again later.</text>
     <text name="PleaseEnterLoginInformation" value="Please enter login information" />
     <text name="TenancyName" value="Company name" />
+    <text name="DomainName" value="Sub Domain" />
+    <text name="CompanyName" value="Company name" />
     <text name="UserNameOrEmail" value="User name or email" />
     <text name="Password" value="Password" />
     <text name="ResetPassword" value="Reset Password" />
@@ -50,7 +52,7 @@
     <text name="ResetPasswordMessage" value="Please set a new password" />
     <text name="CanBeEmptyToLoginAsHost" value="Can be empty to login as host." />
     <text name="Register" value="Register" />
-    <text name="RegisterNewCompany" value="Register new company" />
+    <text name="RegisterNewCompany" value="Register a new company" />
     <text name="OrLoginWith" value="Or login with" />
     <text name="WaitingForActivationMessage" value="Your account is waiting to be activated by system admin." />
     <text name="TenantSelection" value="Company Selection" />

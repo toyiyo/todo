@@ -16,7 +16,6 @@ using Abp.Domain.Uow;
 using Abp.Extensions;
 using Abp.MultiTenancy;
 using Abp.Notifications;
-using Abp.Runtime.Session;
 using Abp.Threading;
 using Abp.Timing;
 using Abp.UI;
@@ -32,6 +31,8 @@ using toyiyo.todo.Web.Models.Account;
 using toyiyo.todo.Web.Views.Shared.Components.TenantChange;
 using toyiyo.todo.Editions;
 using toyiyo.todo.Authorization.Roles;
+using toyiyo.todo.MultiTenancy.Dto;
+using Abp.Runtime.Security;
 
 namespace toyiyo.todo.Web.Controllers
 {
@@ -56,6 +57,7 @@ namespace toyiyo.todo.Web.Controllers
             UserManager userManager,
             IMultiTenancyConfig multiTenancyConfig,
             TenantManager tenantManager,
+            TenantAppService tenantAppService,
             IUnitOfWorkManager unitOfWorkManager,
             AbpLoginResultTypeHelper abpLoginResultTypeHelper,
             LogInManager logInManager,
@@ -160,82 +162,186 @@ namespace toyiyo.todo.Web.Controllers
         {
             try
             {
-                //create a tenant - 
-                //todo: change logic to call the tenantappservice - same logic we are duplicating here
-                var tenant = new Tenant(model.TenancyName, model.TenancyName);
+                CreateTenantDto createTenantDto = CreateTenantDto(model);
 
+                Authorization.Users.User.ValidateTenantDomainMatchesAdminEmailDomain(createTenantDto.TenancyName, createTenantDto.AdminEmailAddress);
 
-                var defaultEdition = await _editionManager.FindByNameAsync(EditionManager.DefaultEditionName);
-                if (defaultEdition != null)
+                var tenantDto = await CreateTenantAsync(createTenantDto);
+
+                ExternalLoginInfo externalLoginInfo = null;
+                externalLoginInfo = await SetExternalLoginInfo(model, externalLoginInfo);
+
+                //creating a tenant will create an admin user, it just doesn't return a user instance
+                //we need a user instance in order to authenticate and re-route the user, so let's create a user instance here
+                var user = Authorization.Users.User.CreateTenantAdminUser(tenantDto.Id, model.EmailAddress);
+
+                // Getting tenant-specific settings
+                var isEmailConfirmationRequiredForLogin = await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.IsEmailConfirmationRequiredForLogin);
+                SetUserLoginInfoFromExternalProvider(model, externalLoginInfo, user);
+
+                await _unitOfWorkManager.Current.SaveChangesAsync();
+
+                Debug.Assert(user.TenantId != null);
+
+                // Directly login if possible
+                if (user.IsActive && (user.IsEmailConfirmed || !isEmailConfirmationRequiredForLogin))
                 {
-                    tenant.EditionId = defaultEdition.Id;
-                }
+                    AbpLoginResult<Tenant, User> loginResult = await GetLoginResult(model, tenantDto, externalLoginInfo, user);
 
-                await _tenantManager.CreateAsync(tenant);
-                await CurrentUnitOfWork.SaveChangesAsync(); // To get new tenant's id.
-
-                // Create tenant database
-                _abpZeroDbMigrator.CreateOrMigrateForTenant(tenant);
-
-                // We are working entities of new tenant, so changing tenant filter
-                using (CurrentUnitOfWork.SetTenantId(tenant.Id))
-                {
-                    // Create static roles for new tenant
-                    CheckErrors(await _roleManager.CreateStaticRoles(tenant.Id));
-
-                    await CurrentUnitOfWork.SaveChangesAsync(); // To get static role ids
-
-                    // Grant all permissions to admin role
-                    var adminRole = _roleManager.Roles.Single(r => r.Name == StaticRoleNames.Tenants.Admin);
-                    await _roleManager.GrantAllPermissionsAsync(adminRole);
-
-                    // Create admin user for the tenant
-                    var adminUser = toyiyo.todo.Authorization.Users.User.CreateTenantAdminUser(tenant.Id, model.EmailAddress);
-                    await _userManager.InitializeOptionsAsync(tenant.Id);
-
-                    CheckErrors(await _userManager.CreateAsync(adminUser, model.Password));
-                    await CurrentUnitOfWork.SaveChangesAsync(); // To get admin user's id
-
-                    // Assign admin user to role!
-                    CheckErrors(await _userManager.AddToRoleAsync(adminUser, adminRole.Name));
-                    await CurrentUnitOfWork.SaveChangesAsync();
-
-                    var isEmailConfirmationRequiredForLogin = await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.IsEmailConfirmationRequiredForLogin);
-
-                    if (adminUser.IsActive && (adminUser.IsEmailConfirmed || !isEmailConfirmationRequiredForLogin))
+                    if (loginResult.Result == AbpLoginResultType.Success)
                     {
-                        AbpLoginResult<Tenant, User> loginResult;
-
-                        loginResult = await GetLoginResultAsync(adminUser.UserName, model.Password, tenant.TenancyName);
-
-                        if (loginResult.Result == AbpLoginResultType.Success)
-                        {
-                            await _signInManager.SignInAsync(loginResult.Identity, false);
-                            return Redirect(GetAppHomeUrl());
-                        }
-
-                        Logger.Warn("New registered user could not be login. This should not be normally. login result: " + loginResult.Result);
+                        await _signInManager.SignInAsync(loginResult.Identity, false);
+                        return Redirect(GetAppHomeUrl());
                     }
-                    return View("RegisterResult", new RegisterResultViewModel
-                    {
-                        TenancyName = tenant.TenancyName,
-                        NameAndSurname = adminUser.Name + " " + adminUser.Surname,
-                        UserName = adminUser.UserName,
-                        EmailAddress = adminUser.EmailAddress,
-                        IsEmailConfirmed = adminUser.IsEmailConfirmed,
-                        IsActive = adminUser.IsActive,
-                        IsEmailConfirmationRequiredForLogin = isEmailConfirmationRequiredForLogin
-                    });
 
+                    Logger.Warn("New registered user could not be login. login result: " + loginResult.Result);
                 }
 
+                return NavigateToRegisterResultsView(tenantDto, user, isEmailConfirmationRequiredForLogin);
             }
-            catch (UserFriendlyException ex)
-            {
-                ViewBag.ErrorMessage = ex.Message;
+            catch (UserFriendlyException ex) {return SetErrorAndRedirect(model, ex);}
+            catch (Exception ex) {return SetErrorAndRedirect(model, ex);}
 
-                return View("RegisterCompanyAdmin", model);
+
+        }
+
+        private ActionResult SetErrorAndRedirect(RegisterCompanyAdminViewModel model, Exception ex)
+        {
+            ViewBag.ErrorMessage = ex.Message;
+
+            return View("RegisterCompanyAdmin", model);
+        }
+
+        private ActionResult NavigateToRegisterResultsView(TenantDto tenantDto, User user, bool isEmailConfirmationRequiredForLogin)
+        {
+            return View("RegisterResult", new RegisterResultViewModel
+            {
+                TenancyName = tenantDto.TenancyName,
+                NameAndSurname = user.Name + " " + user.Surname,
+                UserName = user.UserName,
+                EmailAddress = user.EmailAddress,
+                IsEmailConfirmed = user.IsEmailConfirmed,
+                IsActive = user.IsActive,
+                IsEmailConfirmationRequiredForLogin = isEmailConfirmationRequiredForLogin
+            });
+        }
+
+        private async Task<AbpLoginResult<Tenant, User>> GetLoginResult(RegisterCompanyAdminViewModel model, TenantDto tenantDto, ExternalLoginInfo externalLoginInfo, User user)
+        {
+            AbpLoginResult<Tenant, User> loginResult;
+            if (externalLoginInfo != null)
+            {
+                loginResult = await _logInManager.LoginAsync(externalLoginInfo, tenantDto.TenancyName);
             }
+            else
+            {
+                loginResult = await GetLoginResultAsync(user.UserName, model.Password, tenantDto.TenancyName);
+            }
+
+            return loginResult;
+        }
+
+        private static void SetUserLoginInfoFromExternalProvider(RegisterCompanyAdminViewModel model, ExternalLoginInfo externalLoginInfo, User user)
+        {
+            if (model.IsExternalLogin)
+            {
+                Debug.Assert(externalLoginInfo != null);
+
+                if (string.Equals(externalLoginInfo?.Principal.FindFirstValue(ClaimTypes.Email), model.EmailAddress, StringComparison.OrdinalIgnoreCase))
+                {
+                    user.IsEmailConfirmed = true;
+                }
+
+                user.Logins = new List<UserLogin>
+                    {
+                        new UserLogin
+                        {
+                            LoginProvider = externalLoginInfo?.LoginProvider,
+                            ProviderKey = externalLoginInfo?.ProviderKey,
+                            TenantId = user.TenantId
+                        }
+                    };
+            }
+        }
+
+        private async Task<ExternalLoginInfo> SetExternalLoginInfo(RegisterCompanyAdminViewModel model, ExternalLoginInfo externalLoginInfo)
+        {
+            if (model.IsExternalLogin)
+            {
+                externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
+                if (externalLoginInfo == null)
+                {
+                    throw new UserFriendlyException("Can not login externally!");
+                }
+
+                model.Password = Authorization.Users.User.CreateRandomPassword();
+            }
+            else
+            {
+                if (model.EmailAddress.IsNullOrEmpty() || model.Password.IsNullOrEmpty())
+                {
+                    throw new UserFriendlyException(L("FormIsNotValidMessage"));
+                }
+            }
+
+            return externalLoginInfo;
+        }
+
+        private static CreateTenantDto CreateTenantDto(RegisterCompanyAdminViewModel model)
+        {
+            return new CreateTenantDto()
+            {
+                TenancyName = model.TenancyName,
+                Name = model.Name,
+                AdminEmailAddress = model.EmailAddress,
+                Password = model.Password,
+                IsActive = true
+            };
+        }
+
+        private async Task<TenantDto> CreateTenantAsync(CreateTenantDto input)
+        {
+            var tenant = ObjectMapper.Map<Tenant>(input);
+            tenant.ConnectionString = input.ConnectionString.IsNullOrEmpty()
+                ? null
+                : SimpleStringCipher.Instance.Encrypt(input.ConnectionString);
+
+            var defaultEdition = await _editionManager.FindByNameAsync(EditionManager.DefaultEditionName);
+            if (defaultEdition != null)
+            {
+                tenant.EditionId = defaultEdition.Id;
+            }
+
+            await _tenantManager.CreateAsync(tenant);
+            await CurrentUnitOfWork.SaveChangesAsync(); // To get new tenant's id.
+
+            // Create tenant database
+            _abpZeroDbMigrator.CreateOrMigrateForTenant(tenant);
+
+            // We are working entities of new tenant, so changing tenant filter
+            using (CurrentUnitOfWork.SetTenantId(tenant.Id))
+            {
+                // Create static roles for new tenant
+                CheckErrors(await _roleManager.CreateStaticRoles(tenant.Id));
+
+                await CurrentUnitOfWork.SaveChangesAsync(); // To get static role ids
+
+                // Grant all permissions to admin role
+                var adminRole = _roleManager.Roles.Single(r => r.Name == StaticRoleNames.Tenants.Admin);
+                await _roleManager.GrantAllPermissionsAsync(adminRole);
+
+                // Create admin user for the tenant
+                var adminUser = Authorization.Users.User.CreateTenantAdminUser(tenant.Id, input.AdminEmailAddress);
+                await _userManager.InitializeOptionsAsync(tenant.Id);
+                CheckErrors(await _userManager.CreateAsync(adminUser, input.Password));
+                await CurrentUnitOfWork.SaveChangesAsync(); // To get admin user's id
+
+                // Assign admin user to role!
+                CheckErrors(await _userManager.AddToRoleAsync(adminUser, adminRole.Name));
+                await CurrentUnitOfWork.SaveChangesAsync();
+            }
+
+            return ObjectMapper.Map<TenantDto>(tenant);
         }
 
         public ActionResult Register()
@@ -272,7 +378,7 @@ namespace toyiyo.todo.Web.Controllers
                     externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
                     if (externalLoginInfo == null)
                     {
-                        throw new Exception("Can not external login!");
+                        throw new UserFriendlyException("Can not login externally!");
                     }
 
                     model.UserName = model.EmailAddress;
