@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Shouldly;
@@ -57,7 +58,7 @@ namespace toyiyo.todo.Tests.Projects
             await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
 
             // Act
-            var result = await _projectAppService.GetAll(new GetAllProjectsInput(){});
+            var result = await _projectAppService.GetAll(new GetAllProjectsInput() { });
 
             // Assert
             result.ShouldNotBeNull();
@@ -74,7 +75,8 @@ namespace toyiyo.todo.Tests.Projects
             await _projectAppService.Create(new CreateProjectInputDto() { Title = "Test" });
 
             // Act
-            var result = await _projectAppService.GetAll(new GetAllProjectsInput(){
+            var result = await _projectAppService.GetAll(new GetAllProjectsInput()
+            {
                 keyword = "test"
             });
 
@@ -103,7 +105,7 @@ namespace toyiyo.todo.Tests.Projects
         [Fact]
         public async Task GetAllProjects_Paging()
         {
-                    // Arrange
+            // Arrange
             var currentUser = await GetCurrentUserAsync();
             var currentTenant = await GetCurrentTenantAsync();
             await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
@@ -111,13 +113,31 @@ namespace toyiyo.todo.Tests.Projects
             await _projectAppService.Create(new CreateProjectInputDto() { Title = "test3" });
 
             // Act
-            var result = await _projectAppService.GetAll(new GetAllProjectsInput(){ MaxResultCount = 1});
+            var result = await _projectAppService.GetAll(new GetAllProjectsInput() { MaxResultCount = 1 });
 
             // Assert
             result.ShouldNotBeNull();
             result.Items.Count.ShouldBe(1);
             result.TotalCount.ShouldBe(3);
-            result.Items[0].Title.ShouldBe("test3");  
+            result.Items[0].Title.ShouldBe("test3");
+
+        }
+
+        [Fact]
+        public async Task ArchiveProject()
+        {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var currentTenant = await GetCurrentTenantAsync();
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+
+            //act
+            var beforeDelete =  await _projectAppService.Get(project.Id);
+            await _projectAppService.Delete(project.Id);
+                        
+            //Assert
+            beforeDelete.Id.ShouldBe(project.Id);
+            await Assert.ThrowsAnyAsync<Exception>(async () => await _projectAppService.Get(project.Id));
 
         }
     }

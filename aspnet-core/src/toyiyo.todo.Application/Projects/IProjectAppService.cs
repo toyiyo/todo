@@ -11,7 +11,7 @@ namespace toyiyo.todo.Projects
         Task<ProjectDto> Get(Guid id);
         Task<PagedResultDto<ProjectDto>> GetAll(GetAllProjectsInput input);
         Task<ProjectDto> SetTitle(ProjectDto input);
-        //create(title, projectId)
+        Task Delete(Guid id);
 //archive(jobid)
 //comment(comment)
 //prioritize(priority)

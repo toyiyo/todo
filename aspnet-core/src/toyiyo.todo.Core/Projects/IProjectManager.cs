@@ -11,6 +11,6 @@ namespace toyiyo.todo.Projects
         Task<List<Project>> GetAll(GetAllProjectsInput input);
         Task<int> GetAllCount(GetAllProjectsInput input);
         Task<Project> Update(Project inputProject);
-        Task Archive(Project inputProject);
+        Task Delete(Project inputProject);
     }
 }

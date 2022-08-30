@@ -64,7 +64,7 @@ namespace toyiyo.todo.Projects
             return project;
         }
 
-        public async Task Archive(Project inputProject)
+        public async Task Delete(Project inputProject)
         {
             //in theory, this will soft delete the project
             //https://aspnetboilerplate.com/Pages/Documents/Entities?searchKey=soft%20delete
