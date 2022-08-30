@@ -22,19 +22,19 @@ Project Management
 
 Asynchronous:
 
-* create(title)
-* archive(id)
-* comment(comment)
-* prioritize(priority
-* setTitle(title)
-* setDescription(description)
-* setDueDate(dueDate)
-* setOwner(owner)
-* assign(assigned)
-* unassign()
-* setStatus(status)
-* inviteMembers(members)
-* removeMembers(members)
+* [*] create(title)
+* [] archive(id)
+* [] comment(comment)
+* [] prioritize(priority
+* [] setTitle(title)
+* [] setDescription(description)
+* [] setDueDate(dueDate)
+* [] setOwner(owner)
+* [] assign(assigned)
+* [] unassign()
+* [] setStatus(status)
+* [] inviteMembers(members)
+* [] removeMembers(members)
 
 
 3+a| 

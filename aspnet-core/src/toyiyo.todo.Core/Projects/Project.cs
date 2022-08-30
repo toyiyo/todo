@@ -58,10 +58,29 @@ namespace toyiyo.todo.Projects
             }
 
             project.Title = title;
+            SetLastModified(project, user);
+            
+            return project;
+        }
+
+        public static Project Archive(Project project, User user)
+        {
+            if (project == null || user == null)
+            {
+                throw new ArgumentNullException($"{nameof(project)}, and {nameof(user)} are required");
+            }
+
+            //archiving is just soft deleting in our case, this class will just validate any domain rules
+            //with the framework, we'll call the manager, which calls the repostory's delete method
+            SetLastModified(project, user);
+            
+            return project;
+        }
+
+        private static void SetLastModified(Project project, User user)
+        {
             project.LastModificationTime = Clock.Now;
             project.LastModifierUserId = user.Id;
-
-            return project;
         }
     }
 }
