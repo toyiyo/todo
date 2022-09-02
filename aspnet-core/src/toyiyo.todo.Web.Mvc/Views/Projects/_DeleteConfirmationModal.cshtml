@@ -1,0 +1,17 @@
+﻿@using toyiyo.todo.Web.Models.Common.Modals
+@model toyiyo.todo.Web.Models.Projects.ProjectListViewModel
+@{
+    Layout = null;
+}
+<div class="modal fade" id="ProjectDeleteModal" tabindex="-1" role="dialog" aria-labelledby="ProjectDeleteModal" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            @await Html.PartialAsync("~/Views/Shared/Modals/_ModalHeader.cshtml", new ModalHeaderViewModel(L("Delete")))
+            <div class="modal-body">
+				<p>Do you really want to delete these records? This process cannot be undone.</p>
+			</div>
+            @await Html.PartialAsync("~/Views/Shared/Modals/_ModalFooterWithDeleteAndCancel.cshtml")
+
+        </div>
+    </div>
+</div>
