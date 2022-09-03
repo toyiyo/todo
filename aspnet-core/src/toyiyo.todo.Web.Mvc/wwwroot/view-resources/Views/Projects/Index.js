@@ -24,13 +24,7 @@
                 return JSON.stringify(json);
             }
         },
-        buttons: [
-            {
-                name: 'refresh',
-                text: '<i class="fas fa-redo-alt"></i>',
-                action: () => _$projectsTable.draw(false)
-            }
-        ],
+        buttons: [],
         responsive: {
             details: {
                 type: 'column'
@@ -42,7 +36,6 @@
                 data: 'title',
                 className: 'title',
                 defaultContent: '',
-                sortable: true,
                 fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
                     $(nTd).html('<a href="' + 'Projects/' + oData.id + '/jobs' + '">' + sData + '</a>');
                 }
@@ -52,6 +45,7 @@
                 data: null,
                 sortable: false,
                 autoWidth: false,
+                width: '5em',
                 defaultContent: '',
                 render: (data, type, row, meta) => {
                     return [
