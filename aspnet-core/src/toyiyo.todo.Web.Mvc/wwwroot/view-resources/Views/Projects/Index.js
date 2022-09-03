@@ -126,7 +126,7 @@
         }
     });
 
-    //triggered when modal is about to be shown
+    //triggered when the delete modal - sets the project id to be deleted
     _$deleteModal.on('show.bs.modal', function (e) {
 
         //get data-id attribute of the clicked element
@@ -136,21 +136,22 @@
         $(e.currentTarget).find('input[name="ProjectId"]').val(projectId);
     });
 
-    // $(document).on('click', '.delete-project', function (e) {
-    //     let projectId = $(this).attr("data-project-id");
-    //     e.preventDefault();
+    _$deleteModal.on('click', '.delete-button', function (e) {
+        let projectId = $(this).closest('div.modal-content').find('input[name="ProjectId"]').val();
 
-    //     abp.ui.setBusy(_$deleteModal);
+        e.preventDefault();
 
-    //     _projectService
-    //         .delete(projectId)
-    //         .done(function () {
-    //             abp.notify.warn(l('Deleted Successfully'));
-    //             _$projectsTable.ajax.reload();
-    //         })
-    //         .always(function () {
-    //             abp.ui.clearBusy(_$deleteModal);
-    //         });
-    // });
+        abp.ui.setBusy(_$deleteModal);
+
+        _projectService
+            .delete(projectId)
+            .done(function () {
+                abp.notify.info(l('Deleted Successfully'));
+                _$projectsTable.ajax.reload();
+            })
+            .always(function () {
+                abp.ui.clearBusy(_$deleteModal);
+            });
+    });
 
 })(jQuery);
