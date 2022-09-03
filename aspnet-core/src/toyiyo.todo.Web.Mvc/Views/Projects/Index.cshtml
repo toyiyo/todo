@@ -65,6 +65,7 @@
 </section>
 
 @await Html.PartialAsync("~/Views/Projects/_CreateModal.cshtml", Model)
+@await Html.PartialAsync("~/Views/Projects/_DeleteConfirmationModal.cshtml")
 
 <div class="modal fade" id="ProjectEditModal" tabindex="-1" role="dialog" aria-labelledby="ProjectEditModalLabel" data-backdrop="static">
     <div class="modal-dialog modal-lg" role="document">

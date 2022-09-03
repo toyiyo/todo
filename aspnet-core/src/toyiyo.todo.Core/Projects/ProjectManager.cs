@@ -63,5 +63,12 @@ namespace toyiyo.todo.Projects
             var project = await _projectRepository.UpdateAsync(inputProject);
             return project;
         }
+
+        public async Task Delete(Project inputProject)
+        {
+            //in theory, this will soft delete the project
+            //https://aspnetboilerplate.com/Pages/Documents/Entities?searchKey=soft%20delete
+            await _projectRepository.DeleteAsync(inputProject.Id);
+        }
     }
 }

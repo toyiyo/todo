@@ -38,5 +38,13 @@ namespace toyiyo.todo.Projects {
             await _projectManager.Update(project);
             return ObjectMapper.Map<ProjectDto>(project);
         }
+
+        /// <summary> Archives a project by setting is as soft deleted </summary>
+        public async Task Delete(Guid id) {
+            //call the project's archive method to validate business rules
+            var project = Project.Delete(await _projectManager.Get(id), await GetCurrentUserAsync());
+            //Call the manager's archive method
+            await _projectManager.Delete(project);
+        }
     }
 }

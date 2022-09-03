@@ -9,8 +9,8 @@ namespace toyiyo.todo.Projects
         Task<Project> Create(Project inputProject);
         Task<Project> Get(Guid id);
         Task<List<Project>> GetAll(GetAllProjectsInput input);
-
         Task<int> GetAllCount(GetAllProjectsInput input);
         Task<Project> Update(Project inputProject);
+        Task Delete(Project inputProject);
     }
 }
