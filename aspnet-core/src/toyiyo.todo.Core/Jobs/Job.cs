@@ -76,8 +76,7 @@ namespace toyiyo.todo.Jobs
             }
 
             job.Title = title;
-            job.LastModificationTime = Clock.Now;
-            job.LastModifierUserId = user.Id;
+            SetLastModified(job, user);
 
             return job;
         }
@@ -91,10 +90,29 @@ namespace toyiyo.todo.Jobs
             }
 
             job.Description = description;
-            job.LastModificationTime = Clock.Now;
-            job.LastModifierUserId = user.Id;
+            SetLastModified(job, user);
 
             return job;
+        }
+
+        public static Job Delete(Job job, User user)
+        {
+            //at present, anyone with account access can delete, consider limiting delete operations to owners or assignees to the job.
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+
+            SetLastModified(job, user);
+            job.IsDeleted = true;
+            job.DeletionTime = Clock.Now;
+            job.DeleterUserId = user.Id;
+
+            return job;
+        }
+
+        private static void SetLastModified(Job job, User user)
+        {
+            job.LastModificationTime = Clock.Now;
+            job.LastModifierUserId = user.Id;
         }
 
         public static Job SetStatus(Job job, Status status, User user)
@@ -106,8 +124,7 @@ namespace toyiyo.todo.Jobs
             }
 
             job.JobStatus = status;
-            job.LastModificationTime = Clock.Now;
-            job.LastModifierUserId = user.Id;
+            SetLastModified(job, user);
 
             return job;
         }
@@ -126,10 +143,11 @@ namespace toyiyo.todo.Jobs
             }
 
             job.DueDate = dueDate;
-            job.LastModificationTime = Clock.Now;
-            job.LastModifierUserId = user.Id;
+            SetLastModified(job, user);
 
             return job;
         }
+
+
     }
 }

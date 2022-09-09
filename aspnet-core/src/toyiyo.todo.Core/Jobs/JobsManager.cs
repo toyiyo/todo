@@ -67,5 +67,10 @@ namespace toyiyo.todo.Jobs
             var job = await _jobRepository.UpdateAsync(inputJob);
             return job;
         }
+
+        public async Task Delete(Job job)
+        {
+            await _jobRepository.DeleteAsync(job);
+        }
     }
 }

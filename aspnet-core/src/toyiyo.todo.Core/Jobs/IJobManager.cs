@@ -12,5 +12,6 @@ namespace toyiyo.todo.Jobs
 
         Task<int> GetAllCount(GetAllJobsInput input);
         Task<Job> Update(Job inputJob);
+        Task Delete(Job job);
     }
 }
