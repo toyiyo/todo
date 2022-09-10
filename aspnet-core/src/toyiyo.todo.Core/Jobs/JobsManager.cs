@@ -10,6 +10,7 @@ using Abp.Domain.Uow;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Microsoft.EntityFrameworkCore;
+using toyiyo.todo.Authorization.Users;
 
 namespace toyiyo.todo.Jobs
 {
@@ -68,8 +69,9 @@ namespace toyiyo.todo.Jobs
             return job;
         }
 
-        public async Task Delete(Job job)
+        public async Task Delete(Guid id, User user)
         {
+            var job = Job.Delete(await this.Get(id), user);
             await _jobRepository.DeleteAsync(job);
         }
     }

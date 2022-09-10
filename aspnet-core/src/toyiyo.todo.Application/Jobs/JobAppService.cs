@@ -78,8 +78,7 @@ namespace toyiyo.todo.Jobs
             {
                 //call the domain object's delete method so that our domain logic is checked, the get method gets the domain filtering already, so we don't delete jobs for tenants the user doesn't have access to
                 //the domain object will perform validations and throw exceptions
-                var job = Job.Delete(await _jobManager.Get(id), await GetCurrentUserAsync());
-                await _jobManager.Delete(job);
+                await _jobManager.Delete(id,  await GetCurrentUserAsync());
                 //https://learning.oreilly.com/library/view/rest-in-practice/9781449383312/ch04.html#delete_request_and_responses
                 return new NoContentResult();
             }

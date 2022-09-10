@@ -124,7 +124,7 @@ namespace toyiyo.todo.Tests.Projects
         }
 
         [Fact]
-        public async Task ArchiveProject()
+        public async Task DeleteProject()
         {
             // Arrange
             var currentUser = await GetCurrentUserAsync();

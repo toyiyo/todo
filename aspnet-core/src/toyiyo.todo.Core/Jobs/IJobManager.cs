@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using toyiyo.todo.Authorization.Users;
 
 namespace toyiyo.todo.Jobs
 {
@@ -12,6 +13,6 @@ namespace toyiyo.todo.Jobs
 
         Task<int> GetAllCount(GetAllJobsInput input);
         Task<Job> Update(Job inputJob);
-        Task Delete(Job job);
+        Task Delete(Guid id, User user);
     }
 }
