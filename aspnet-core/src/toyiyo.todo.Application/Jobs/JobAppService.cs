@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using toyiyo.todo.Authorization;
 using toyiyo.todo.Jobs.Dto;
 using toyiyo.todo.Projects;
@@ -69,6 +70,20 @@ namespace toyiyo.todo.Jobs
             var job = Job.SetDueDate(await _jobManager.Get(jobSetDueDateInputDto.Id), jobSetDueDateInputDto.DueDate, await GetCurrentUserAsync());
             await _jobManager.Update(job);
             return ObjectMapper.Map<JobDto>(job);
+        }
+/// <inheritdoc/>
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            try
+            {
+                //call the domain object's delete method so that our domain logic is checked, the get method gets the domain filtering already, so we don't delete jobs for tenants the user doesn't have access to
+                //the domain object will perform validations and throw exceptions
+                await _jobManager.Delete(id,  await GetCurrentUserAsync());
+                //https://learning.oreilly.com/library/view/rest-in-practice/9781449383312/ch04.html#delete_request_and_responses
+                return new NoContentResult();
+            }
+            catch (System.ArgumentNullException) { return new NotFoundResult();}
+            catch (Abp.Domain.Entities.EntityNotFoundException) {return new NotFoundResult();}            
         }
     }
 }

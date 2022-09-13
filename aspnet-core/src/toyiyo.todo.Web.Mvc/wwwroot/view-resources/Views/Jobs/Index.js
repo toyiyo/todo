@@ -2,15 +2,16 @@
     var _jobService = abp.services.app.job,
         l = abp.localization.getSource('todo'),
         _$modal = $('#JobCreateModal'),
+        _$deleteModal = $('#JobDeleteModal'),
         _$form = $('#JobCreateForm'),
         _$table = $('#JobsTable');
-        
-        const backlogFavicon = 'far fa-circle';
-        const inProgressFavicon = 'fa fa-spinner';
-        const doneFavicon = 'far fa-check-circle';
 
-        const getStatusDropdown =  function(jobStatus, id, favicon){
-           return `<div class="dropdown show">
+    const backlogFavicon = 'far fa-circle';
+    const inProgressFavicon = 'fa fa-spinner';
+    const doneFavicon = 'far fa-check-circle';
+
+    const getStatusDropdown = function (jobStatus, id, favicon) {
+        return `<div class="dropdown show">
         <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="${favicon} fa-2x job-status" data-job-status="${jobStatus}" data-job-id="${id}"></i>
         </a>
@@ -21,7 +22,7 @@
             <a class="dropdown-item job-status-selector ${doneFavicon}" selected-job-status=2 href="#"> Done</a>
         </div>
       </div>`
-        }
+    }
 
     var _$jobsTable = _$table.DataTable({
         paging: true,
@@ -33,7 +34,7 @@
                 return {
                     keyword: $('#JobsSearchForm input[type=search]').val(),
                     jobStatus: $('#SelectedJobStatus').val(),
-                    projectId: $('#ProjectId').val()                  
+                    projectId: $('#ProjectId').val()
                 }
             },
             dataFilter: function (data) {
@@ -62,7 +63,7 @@
                         return getStatusDropdown(row.jobStatus, row.id, doneFavicon);
                     } else if (row.jobStatus === 1) {
                         return getStatusDropdown(row.jobStatus, row.id, inProgressFavicon);
-                    } else if (row.jobStatus === 0) { 
+                    } else if (row.jobStatus === 0) {
                         return getStatusDropdown(row.jobStatus, row.id, backlogFavicon);
                     }
                 }
@@ -80,11 +81,14 @@
                 sortable: false,
                 autoWidth: false,
                 defaultContent: '',
-                width: '1em',
+                width: '5em',
                 render: (data, type, row, meta) => {
                     return [
                         `   <button type="button" class="btn btn-sm bg-secondary edit-job" data-job-id="${row.id}" data-toggle="modal" data-target="#JobEditModal">`,
                         `       <i class="fas fa-pencil-alt"></i>`,
+                        '   </button>',
+                        `   <button type="button" class="btn btn-sm bg-danger delete-job" data-job-id="${row.id}" data-toggle="modal" data-target="#JobDeleteModal">`,
+                        `       <i class="fas fa-trash-alt" title=${l('Delete')}></i>`,
                         '   </button>',
                     ].join('');
                 }
@@ -145,7 +149,7 @@
         $('#SelectedJobStatus').val($(this).attr('data-job-status-filter'));
         _$jobsTable.ajax.reload();
     });
-    
+
     //edit job
     $(document).on('click', '.edit-job', function (e) {
         var jobId = $(this).attr("data-job-id");
@@ -185,4 +189,39 @@
             return false;
         }
     });
+    //triggered when the delete modal - sets the job id to be deleted
+    _$deleteModal.on('show.bs.modal', function (e) {
+
+        //get data-id attribute of the clicked element
+        let jobId = $(e.relatedTarget).attr('data-job-id');
+
+        //populate the textbox
+        $(e.currentTarget).find('input[name="JobId"]').val(jobId);
+    });
+
+    _$deleteModal.on('click', '.delete-button', function (e) {
+        let jobId = $(this).closest('div.modal-content').find('input[name="JobId"]').val();
+
+        e.preventDefault();
+
+        abp.ui.setBusy(_$deleteModal);
+
+        deleteJob(jobId)
+            .done(function () {
+                abp.notify.info(l('Deleted Successfully'));
+                _$jobsTable.ajax.reload();
+            })
+            .always(function () {
+                abp.ui.clearBusy(_$deleteModal);
+            });
+    });
+    //since our service returns IactionResult (httpresponse), it doesn't get ajax wrapping from apb framework, causing a js error if we use the default _jobService.Delete function since it expects a wrapper object
+    //https://aspnetboilerplate.com/Pages/Documents/Javascript-API/AJAX?searchKey=MvcAjaxResponse
+    const deleteJob = function (id) {
+        return $.ajax({
+            url: abp.appPath + 'api/services/app/Job/Delete' + abp.utils.buildQueryString([{ name: 'id', value: id }]) + '',
+            type: 'DELETE'
+        });
+    };
+
 })(jQuery);

@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
+using Microsoft.AspNetCore.Mvc;
 using toyiyo.todo.Jobs.Dto;
 
 namespace toyiyo.todo.Jobs
@@ -14,5 +15,6 @@ namespace toyiyo.todo.Jobs
         Task<JobDto> SetDescription(JobSetDescriptionInputDto jobSetDescriptionInputDto);
         Task<JobDto> SetJobStatus(JobSetStatusInputDto jobSetStatusInputDto);
         Task<JobDto> SetDueDate(JobSetDueDateInputDto jobSetDueDateInputDto);
+        Task<IActionResult> Delete(Guid id);
     }
 }

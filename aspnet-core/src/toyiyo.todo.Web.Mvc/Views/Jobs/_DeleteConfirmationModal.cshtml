@@ -2,10 +2,10 @@
 @{
     Layout = null;
 }
-<div class="modal fade" id="ProjectDeleteModal" tabindex="-1" role="dialog" aria-labelledby="ProjectDeleteModal" data-backdrop="static">
+<div class="modal fade" id="JobDeleteModal" tabindex="-1" role="dialog" aria-labelledby="JobDeleteModal" data-backdrop="static">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <input type="hidden" name="ProjectId" />
+            <input type="hidden" name="JobId" />
             @await Html.PartialAsync("~/Views/Shared/Modals/_ModalHeader.cshtml", new ModalHeaderViewModel(L("Delete")))
             <div class="modal-body">
 				<p>Do you really want to delete these records? This process cannot be undone.</p>
