@@ -1,31 +1,56 @@
 ﻿/* prevent the drop down icon going onto a new line for the top bar language link */
 .top-bar-language-nav-link {
-    min-width: 65px;
+  min-width: 65px;
 }
 
 /* bootstrap model showing two scroll bars */
 html {
-    overflow: visible;
+  overflow: visible;
 }
 
 /* main sidebar not under model */
 .modal {
-    z-index: 1110;
+  z-index: 1110;
 }
 
 .form-group.required .col-form-label:after {
-    color: #d00;
-    content: "*";
-    position: absolute;
-    margin-left: 3px;
+  color: #d00;
+  content: "*";
+  position: absolute;
+  margin-left: 3px;
 }
 
 .nav-user-menu .user-image {
-    width: 20px;
-    margin-right: 4px;
-    margin-top: -4px;
+  width: 20px;
+  margin-right: 4px;
+  margin-top: -4px;
 }
 
 .famfamfam-flags {
-    display: inline-block;
+  display: inline-block;
+}
+
+.table > tbody > tr:hover > td,
+.table > tbody > tr:hover > th {
+  background-color: rgb(218, 221, 222);
+}
+
+table.dt-rowReorder-float {
+  position: absolute !important;
+  opacity: 0.8;
+  table-layout: fixed;
+  outline: 2px solid #888;
+  outline-offset: -2px;
+  z-index: 2001;
+}
+tr.dt-rowReorder-moving {
+  outline: 2px solid #555;
+  outline-offset: -2px;
+}
+body.dt-rowReorder-noOverflow {
+  overflow-x: hidden;
+}
+table.dataTable td.reorder {
+  text-align: center;
+  cursor: grab;
 }

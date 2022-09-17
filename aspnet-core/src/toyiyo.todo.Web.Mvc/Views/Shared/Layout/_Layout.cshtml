@@ -19,7 +19,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
 
     <title>@pageTitle</title>
 
@@ -40,5 +39,8 @@
     @await Html.PartialAsync("_Scripts.cshtml")
     @RenderSection("scripts", required: false)
     @WebResourceManager.RenderScripts()
+    @* cdn based scripts *@
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+    <script src="https://cdn.datatables.net/rowreorder/1.2.8/js/dataTables.rowReorder.min.js"></script>
 </body>
 </html>

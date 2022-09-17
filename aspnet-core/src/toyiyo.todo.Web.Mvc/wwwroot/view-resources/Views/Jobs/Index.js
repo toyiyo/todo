@@ -25,9 +25,13 @@
     }
 
     var _$jobsTable = _$table.DataTable({
+        rowReorder: {
+            dataSrc: 'lastModificationTime'
+        },
+        responsive: true,
         paging: true,
         serverSide: true,
-        //lengthMenu: [ [25, 50, 2147483647], [25, 50, "All"] ],
+        select: true,
         listAction: {
             ajaxFunction: abp.services.app.job.getAll,
             inputFilter: function () {
@@ -52,11 +56,27 @@
             }
         },
         columnDefs: [
+            { orderable: true, className: 'reorder', targets: 0 },
+            { orderable: false, targets: '_all' },
             {
                 targets: 0,
+                data: 'lastModificationTime',
+                width: '1em',
+                className: 'reorder',
+                render: (data, type, row, meta) => {
+                    return [
+                        `<div data-order-datetime"${row.lastModificationTime}">`,
+                            `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grip-vertical" viewBox="0 0 16 16">`,
+                            `<path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>`,
+                            `</svg>`,
+                        `</div>`,
+                    ].join('');
+                }
+            },
+            {
+                targets: 1,
                 data: null,
                 defaultContent: '',
-                sortable: false,
                 width: '1em',
                 render: (data, type, row, meta) => {
                     if (row.jobStatus === 2) {
@@ -69,16 +89,14 @@
                 }
             },
             {
-                targets: 1,
+                targets: 2,
                 data: 'title',
                 className: 'title',
-                defaultContent: '',
-                sortable: false
+                defaultContent: ''
             },
             {
-                targets: 2,
+                targets: 3,
                 data: null,
-                sortable: false,
                 autoWidth: false,
                 defaultContent: '',
                 width: '5em',
@@ -92,7 +110,7 @@
                         '   </button>',
                     ].join('');
                 }
-            }
+            },
         ]
     });
 
@@ -165,6 +183,10 @@
         })
     });
 
+    _$jobsTable.on( 'row-reorder', function ( e, diff, edit ) {
+        console.log(diff);
+        console.log(edit);
+    } );
     abp.event.on('job.edited', (_data) => {
         //since we have HTML rather than object data (how do we get the object data?), we need to query the server again and refresh the row
         // _jobService.get(data.id).done(function (result) {
