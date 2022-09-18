@@ -213,7 +213,7 @@
 
         //if no newOrderByDate date is found, it means we moved the row in place and no change is necessary
         if (orderByDate != null) {
-            let jobPatchOrderByDateInputDto = { id: jobId, orderByDate: orderByDate };
+            var jobPatchOrderByDateInputDto = { id: jobId, orderByDate: orderByDate };
 
             e.preventDefault();
 
