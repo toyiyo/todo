@@ -193,15 +193,15 @@
             const movedIntoOrderDate = rowMoved.newData;
 
             if (moveDirection === "newer") {
-                let newOrderByDate = new Date(movedIntoOrderDate)
-                let miliseconds = newOrderByDate.getMilliseconds() + 1;
-                newOrderByDate.setMilliseconds(miliseconds);
-                return newOrderByDate
+                const newerOrderByDate = new Date(movedIntoOrderDate)
+                const miliseconds = newerOrderByDate.getMilliseconds() + 1;
+                newerOrderByDate.setMilliseconds(miliseconds);
+                return newerOrderByDate
             } else {
-                let newOrderByDate = new Date(movedIntoOrderDate)
-                let miliseconds = newOrderByDate.getMilliseconds() - 1;
-                newOrderByDate.setMilliseconds(miliseconds);
-                return newOrderByDate
+                const olderOrderByDate = new Date(movedIntoOrderDate)
+                const miliseconds = olderOrderByDate.getMilliseconds() - 1;
+                olderOrderByDate.setMilliseconds(miliseconds);
+                return olderOrderByDate
             }
         }
     }
@@ -209,11 +209,11 @@
     //handle re-order event by saving the orderby date
     _$jobsTable.on('row-reorder', function (e, diff, edit) {
         const jobId = edit.triggerRow.data()["id"];
-        const newOrderByDate = getOrderByDate(diff, edit);
+        const orderByDate = getOrderByDate(diff, edit);
 
         //if no newOrderByDate date is found, it means we moved the row in place and no change is necessary
-        if (newOrderByDate != null) {
-            let jobPatchOrderByDateInputDto = { id: jobId, orderByDate: newOrderByDate };
+        if (orderByDate != null) {
+            let jobPatchOrderByDateInputDto = { id: jobId, orderByDate: orderByDate };
 
             e.preventDefault();
 
