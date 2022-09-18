@@ -71,19 +71,37 @@ namespace toyiyo.todo.Jobs
             await _jobManager.Update(job);
             return ObjectMapper.Map<JobDto>(job);
         }
-/// <inheritdoc/>
+
+        /// <summary>
+        /// sets the order by date to manually sort
+        /// </summary>
+        /// <param name="jobPatchOrderByDateInputDto"></param>
+        /// <returns>ob with updated order by date</returns>
+        public async Task<ActionResult<JobDto>> PatchOrderByDate(JobPatchOrderByDateInputDto jobPatchOrderByDateInputDto)
+        {
+            //see more best practices in https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-implementation
+            try
+            {
+                var job = await _jobManager.SetOrderByDate(jobPatchOrderByDateInputDto.Id, await GetCurrentUserAsync(), jobPatchOrderByDateInputDto.OrderByDate);
+                await _jobManager.Update(job);
+                return ObjectMapper.Map<JobDto>(job);
+            }
+            catch (ArgumentNullException) { return new NotFoundResult(); }
+            catch (Abp.Domain.Entities.EntityNotFoundException) { return new NotFoundResult(); }
+        }
+        /// <inheritdoc/>
         public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
                 //call the domain object's delete method so that our domain logic is checked, the get method gets the domain filtering already, so we don't delete jobs for tenants the user doesn't have access to
                 //the domain object will perform validations and throw exceptions
-                await _jobManager.Delete(id,  await GetCurrentUserAsync());
+                await _jobManager.Delete(id, await GetCurrentUserAsync());
                 //https://learning.oreilly.com/library/view/rest-in-practice/9781449383312/ch04.html#delete_request_and_responses
                 return new NoContentResult();
             }
-            catch (System.ArgumentNullException) { return new NotFoundResult();}
-            catch (Abp.Domain.Entities.EntityNotFoundException) {return new NotFoundResult();}            
+            catch (System.ArgumentNullException) { return new NotFoundResult(); }
+            catch (Abp.Domain.Entities.EntityNotFoundException) { return new NotFoundResult(); }
         }
     }
 }

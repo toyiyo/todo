@@ -12,8 +12,10 @@ namespace toyiyo.todo.Jobs
     public class Job : FullAuditedEntity<Guid>, IMustHaveTenant
     {
         public enum Status {Open, InProgress, Done };
+        private DateTime _orderByDate;
         public const int MaxTitleLength = 500; //todo: max length should be defined in the configuration
         public const int MaxDescriptionLength = 2000000; // 2MB limit | 307692 - 400000 words | 1230.8 - 1600.0 pages
+
         //note: protected setter forces users to use "Set..." methods to set the value
         [Required]
         public Project Project { get; protected set; }
@@ -30,6 +32,8 @@ namespace toyiyo.todo.Jobs
         public Status JobStatus {get; protected set;}
         [Required]
         public virtual int TenantId { get; set; }
+        //our default ordering is by date created, give we don't have all the values in the DB, we are returning a default value in code
+        public DateTime OrderByDate {get {return (_orderByDate == DateTime.MinValue) ? CreationTime : _orderByDate; } protected set {_orderByDate = value;} }
 
         /// <summary>
         /// We don't make constructor public and forcing to create events using <see cref="Create"/> method.
@@ -61,7 +65,8 @@ namespace toyiyo.todo.Jobs
                 LastModifierUserId = user.Id,
                 CreationTime = Clock.Now,
                 LastModificationTime = Clock.Now,
-                JobStatus = Status.Open
+                JobStatus = Status.Open,
+                OrderByDate = Clock.Now
             };
 
             return job;
@@ -78,6 +83,17 @@ namespace toyiyo.todo.Jobs
             job.Title = title;
             SetLastModified(job, user);
 
+            return job;
+        }
+
+        public static Job SetOrderByDate(Job job, User user, DateTime orderByDate)
+        {
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if (orderByDate == default) { throw new ArgumentNullException(nameof(orderByDate)); }
+
+            job.OrderByDate = orderByDate;
+            SetLastModified(job, user);
             return job;
         }
 

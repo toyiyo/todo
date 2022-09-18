@@ -26,7 +26,8 @@
 
     var _$jobsTable = _$table.DataTable({
         rowReorder: {
-            dataSrc: 'lastModificationTime'
+            dataSrc: 'orderByDate',
+            update: false
         },
         responsive: true,
         paging: true,
@@ -38,7 +39,8 @@
                 return {
                     keyword: $('#JobsSearchForm input[type=search]').val(),
                     jobStatus: $('#SelectedJobStatus').val(),
-                    projectId: $('#ProjectId').val()
+                    projectId: $('#ProjectId').val(),
+                    sorting: 'OrderByDate DESC',
                 }
             },
             dataFilter: function (data) {
@@ -66,9 +68,9 @@
                 render: (data, type, row, meta) => {
                     return [
                         `<div data-order-datetime"${row.lastModificationTime}">`,
-                            `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grip-vertical" viewBox="0 0 16 16">`,
-                            `<path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>`,
-                            `</svg>`,
+                        `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grip-vertical" viewBox="0 0 16 16">`,
+                        `<path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>`,
+                        `</svg>`,
                         `</div>`,
                     ].join('');
                 }
@@ -183,10 +185,46 @@
         })
     });
 
-    _$jobsTable.on( 'row-reorder', function ( e, diff, edit ) {
-        console.log(diff);
-        console.log(edit);
-    } );
+    const getOrderByDate = function (diff, edit) {
+        const rowMoved = diff.filter(item => item.oldData === edit.triggerRow.data()["orderByDate"])[0]
+
+        if (rowMoved != null) {
+            const moveDirection = (rowMoved.oldPosition - rowMoved.newPosition) > 0 ? "newer" : "older"
+            const movedIntoOrderDate = rowMoved.newData;
+
+            if (moveDirection === "newer") {
+                let newOrderByDate = new Date(movedIntoOrderDate)
+                let miliseconds = newOrderByDate.getMilliseconds() + 1;
+                newOrderByDate.setMilliseconds(miliseconds);
+                return newOrderByDate
+            } else {
+                let newOrderByDate = new Date(movedIntoOrderDate)
+                let miliseconds = newOrderByDate.getMilliseconds() - 1;
+                newOrderByDate.setMilliseconds(miliseconds);
+                return newOrderByDate
+            }
+        }
+    }
+
+    //handle re-order event by saving the orderby date
+    _$jobsTable.on('row-reorder', function (e, diff, edit) {
+        const jobId = edit.triggerRow.data()["id"];
+        const newOrderByDate = getOrderByDate(diff, edit);
+
+        //if no newOrderByDate date is found, it means we moved the row in place and no change is necessary
+        if (newOrderByDate != null) {
+            let jobPatchOrderByDateInputDto = { id: jobId, orderByDate: newOrderByDate };
+
+            e.preventDefault();
+
+            _jobService.patchOrderByDate(jobPatchOrderByDateInputDto)
+                .done(function () { })
+                .always(function () {
+                    abp.ui.clearBusy(_$modal);
+                });
+        }
+    });
+
     abp.event.on('job.edited', (_data) => {
         //since we have HTML rather than object data (how do we get the object data?), we need to query the server again and refresh the row
         // _jobService.get(data.id).done(function (result) {
