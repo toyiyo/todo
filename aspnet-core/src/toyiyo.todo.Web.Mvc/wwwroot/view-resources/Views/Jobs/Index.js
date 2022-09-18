@@ -52,11 +52,11 @@
             }
         },
         buttons: [],
-        responsive: {
-            details: {
-                type: 'column'
-            }
-        },
+        // responsive: {
+        //     details: {
+        //         type: 'column'
+        //     }
+        // },
         columnDefs: [
             { orderable: true, className: 'reorder', targets: 0 },
             { orderable: false, targets: '_all' },
