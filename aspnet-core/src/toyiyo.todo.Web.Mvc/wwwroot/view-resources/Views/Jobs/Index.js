@@ -194,13 +194,13 @@
 
             if (moveDirection === "newer") {
                 const newerOrderByDate = new Date(movedIntoOrderDate)
-                const miliseconds = newerOrderByDate.getMilliseconds() + 1;
-                newerOrderByDate.setMilliseconds(miliseconds);
+                const milisecondsAdded = newerOrderByDate.getMilliseconds() + 1;
+                newerOrderByDate.setMilliseconds(milisecondsAdded);
                 return newerOrderByDate
             } else {
                 const olderOrderByDate = new Date(movedIntoOrderDate)
-                const miliseconds = olderOrderByDate.getMilliseconds() - 1;
-                olderOrderByDate.setMilliseconds(miliseconds);
+                const milisecondsReduced = olderOrderByDate.getMilliseconds() - 1;
+                olderOrderByDate.setMilliseconds(milisecondsReduced);
                 return olderOrderByDate
             }
         }
