@@ -69,7 +69,7 @@
                 return;
             }
 
-            abp.ui.setBusy(settings.nTable);
+            //abp.ui.setBusy(settings.nTable);
 
             doAjax(settings.oInit.listAction, requestData, callbackFunction, settings);
         }

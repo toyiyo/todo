@@ -28,6 +28,6 @@ namespace toyiyo.todo.Jobs.Dto
         public string LastModifierUserId { get; set; }
         public DateTime? LastModificationTime { get; set; }
         public int? TenantId { get; set; }
-
+        public DateTime OrderByDate { get; set; }
     }
 }

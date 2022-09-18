@@ -14,5 +14,6 @@ namespace toyiyo.todo.Jobs
         Task<int> GetAllCount(GetAllJobsInput input);
         Task<Job> Update(Job inputJob);
         Task Delete(Guid id, User user);
+        Task<Job> SetOrderByDate(Guid id, User user, DateTime orderByDate);
     }
 }

@@ -30,13 +30,12 @@ namespace toyiyo.todo.Jobs
         //GetAll() repository method requires a unit of work to be open. see https://aspnetboilerplate.com/Pages/Documents/Unit-Of-Work#irepository-getall-method
         [UnitOfWork]
         public async Task<List<Job>> GetAll(GetAllJobsInput input)
-        {            
-
+        {
             return await GetAllJobsQueryable(input)
             .Include(p => p.Project)
             .Include(p => p.Assignee)
             .Include(p => p.Owner)
-            .OrderBy<Job>(input?.Sorting ?? "CreationTime DESC")
+            .OrderBy<Job>(input?.Sorting ?? "OrderByDate DESC")
             .Skip(input?.SkipCount ?? 0)
             .Take(input?.MaxResultCount ?? int.MaxValue)
             .ToListAsync();
@@ -73,6 +72,15 @@ namespace toyiyo.todo.Jobs
         {
             var job = Job.Delete(await this.Get(id), user);
             await _jobRepository.DeleteAsync(job);
+        }
+
+        public async Task<Job> SetOrderByDate(Guid id, User user, DateTime orderByDate)
+        {
+            //the manager is ust a pass through to instantiate the correct class to handle the logic
+            //For our domain, the Job class contains the domain logic
+            var job = Job.SetOrderByDate(await Get(id), user, orderByDate);
+            //Our repository class already filters by tenant, so when getting the job by id, if the current user doesn't have access, the job will be empty and no update will happen
+            return await _jobRepository.UpdateAsync(job);
         }
     }
 }

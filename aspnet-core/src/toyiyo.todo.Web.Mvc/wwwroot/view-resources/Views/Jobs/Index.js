@@ -25,16 +25,22 @@
     }
 
     var _$jobsTable = _$table.DataTable({
+        rowReorder: {
+            dataSrc: 'orderByDate',
+            update: false
+        },
+        responsive: true,
         paging: true,
         serverSide: true,
-        //lengthMenu: [ [25, 50, 2147483647], [25, 50, "All"] ],
+        select: true,
         listAction: {
             ajaxFunction: abp.services.app.job.getAll,
             inputFilter: function () {
                 return {
                     keyword: $('#JobsSearchForm input[type=search]').val(),
                     jobStatus: $('#SelectedJobStatus').val(),
-                    projectId: $('#ProjectId').val()
+                    projectId: $('#ProjectId').val(),
+                    sorting: 'OrderByDate DESC',
                 }
             },
             dataFilter: function (data) {
@@ -46,17 +52,33 @@
             }
         },
         buttons: [],
-        responsive: {
-            details: {
-                type: 'column'
-            }
-        },
+        // responsive: {
+        //     details: {
+        //         type: 'column'
+        //     }
+        // },
         columnDefs: [
+            { orderable: true, className: 'reorder', targets: 0 },
+            { orderable: false, targets: '_all' },
             {
                 targets: 0,
+                data: 'lastModificationTime',
+                width: '1em',
+                className: 'reorder',
+                render: (data, type, row, meta) => {
+                    return [
+                        `<div data-order-datetime"${row.lastModificationTime}">`,
+                        `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grip-vertical" viewBox="0 0 16 16">`,
+                        `<path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>`,
+                        `</svg>`,
+                        `</div>`,
+                    ].join('');
+                }
+            },
+            {
+                targets: 1,
                 data: null,
                 defaultContent: '',
-                sortable: false,
                 width: '1em',
                 render: (data, type, row, meta) => {
                     if (row.jobStatus === 2) {
@@ -69,16 +91,14 @@
                 }
             },
             {
-                targets: 1,
+                targets: 2,
                 data: 'title',
                 className: 'title',
-                defaultContent: '',
-                sortable: false
+                defaultContent: ''
             },
             {
-                targets: 2,
+                targets: 3,
                 data: null,
-                sortable: false,
                 autoWidth: false,
                 defaultContent: '',
                 width: '5em',
@@ -92,7 +112,7 @@
                         '   </button>',
                     ].join('');
                 }
-            }
+            },
         ]
     });
 
@@ -163,6 +183,46 @@
                 $('#JobEditModal div.modal-content').html(content);
             }
         })
+    });
+
+    const getOrderByDate = function (updatesArray, reorderedRow) {
+        var rowMoved = updatesArray.filter(item => item.oldData === reorderedRow.triggerRow.data()["orderByDate"])[0]
+
+        if (rowMoved != null) {
+            var moveDirection = (rowMoved.oldPosition - rowMoved.newPosition) > 0 ? "newer" : "older"
+            var movedIntoOrderDate = rowMoved.newData;
+
+            if (moveDirection === "newer") {
+                var newerOrderByDate = new Date(movedIntoOrderDate)
+                var milisecondsAdded = newerOrderByDate.getMilliseconds() + 1;
+                newerOrderByDate.setMilliseconds(milisecondsAdded);
+                return newerOrderByDate
+            } else {
+                var olderOrderByDate = new Date(movedIntoOrderDate)
+                var milisecondsReduced = olderOrderByDate.getMilliseconds() - 1;
+                olderOrderByDate.setMilliseconds(milisecondsReduced);
+                return olderOrderByDate
+            }
+        }
+    }
+
+    //handle re-order event by saving the orderby date
+    _$jobsTable.on('row-reorder', function (e, diff, edit) {
+        const jobId = edit.triggerRow.data()["id"];
+        const orderByDate = getOrderByDate(diff, edit);
+
+        //if no newOrderByDate date is found, it means we moved the row in place and no change is necessary
+        if (orderByDate != null) {
+            var jobPatchOrderByDateInputDto = { id: jobId, orderByDate: orderByDate };
+
+            e.preventDefault();
+
+            _jobService.patchOrderByDate(jobPatchOrderByDateInputDto)
+                .done(function () { })
+                .always(function () {
+                    abp.ui.clearBusy(_$modal);
+                });
+        }
     });
 
     abp.event.on('job.edited', (_data) => {
