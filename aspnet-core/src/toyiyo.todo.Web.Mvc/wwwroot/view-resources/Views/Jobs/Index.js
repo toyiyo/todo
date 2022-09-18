@@ -185,8 +185,8 @@
         })
     });
 
-    const getOrderByDate = function (diff, edit) {
-        const rowMoved = diff.filter(item => item.oldData === edit.triggerRow.data()["orderByDate"])[0]
+    const getOrderByDate = function (updatesArray, reorderedRow) {
+        const rowMoved = updatesArray.filter(item => item.oldData === reorderedRow.triggerRow.data()["orderByDate"])[0]
 
         if (rowMoved != null) {
             const moveDirection = (rowMoved.oldPosition - rowMoved.newPosition) > 0 ? "newer" : "older"
