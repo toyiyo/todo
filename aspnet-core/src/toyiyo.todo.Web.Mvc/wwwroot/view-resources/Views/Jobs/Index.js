@@ -186,20 +186,20 @@
     });
 
     const getOrderByDate = function (updatesArray, reorderedRow) {
-        const rowMoved = updatesArray.filter(item => item.oldData === reorderedRow.triggerRow.data()["orderByDate"])[0]
+        var rowMoved = updatesArray.filter(item => item.oldData === reorderedRow.triggerRow.data()["orderByDate"])[0]
 
         if (rowMoved != null) {
-            const moveDirection = (rowMoved.oldPosition - rowMoved.newPosition) > 0 ? "newer" : "older"
-            const movedIntoOrderDate = rowMoved.newData;
+            var moveDirection = (rowMoved.oldPosition - rowMoved.newPosition) > 0 ? "newer" : "older"
+            var movedIntoOrderDate = rowMoved.newData;
 
             if (moveDirection === "newer") {
-                const newerOrderByDate = new Date(movedIntoOrderDate)
-                const milisecondsAdded = newerOrderByDate.getMilliseconds() + 1;
+                var newerOrderByDate = new Date(movedIntoOrderDate)
+                var milisecondsAdded = newerOrderByDate.getMilliseconds() + 1;
                 newerOrderByDate.setMilliseconds(milisecondsAdded);
                 return newerOrderByDate
             } else {
-                const olderOrderByDate = new Date(movedIntoOrderDate)
-                const milisecondsReduced = olderOrderByDate.getMilliseconds() - 1;
+                var olderOrderByDate = new Date(movedIntoOrderDate)
+                var milisecondsReduced = olderOrderByDate.getMilliseconds() - 1;
                 olderOrderByDate.setMilliseconds(milisecondsReduced);
                 return olderOrderByDate
             }
