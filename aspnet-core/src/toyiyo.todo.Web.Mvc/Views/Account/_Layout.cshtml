@@ -7,11 +7,11 @@
 @inject ILanguageManager LanguageManager
 @inject IMultiTenancyConfig MultiTenancyConfig
 @{
-    Layout = null;
-    AbpAntiForgeryManager.SetCookie(Context);
+  Layout = null;
+  AbpAntiForgeryManager.SetCookie(Context);
 
-    var pageTitle = !string.IsNullOrWhiteSpace(ViewBag.Title) ? ViewBag.Title + " / " : "";
-    pageTitle += "Toyiyo";
+  var pageTitle = !string.IsNullOrWhiteSpace(ViewBag.Title) ? ViewBag.Title + " / " : "";
+  pageTitle += "Toyiyo";
 }
 <!DOCTYPE html>
 <html lang="@LanguageManager.CurrentLanguage.Name">
@@ -36,12 +36,12 @@
         <div class="card">
             @if (MultiTenancyConfig.IsEnabled)
             {
-                <div class="card-header">
-                    <vc:tenant-change></vc:tenant-change>
-                </div>
+                  <div class="card-header">
+                      <vc:tenant-change></vc:tenant-change>
+                  </div>
             }
             <div class="card-body login-card-body">
-                @RenderBody()
+              @RenderBody()
             </div>
             <div class="card-footer">
             </div>
@@ -61,8 +61,33 @@
     <!-- Right -->
   </div>
 </section>
-    @await Html.PartialAsync("_Scripts.cshtml")
-    @RenderSection("scripts", required: false)
-    @WebResourceManager.RenderScripts()
+  @await Html.PartialAsync("_Scripts.cshtml")
+  @RenderSection("scripts", required: false)
+  @WebResourceManager.RenderScripts()
+  @* cdn based scripts *@
+    <script>
+      (function(h,o,u,n,d) {
+        h=h[d]=h[d]||{q:[],onReady:function(c){h.q.push(c)}}
+        d=o.createElement(u);d.async=1;d.src=n
+        n=o.getElementsByTagName(u)[0];n.parentNode.insertBefore(d,n)
+      })(window,document,'script','https://www.datadoghq-browser-agent.com/datadog-rum-v4.js','DD_RUM')
+      DD_RUM.onReady(function() {
+        DD_RUM.init({
+          clientToken: 'pub1a4cf1b167ef3430dc6303f84f937d61',
+          applicationId: 'a8a50dea-73b1-44d9-a5cf-2e0d35f4bc8e',
+          site: 'datadoghq.com',
+          service: 'toyiyo-production',
+
+          // Specify a version number to identify the deployed version of your application in Datadog 
+          // version: '1.0.0',
+          sampleRate: 100,
+          premiumSampleRate: 100,
+          trackInteractions: true,
+          defaultPrivacyLevel: 'mask-user-input',
+        });
+
+        DD_RUM.startSessionReplayRecording();
+      })
+  </script>
 </body>
 </html>
