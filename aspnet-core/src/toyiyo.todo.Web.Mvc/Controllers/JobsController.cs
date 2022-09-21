@@ -32,10 +32,16 @@ namespace toyiyo.todo.Web.Controllers
 
         public async Task<IActionResult> EditModal(Guid JobId)
         {
-            var output = await JobAppService.Get(JobId);
-            var model = ObjectMapper.Map<EditJobModalViewModel>(output);
+            try
+            {
+                var output = await JobAppService.Get(JobId);
+                if (output == null) { return new NotFoundResult(); }
 
-            return PartialView("_EditModal", model);
+                var model = ObjectMapper.Map<EditJobModalViewModel>(output);
+                return PartialView("_EditModal", model);
+            }
+            catch (ArgumentNullException) { return new NotFoundResult(); }
+            catch (Abp.Domain.Entities.EntityNotFoundException) { return new NotFoundResult(); }
         }
     }
 }
