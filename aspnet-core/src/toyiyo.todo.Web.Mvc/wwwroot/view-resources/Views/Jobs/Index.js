@@ -179,7 +179,6 @@
         loadJobDetailsModal(jobId);
 
         //set the URL in the browser's history
-        const domain = (new URL(window.location));
         const nextUrl = '/projects/' + projectId + '/jobs/' + jobId
         const nextTitle = 'job details for '+ jobId;
         const nextState = { additionalInformation: 'job details for '+ jobId };
@@ -189,7 +188,7 @@
     });
 
     $(window).on('load', function () {
-        var jobId = $('#JobId').val();
+        const jobId = $('#JobId').val();
         //if we have a job id, we are loading the job details, let's show the user the modal
         if (jobId) {
             loadJobDetailsModal(jobId)
