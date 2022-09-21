@@ -175,14 +175,16 @@
         var jobId = $(this).attr("data-job-id");
 
         e.preventDefault();
-        abp.ajax({
-            url: abp.appPath + 'Jobs/EditModal?jobId=' + jobId,
-            type: 'POST',
-            dataType: 'html',
-            success: function (content) {
-                $('#JobEditModal div.modal-content').html(content);
-            }
-        })
+        loadJobDetailsModal(jobId);
+    });
+
+    $(window).on('load',function () {
+        var jobId = $('#JobId').val();
+        //if we have a job id, we are loading the job details, let's show the user the modal
+        if (jobId) {
+            loadJobDetailsModal(jobId)
+            $('#JobEditModal').modal('show');
+        }
     });
 
     const getOrderByDate = function (updatesArray, reorderedRow) {
@@ -284,4 +286,17 @@
         });
     };
 
+    const loadJobDetailsModal = function (jobId) {
+        abp.ajax({
+            url: abp.appPath + 'Jobs/EditModal?jobId=' + jobId,
+            type: 'POST',
+            dataType: 'html',
+            success: function (content) {
+                $('#JobEditModal div.modal-content').html(content);
+            }
+        });
+    }
+
 })(jQuery);
+
+

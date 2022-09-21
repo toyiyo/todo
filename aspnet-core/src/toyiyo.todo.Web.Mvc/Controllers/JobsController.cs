@@ -21,10 +21,12 @@ namespace toyiyo.todo.Web.Controllers
 
 
         [HttpGet("/projects/{id}/jobs")]
-        public async Task<IActionResult> Index(Guid id)
+        [HttpGet("/projects/{projectId}/jobs/{jobId}")]
+        public async Task<IActionResult> Index(Guid projectId, Guid? jobId)
         {
             //var output = await JobAppService.GetAll(new EntityDto(id));
-            ViewBag.ProjectId = id;
+            ViewBag.ProjectId = projectId;
+            ViewBag.JobId = jobId;
             return View();
         }
 
