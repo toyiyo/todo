@@ -1,7 +1,7 @@
 ﻿(function ($) {
-    
+
     const Editor = toastui.Editor;
-    
+
     const editor = new Editor({
         el: document.querySelector('#Description'),
         initialValue: $('#descriptionFromServer').val(),
@@ -56,5 +56,15 @@
 
     _$modal.on('shown.bs.modal', function () {
         _$form.find('input[type=text]:first').focus();
+    });
+
+    _$modal.on('hidden.bs.modal', function () {
+        //when the modal is hidden, change the url history to the listing page
+        const projectId = $('#ProjectId').val();
+        const nextUrl = '/projects/' + projectId + '/jobs/';
+        const nextTitle = 'jobs';
+        const nextState = { additionalInformation: 'jobs' };
+        // This will create a new entry in the browser's history, without reloading
+        window.history.pushState(nextState, nextTitle, nextUrl);
     });
 })(jQuery);
