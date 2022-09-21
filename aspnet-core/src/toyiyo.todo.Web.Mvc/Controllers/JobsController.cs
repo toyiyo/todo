@@ -20,7 +20,7 @@ namespace toyiyo.todo.Web.Controllers
         public IJobAppService JobAppService { get; }
 
 
-        [HttpGet("/projects/{id}/jobs")]
+        [HttpGet("/projects/{projectId}/jobs")]
         [HttpGet("/projects/{projectId}/jobs/{jobId}")]
         public async Task<IActionResult> Index(Guid projectId, Guid? jobId)
         {
