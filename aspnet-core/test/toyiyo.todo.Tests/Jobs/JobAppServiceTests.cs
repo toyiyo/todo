@@ -224,11 +224,12 @@ namespace toyiyo.todo.Tests.Jobs
 
             // Assert
             job2.DueDate.ShouldBe(dueDate);
-           
+
         }
 
         [Fact]
-        public async Task DeleteJob_Success() {
+        public async Task DeleteJob_Success()
+        {
             // Arrange
             var currentUser = await GetCurrentUserAsync();
             var currentTenant = await GetCurrentTenantAsync();
@@ -243,12 +244,41 @@ namespace toyiyo.todo.Tests.Jobs
         }
 
         [Fact]
-        public async Task DeleteJob_NotFound() {
+        public async Task DeleteJob_NotFound()
+        {
             //act
             var response = await _jobAppService.Delete(Guid.NewGuid());
 
             //assert
             response.ShouldBeOfType<NotFoundResult>();
+        }
+
+        [Fact]
+        public async Task PatchOrderByDate_Success()
+        {
+            // Arrange
+            await GetCurrentUserAsync();
+            await GetCurrentTenantAsync();
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job" });
+            var orderByDate = DateTime.UtcNow;
+
+            //act
+            var response = await _jobAppService.PatchOrderByDate(new JobPatchOrderByDateInputDto { Id = job.Id, OrderByDate = orderByDate });
+
+            //assert
+            response.Value.OrderByDate.ShouldBe(orderByDate);
+
+        }
+
+        [Fact]
+        public async Task PatchOrderByDate_NotFound()
+        {
+            //act
+            var response = await _jobAppService.PatchOrderByDate(new JobPatchOrderByDateInputDto { Id = Guid.NewGuid(), OrderByDate = DateTime.UtcNow });
+
+            //assert
+            response.Result.ShouldBeOfType<NotFoundResult>();
         }
     }
 }

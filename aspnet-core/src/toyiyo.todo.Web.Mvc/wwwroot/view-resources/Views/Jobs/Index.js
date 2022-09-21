@@ -173,16 +173,26 @@
     //edit job
     $(document).on('click', '.edit-job', function (e) {
         var jobId = $(this).attr("data-job-id");
+        const projectId = $('#ProjectId').val();
 
         e.preventDefault();
-        abp.ajax({
-            url: abp.appPath + 'Jobs/EditModal?jobId=' + jobId,
-            type: 'POST',
-            dataType: 'html',
-            success: function (content) {
-                $('#JobEditModal div.modal-content').html(content);
-            }
-        })
+        loadJobDetailsModal(jobId);
+
+        //set the URL in the browser's history
+        const nextUrl = '/projects/' + projectId + '/jobs/' + jobId
+        const nextTitle = 'job details for '+ jobId;
+        const nextState = { additionalInformation: 'job details for '+ jobId };
+        // This will create a new entry in the browser's history, without reloading
+        window.history.pushState(nextState, nextTitle, nextUrl);
+
+    });
+
+    $(window).on('load', function () {
+        const jobId = $('#JobId').val();
+        //if we have a job id, we are loading the job details, let's show the user the modal
+        if (jobId) {
+            loadJobDetailsModal(jobId)
+        }
     });
 
     const getOrderByDate = function (updatesArray, reorderedRow) {
@@ -284,4 +294,21 @@
         });
     };
 
+    const loadJobDetailsModal = function (jobId) {
+        abp.ajax({
+            url: abp.appPath + 'Jobs/EditModal?jobId=' + jobId,
+            type: 'POST',
+            dataType: 'html',
+            success: function (content) {
+                $('#JobEditModal div.modal-content').html(content);
+                $('#JobEditModal').modal('show');
+            },
+            error: function (e) {
+                $('#JobEditModal').modal('hide');
+            }
+        });
+    }
+
 })(jQuery);
+
+
