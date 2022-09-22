@@ -152,13 +152,13 @@
     //update job status
     $(document).on('click', '.job-status-selector', function (e) {
         //re-think this selector
-        var jobId = $(this).parent().parent().find("div.dropdown-toggle").attr("data-job-id");
-        var newJobStatus = $(this).attr("selected-job-status");
+        const jobId = $(this).parent().parent().find("div.dropdown-toggle").attr("data-job-id");
+        const newJobStatus = $(this).attr("selected-job-status");
 
-        var JobSetStatusInputDto = {
+        const JobSetStatusInputDto = {
             id: jobId,
             jobStatus: newJobStatus
-        }
+        };
 
         e.preventDefault();
         _jobService
