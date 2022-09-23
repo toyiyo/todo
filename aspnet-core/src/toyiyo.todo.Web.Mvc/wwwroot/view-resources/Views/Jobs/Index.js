@@ -2,7 +2,7 @@
     var _jobService = abp.services.app.job,
         l = abp.localization.getSource('todo'),
         _$JobCreateModal = $('#JobCreateModal'),
-        _$JobEditModal =$('#JobEditModal');
+        _$JobEditModal =$('#JobEditModal'),
         _$deleteModal = $('#JobDeleteModal'),
         _$form = $('#JobCreateForm'),
         _$table = $('#JobsTable');
