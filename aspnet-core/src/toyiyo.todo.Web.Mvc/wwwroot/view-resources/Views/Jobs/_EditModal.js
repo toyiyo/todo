@@ -1,6 +1,7 @@
 ﻿(function ($) {
 
     const Editor = toastui.Editor;
+    const _$getLinkButton = $('.btn-pane-get-link');
 
     const editor = new Editor({
         el: document.querySelector('#Description'),
@@ -67,4 +68,10 @@
         // This will create a new entry in the browser's history, without reloading
         window.history.pushState(nextState, nextTitle, nextUrl);
     });
+
+    _$getLinkButton.on('click', function(){
+        navigator.clipboard.writeText(window.location.href);
+        abp.notify.info('link is in your clipboard');
+    });
+
 })(jQuery);
