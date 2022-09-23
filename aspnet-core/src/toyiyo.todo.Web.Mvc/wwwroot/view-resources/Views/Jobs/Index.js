@@ -1,7 +1,8 @@
 ﻿(function ($) {
     var _jobService = abp.services.app.job,
         l = abp.localization.getSource('todo'),
-        _$modal = $('#JobCreateModal'),
+        _$JobCreateModal = $('#JobCreateModal'),
+        _$JobEditModal =$('#JobEditModal');
         _$deleteModal = $('#JobDeleteModal'),
         _$form = $('#JobCreateForm'),
         _$table = $('#JobsTable');
@@ -109,15 +110,14 @@
                 data: null,
                 autoWidth: false,
                 defaultContent: '',
-                width: '5em',
+                width: '1em',
                 render: (data, type, row, meta) => {
                     return [
-                        `   <button type="button" class="btn btn-sm bg-secondary edit-job" data-job-id="${row.id}" data-toggle="modal" data-target="#JobEditModal">`,
-                        `       <i class="fas fa-pencil-alt"></i>`,
-                        '   </button>',
-                        `   <button type="button" class="btn btn-sm bg-danger delete-job" data-job-id="${row.id}" data-toggle="modal" data-target="#JobDeleteModal">`,
-                        `       <i class="fas fa-trash-alt" title=${l('Delete')}></i>`,
-                        '   </button>',
+                        `<button type="button" class="btn btn-sm bg-default edit-job" data-job-id="${row.id}" data-toggle="modal" data-target="#JobEditModal">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                 <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                             </svg>
+                         </button>`,
                     ].join('');
                 }
             },
@@ -135,17 +135,17 @@
         var job = _$form.serializeFormToObject();
         job.projectId = $('#ProjectId').val();
 
-        abp.ui.setBusy(_$modal);
+        abp.ui.setBusy(_$JobCreateModal);
         _jobService
             .create(job)
             .done(function () {
-                _$modal.modal('hide');
+                _$JobCreateModal.modal('hide');
                 _$form[0].reset();
                 abp.notify.info(l('SavedSuccessfully'));
                 _$jobsTable.ajax.reload();
             })
             .always(function () {
-                abp.ui.clearBusy(_$modal);
+                abp.ui.clearBusy(_$JobCreateModal);
             });
     });
 
@@ -168,7 +168,7 @@
                 abp.event.trigger('job.edited', JobSetStatusInputDto);
             })
             .always(function () {
-                abp.ui.clearBusy(_$modal);
+                abp.ui.clearBusy(_$JobCreateModal);
             });
     });
 
@@ -238,7 +238,7 @@
             _jobService.patchOrderByDate(jobPatchOrderByDateInputDto)
                 .done(function () { })
                 .always(function () {
-                    abp.ui.clearBusy(_$modal);
+                    abp.ui.clearBusy(_$JobCreateModal);
                 });
         }
     });
@@ -251,8 +251,8 @@
         _$jobsTable.ajax.reload();
     });
 
-    _$modal.on('shown.bs.modal', () => {
-        _$modal.find('input:not([type=hidden]):first').focus();
+    _$JobCreateModal.on('shown.bs.modal', () => {
+        _$JobCreateModal.find('input:not([type=hidden]):first').focus();
     }).on('hidden.bs.modal', () => {
         _$form.clearForm();
     });
@@ -273,10 +273,14 @@
         //get data-id attribute of the clicked element
         let jobId = $(e.relatedTarget).attr('data-job-id');
 
-        //populate the textbox
+        //populate the hidden field so it can be used later on post
         $(e.currentTarget).find('input[name="JobId"]').val(jobId);
-    });
 
+        //hide the delete modal
+        _$JobEditModal.modal("hide");
+    });
+    //since we hide the modal to show the delete modal, let's bring it back if the user cancels out of the deletion
+    _$deleteModal.on('click', '.close-button', function(e){_$JobEditModal.modal("show");});
     _$deleteModal.on('click', '.delete-button', function (e) {
         let jobId = $(this).closest('div.modal-content').find('input[name="JobId"]').val();
 
@@ -309,10 +313,10 @@
             dataType: 'html',
             success: function (content) {
                 $('#JobEditModal div.modal-content').html(content);
-                $('#JobEditModal').modal('show');
+                _$JobEditModal.modal('show');
             },
             error: function (e) {
-                $('#JobEditModal').modal('hide');
+                _$JobEditModal.modal('hide');
             }
         });
     }
