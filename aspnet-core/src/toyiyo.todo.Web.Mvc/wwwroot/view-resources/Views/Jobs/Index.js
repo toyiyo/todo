@@ -2,7 +2,7 @@
     var _jobService = abp.services.app.job,
         l = abp.localization.getSource('todo'),
         _$JobCreateModal = $('#JobCreateModal'),
-        _$JobEditModal =$('#JobEditModal'),
+        _$JobEditModal = $('#JobEditModal'),
         _$deleteModal = $('#JobDeleteModal'),
         _$form = $('#JobCreateForm'),
         _$table = $('#JobsTable');
@@ -33,6 +33,16 @@
       </div>`
     }
 
+    const getStatusButton = function (jobStatus, jobId) {
+        if (jobStatus === 2) {
+            return getStatusDropdown(jobStatus, jobId, doneFavicon);
+        } else if (jobStatus === 1) {
+            return getStatusDropdown(jobStatus, jobId, inProgressFavicon);
+        } else if (jobStatus === 0) {
+            return getStatusDropdown(jobStatus, jobId, backlogFavicon);
+        }
+    }
+
     var _$jobsTable = _$table.DataTable({
         rowReorder: {
             dataSrc: 'orderByDate',
@@ -61,11 +71,6 @@
             }
         },
         buttons: [],
-        // responsive: {
-        //     details: {
-        //         type: 'column'
-        //     }
-        // },
         columnDefs: [
             { orderable: true, className: 'reorder', targets: 0 },
             { orderable: false, targets: '_all' },
@@ -90,13 +95,7 @@
                 defaultContent: '',
                 width: '1em',
                 render: (data, type, row, meta) => {
-                    if (row.jobStatus === 2) {
-                        return getStatusDropdown(row.jobStatus, row.id, doneFavicon);
-                    } else if (row.jobStatus === 1) {
-                        return getStatusDropdown(row.jobStatus, row.id, inProgressFavicon);
-                    } else if (row.jobStatus === 0) {
-                        return getStatusDropdown(row.jobStatus, row.id, backlogFavicon);
-                    }
+                    return getStatusButton(row.jobStatus, row.id);
                 }
             },
             {
@@ -113,7 +112,7 @@
                 width: '1em',
                 render: (data, type, row, meta) => {
                     return [
-                        `<button type="button" class="btn btn-sm bg-default edit-job" data-job-id="${row.id}" data-toggle="modal" data-target="#JobEditModal">
+                        `<button type="button" class="btn btn-sm bg-default edit-job" data-job-id="${row.id}" data-job-status="${row.jobStatus}" data-toggle="modal" data-target="#JobEditModal">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
                                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                              </svg>
@@ -123,8 +122,21 @@
             },
         ]
     });
+    //Initializers
+    $(window).on('load', function () {
+        const jobId = $('#JobId').val();
+        //if we have a job id, we are loading the job details, let's show the user the modal
+        if (jobId) {
+            loadJobDetailsModal(jobId);
+        }
+    });
+    //handle filtering by job status
+    $(document).on('click', '.job-status-filter', function (_e) {
+        $('#SelectedJobStatus').val($(this).attr('data-job-status-filter'));
+        _$jobsTable.ajax.reload();
+    });
 
-    //create job
+    //Job creation
     _$form.submit((e) => {
         e.preventDefault();
 
@@ -149,11 +161,31 @@
             });
     });
 
-    //update job status
+    _$JobCreateModal.on('shown.bs.modal', () => {
+        _$JobCreateModal.find('input:not([type=hidden]):first').focus();
+    }).on('hidden.bs.modal', () => {
+        _$form.clearForm();
+    });
+
+    $('.btn-search').on('click', (e) => {
+        _$jobsTable.ajax.reload();
+    });
+
+    $('.txt-search').on('keypress', (e) => {
+        if (e.which == 13) {
+            _$jobsTable.ajax.reload();
+            return false;
+        }
+    });
+
+    //Job status handler
     $(document).on('click', '.job-status-selector', function (e) {
         //re-think this selector
         const jobId = $(this).parent().parent().find("div.dropdown-toggle").attr("data-job-id");
         const newJobStatus = $(this).attr("selected-job-status");
+        const jobStatusPaneButtonHtml = getStatusButton(+newJobStatus, jobId);
+        //set the job status button html
+        $('#JobEditModal button.btn-pane-template').html(jobStatusPaneButtonHtml);
 
         const JobSetStatusInputDto = {
             id: jobId,
@@ -172,19 +204,14 @@
             });
     });
 
-    //handle filtering by job status
-    $(document).on('click', '.job-status-filter', function (_e) {
-        $('#SelectedJobStatus').val($(this).attr('data-job-status-filter'));
-        _$jobsTable.ajax.reload();
-    });
-
-    //edit job
+    //job edit handler
     $(document).on('click', '.edit-job', function (e) {
-        var jobId = $(this).attr("data-job-id");
+        const jobId = $(this).attr("data-job-id");
+        const jobStatus = $(this).attr("data-job-status");
         const projectId = $('#ProjectId').val();
 
         e.preventDefault();
-        loadJobDetailsModal(jobId);
+        loadJobDetailsModal(jobId, jobStatus);
 
         //set the URL in the browser's history
         const nextUrl = '/projects/' + projectId + '/jobs/' + jobId
@@ -194,15 +221,33 @@
         window.history.pushState(nextState, nextTitle, nextUrl);
 
     });
+    const loadJobDetailsModal = function (jobId, jobStatus) {
+        abp.ajax({
+            url: abp.appPath + 'Jobs/EditModal?jobId=' + jobId,
+            type: 'POST',
+            dataType: 'html',
+            success: function (content) {
 
-    $(window).on('load', function () {
-        const jobId = $('#JobId').val();
-        //if we have a job id, we are loading the job details, let's show the user the modal
-        if (jobId) {
-            loadJobDetailsModal(jobId)
-        }
+                //set content from ajax call into modal
+                $('#JobEditModal div.modal-content').html(content);
+                //set the job status button html - check for a job status, if one is not available, we need to get it from the hidden field as we just loaded from server instead of from js.
+                if (!jobStatus) { jobStatus = $('#JobEditModal').find('input[name="jobStatus"]').val();}
+                const jobStatusPaneButtonHtml = getStatusButton(+jobStatus, jobId);
+                $('#JobEditModal button.btn-pane-template').html(jobStatusPaneButtonHtml);
+                //show the modal
+                _$JobEditModal.modal('show');
+            },
+            error: function (e) {
+                _$JobEditModal.modal('hide');
+            }
+        });
+    };
+
+    abp.event.on('job.edited', (_data) => {
+        _$jobsTable.ajax.reload();
     });
 
+    //job reordering 
     const getOrderByDate = function (updatesArray, reorderedRow) {
         var rowMoved = updatesArray.filter(item => item.oldData === reorderedRow.triggerRow.data()["orderByDate"])[0]
 
@@ -222,7 +267,7 @@
                 return olderOrderByDate
             }
         }
-    }
+    };
 
     //handle re-order event by saving the orderby date
     _$jobsTable.on('row-reorder', function (e, diff, edit) {
@@ -243,30 +288,7 @@
         }
     });
 
-    abp.event.on('job.edited', (_data) => {
-        //since we have HTML rather than object data (how do we get the object data?), we need to query the server again and refresh the row
-        // _jobService.get(data.id).done(function (result) {
-        //     _$table.dataTable().fnUpdate(result, $(`i[data-job-id=${data.id}]`).parents('tr')[0], undefined, false);
-        // })
-        _$jobsTable.ajax.reload();
-    });
-
-    _$JobCreateModal.on('shown.bs.modal', () => {
-        _$JobCreateModal.find('input:not([type=hidden]):first').focus();
-    }).on('hidden.bs.modal', () => {
-        _$form.clearForm();
-    });
-
-    $('.btn-search').on('click', (e) => {
-        _$jobsTable.ajax.reload();
-    });
-
-    $('.txt-search').on('keypress', (e) => {
-        if (e.which == 13) {
-            _$jobsTable.ajax.reload();
-            return false;
-        }
-    });
+    //Job Deletion handlers
     //triggered when the delete modal - sets the job id to be deleted
     _$deleteModal.on('show.bs.modal', function (e) {
 
@@ -280,7 +302,7 @@
         _$JobEditModal.modal("hide");
     });
     //since we hide the modal to show the delete modal, let's bring it back if the user cancels out of the deletion
-    _$deleteModal.on('click', '.close-button', function(e){_$JobEditModal.modal("show");});
+    _$deleteModal.on('click', '.close-button', function (e) { _$JobEditModal.modal("show"); });
     _$deleteModal.on('click', '.delete-button', function (e) {
         let jobId = $(this).closest('div.modal-content').find('input[name="JobId"]').val();
 
@@ -305,21 +327,6 @@
             type: 'DELETE'
         });
     };
-
-    const loadJobDetailsModal = function (jobId) {
-        abp.ajax({
-            url: abp.appPath + 'Jobs/EditModal?jobId=' + jobId,
-            type: 'POST',
-            dataType: 'html',
-            success: function (content) {
-                $('#JobEditModal div.modal-content').html(content);
-                _$JobEditModal.modal('show');
-            },
-            error: function (e) {
-                _$JobEditModal.modal('hide');
-            }
-        });
-    }
 
 })(jQuery);
 

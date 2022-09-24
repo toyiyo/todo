@@ -6,10 +6,12 @@
 @await Html.PartialAsync("~/Views/Shared/Modals/_ModalHeader.cshtml", new ModalHeaderViewModel(L("EditJob")))
 <form name="JobEditForm" role="form" class="form-horizontal">
     <input type="hidden" name="id" value="@Model.Id" />
+    <input type="hidden" name="jobStatus" value="@Model.JobStatusId" />
     <input type="hidden" name="descriptionFromServer" id="descriptionFromServer" value="@Model.Description" />
     <div class="modal-body">
         <div class="form-group row d-flex justify-content-end">
             <div class="btn-group" role="group" aria-label="actions">
+                <button type="button" class="btn btn-default btn-pane-template" title="set job status"></button>
                 <button type="button" class="btn btn-default btn-pane-get-link" title="get link">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-link" viewBox="0 0 16 16">
                         <path d="M6.354 5.5H4a3 3 0 0 0 0 6h3a3 3 0 0 0 2.83-4H9c-.086 0-.17.01-.25.031A2 2 0 0 1 7 10.5H4a2 2 0 1 1 0-4h1.535c.218-.376.495-.714.82-1z"/>
