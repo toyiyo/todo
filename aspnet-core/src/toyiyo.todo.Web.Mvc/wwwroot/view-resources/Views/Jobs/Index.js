@@ -125,10 +125,9 @@
     //Initializers
     $(window).on('load', function () {
         const jobId = $('#JobId').val();
-        const jobStatus = $('#jobStatus').val();
         //if we have a job id, we are loading the job details, let's show the user the modal
         if (jobId) {
-            loadJobDetailsModal(jobId)
+            loadJobDetailsModal(jobId);
         }
     });
     //handle filtering by job status
@@ -228,10 +227,12 @@
             type: 'POST',
             dataType: 'html',
             success: function (content) {
-                const jobStatusPaneButtonHtml = getStatusButton(+jobStatus, jobId);
+
                 //set content from ajax call into modal
                 $('#JobEditModal div.modal-content').html(content);
-                //set the job status button html
+                //set the job status button html - check for a job status, if one is not available, we need to get it from the hidden field as we just loaded from server instead of from js.
+                if (!jobStatus) { jobStatus = $('#JobEditModal').find('input[name="jobStatus"]').val();}
+                const jobStatusPaneButtonHtml = getStatusButton(+jobStatus, jobId);
                 $('#JobEditModal button.btn-pane-template').html(jobStatusPaneButtonHtml);
                 //show the modal
                 _$JobEditModal.modal('show');
