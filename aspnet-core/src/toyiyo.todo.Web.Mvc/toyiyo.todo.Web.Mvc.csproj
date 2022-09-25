@@ -41,6 +41,7 @@
     <PackageReference Include="Abp.HangFire" Version="7.0.0" />
     <PackageReference Include="Abp.RedisCache" Version="7.0.0" />
     <PackageReference Include="Abp.Castle.Log4Net" Version="7.0.0" />
+    <PackageReference Include="Sentry.AspNetCore" Version="3.21.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\libs\" />
