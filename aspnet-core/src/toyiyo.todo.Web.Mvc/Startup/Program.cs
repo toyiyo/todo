@@ -13,6 +13,7 @@ namespace toyiyo.todo.Web.Startup
         public static IWebHost BuildWebHost(string[] args)
         {
             return WebHost.CreateDefaultBuilder(args)
+                .UseSentry()
                 .UseStartup<Startup>()
                 .Build();
         }

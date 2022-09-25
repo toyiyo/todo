@@ -101,6 +101,8 @@ namespace toyiyo.todo.Web.Host.Startup
 
             app.UseRouting();
 
+            app.UseSentryTracing();
+
             app.UseAuthentication();
 
             app.UseAbpRequestLocalization();

@@ -90,6 +90,8 @@ namespace toyiyo.todo.Web.Startup
 
             app.UseRouting();
 
+            app.UseSentryTracing();
+
             app.UseAuthentication();
 
             app.UseJwtTokenMiddleware();
