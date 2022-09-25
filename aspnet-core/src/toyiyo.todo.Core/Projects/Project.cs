@@ -3,10 +3,12 @@ using System.ComponentModel.DataAnnotations;
 using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
 using Abp.Timing;
+using Microsoft.EntityFrameworkCore;
 using toyiyo.todo.Authorization.Users;
 
 namespace toyiyo.todo.Projects
 {
+    [Index(nameof(TenantId))]
     public class Project : FullAuditedEntity<Guid>, IMustHaveTenant
     {
         public const int MaxTitleLength = 500; //todo: max length should be defined in the configuration
