@@ -8,7 +8,7 @@ namespace toyiyo.todo.Web.Host.Startup
 {
     [DependsOn(
        typeof(todoWebCoreModule))]
-    public class todoWebHostModule: AbpModule
+    public class todoWebHostModule : AbpModule
     {
         private readonly IWebHostEnvironment _env;
         private readonly IConfigurationRoot _appConfiguration;
@@ -17,6 +17,10 @@ namespace toyiyo.todo.Web.Host.Startup
         {
             _env = env;
             _appConfiguration = env.GetAppConfiguration();
+        }
+        public override void PreInitialize()
+        {
+            Configuration.Auditing.IsEnabled = false;
         }
 
         public override void Initialize()

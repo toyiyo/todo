@@ -20,6 +20,7 @@ namespace toyiyo.todo.Web.Startup
 
         public override void PreInitialize()
         {
+            Configuration.Auditing.IsEnabled = false;
             Configuration.Navigation.Providers.Add<todoNavigationProvider>();
         }
 
