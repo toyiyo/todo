@@ -19,6 +19,7 @@ using Abp.Json;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
 using Abp.Timing;
+using Sentry.AspNetCore;
 
 namespace toyiyo.todo.Web.Startup
 {
