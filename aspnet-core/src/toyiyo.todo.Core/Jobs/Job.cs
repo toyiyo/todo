@@ -4,11 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
 using Abp.Timing;
+using Microsoft.EntityFrameworkCore;
 using toyiyo.todo.Authorization.Users;
 using toyiyo.todo.Projects;
 
 namespace toyiyo.todo.Jobs
 {
+    [Index(nameof(JobStatus))]
     public class Job : FullAuditedEntity<Guid>, IMustHaveTenant
     {
         public enum Status {Open, InProgress, Done };

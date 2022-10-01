@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Abp.Authorization.Roles;
+using Microsoft.EntityFrameworkCore;
 using toyiyo.todo.Authorization.Users;
 
 namespace toyiyo.todo.Authorization.Roles
 {
+    [Index(nameof(TenantId))]
     public class Role : AbpRole<User>
     {
         public const int MaxDescriptionLength = 5000;

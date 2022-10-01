@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using Abp.Authorization.Users;
 using Abp.Extensions;
-using toyiyo.todo.Jobs;
+using Microsoft.EntityFrameworkCore;
 
 namespace toyiyo.todo.Authorization.Users
 {
+    [Index(nameof(TenantId))]
     public class User : AbpUser<User>
     {
         public readonly string DefaultPassword = (Environment.GetEnvironmentVariable("DefaultPassword") == null ? "" : Environment.GetEnvironmentVariable("DefaultPassword"));

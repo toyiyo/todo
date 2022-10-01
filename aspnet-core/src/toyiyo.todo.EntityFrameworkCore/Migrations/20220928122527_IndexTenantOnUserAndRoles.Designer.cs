@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using toyiyo.todo.EntityFrameworkCore;
@@ -11,9 +12,10 @@ using toyiyo.todo.EntityFrameworkCore;
 namespace toyiyo.todo.Migrations
 {
     [DbContext(typeof(todoDbContext))]
-    partial class todoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220928122527_IndexTenantOnUserAndRoles")]
+    partial class IndexTenantOnUserAndRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1622,8 +1624,6 @@ namespace toyiyo.todo.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AssigneeId");
-
-                    b.HasIndex("JobStatus");
 
                     b.HasIndex("OwnerId");
 
