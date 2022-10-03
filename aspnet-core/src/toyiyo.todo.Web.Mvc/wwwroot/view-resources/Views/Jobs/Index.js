@@ -129,12 +129,49 @@
         if (jobId) {
             loadJobDetailsModal(jobId);
         }
+
+        //due date initializer
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+        function formatDate(date) {
+            return (
+                date.getDate() +
+                "/" +
+                (date.getMonth() + 1) +
+                "/" +
+                date.getFullYear()
+            );
+        }
+
+        var currentDate = formatDate(new Date());
+
+        $(".due-date-button").datepicker({
+            format: "dd/mm/yyyy",
+            autoclose: true,
+            todayHighlight: true,
+            startDate: currentDate,
+            orientation: "bottom right"
+        });
+
+        $(".due-date-button").on("click", function (event) {
+            $(".due-date-button")
+                .datepicker("show")
+                .on("changeDate", function (dateChangeEvent) {
+                    $(".due-date-button").datepicker("hide");
+                    $(".due-date-label").text(formatDate(dateChangeEvent.date));
+                });
+        });
     });
+
+
     //handle filtering by job status
     $(document).on('click', '.job-status-filter', function (_e) {
         $('#SelectedJobStatus').val($(this).attr('data-job-status-filter'));
         _$jobsTable.ajax.reload();
     });
+
+
 
     //Job creation
     _$form.submit((e) => {
@@ -231,7 +268,7 @@
                 //set content from ajax call into modal
                 $('#JobEditModal div.modal-content').html(content);
                 //set the job status button html - check for a job status, if one is not available, we need to get it from the hidden field as we just loaded from server instead of from js.
-                if (!jobStatus) { jobStatus = $('#JobEditModal').find('input[name="jobStatus"]').val();}
+                if (!jobStatus) { jobStatus = $('#JobEditModal').find('input[name="jobStatus"]').val(); }
                 const jobStatusPaneButtonHtml = getStatusButton(+jobStatus, jobId);
                 $('#JobEditModal button.btn-pane-template').html(jobStatusPaneButtonHtml);
                 //show the modal
