@@ -55,7 +55,7 @@ namespace toyiyo.todo.Jobs
             if (user == null) { throw new ArgumentNullException(nameof(user)); }
             if (tenantId <= 0) { throw new ArgumentNullException(nameof(tenantId)); }
             if (project == null) { throw new ArgumentNullException(nameof(project)); }
-            if (dueDate < Clock.Now.Date) { throw new ArgumentOutOfRangeException(nameof(dueDate), "due date must be in the future"); }
+            if ((dueDate != default) && (dueDate < Clock.Now.Date)) { throw new ArgumentOutOfRangeException(nameof(dueDate), "due date must be in the future"); }
 
             var job = new Job
             {
