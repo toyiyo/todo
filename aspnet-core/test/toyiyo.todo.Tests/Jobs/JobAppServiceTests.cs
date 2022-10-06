@@ -42,6 +42,39 @@ namespace toyiyo.todo.Tests.Jobs
             job.Owner.Id.ShouldBe(currentUser.Id);
         }
 
+        public async Task CreateJob_DueDateIsToday_ReturnsNewJob()
+        {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var currentTenant = await GetCurrentTenantAsync();
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var dueDate = DateTime.UtcNow;
+
+            // Act
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job", DueDate = dueDate });
+
+            // Assert
+            job.ShouldNotBeNull();
+            job.Title.ShouldBe("test job");
+            job.Description.ShouldBe("test job");
+            job.JobStatus.ShouldBe(Status.Open);
+            job.Assignee.Id.ShouldBe(currentUser.Id);
+            job.Owner.Id.ShouldBe(currentUser.Id);
+            job.DueDate.ShouldBe(dueDate);
+        }
+
+        public async Task CreateJob_DueDateIsYesterday_ThrowsArgumentOutOfRangeException()
+        {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var currentTenant = await GetCurrentTenantAsync();
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var dueDate = DateTime.UtcNow.AddDays(-1);
+
+            // Act
+            await Assert.ThrowsAnyAsync<Exception>(async () => await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job", DueDate = dueDate }));
+        }
+
         [Fact]
         public async Task GetJob_ReturnsJob()
         {
