@@ -132,26 +132,16 @@
 
         //due date initializer
 
-        $('[data-toggle="tooltip"]').tooltip();
+       // $('[data-toggle="tooltip"]').tooltip();
 
         function formatDate(date) {
             return (
-                date.getDate() +
-                "/" +
-                (date.getMonth() + 1) +
-                "/" +
-                date.getFullYear()
+                date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
             );
         }
 
-        var currentDate = formatDate(new Date());
-
         $(".due-date-button").datepicker({
-            format: "dd/mm/yyyy",
-            autoclose: true,
-            todayHighlight: true,
-            startDate: currentDate,
-            orientation: "bottom right"
+            'todayHighlight': true
         });
 
         $(".due-date-button").on("click", function (event) {
@@ -159,7 +149,7 @@
                 .datepicker("show")
                 .on("changeDate", function (dateChangeEvent) {
                     $(".due-date-button").datepicker("hide");
-                    $(".due-date-label").text(formatDate(dateChangeEvent.date));
+                    setDueDateFields($, formatDate, dateChangeEvent);
                 });
         });
     });
@@ -183,6 +173,7 @@
 
         var job = _$form.serializeFormToObject();
         job.projectId = $('#ProjectId').val();
+        job.dueDate = $(".due-date-label").val();
 
         abp.ui.setBusy(_$JobCreateModal);
         _jobService
@@ -190,6 +181,7 @@
             .done(function () {
                 _$JobCreateModal.modal('hide');
                 _$form[0].reset();
+                clearDueDateFields();
                 abp.notify.info(l('SavedSuccessfully'));
                 _$jobsTable.ajax.reload();
             })
@@ -367,4 +359,14 @@
 
 })(jQuery);
 
+
+const setDueDateFields = function ($, formatDate, dateChangeEvent) {
+    $(".due-date-label").text(formatDate(dateChangeEvent.date));
+    $(".due-date-label").val(formatDate(dateChangeEvent.date));
+}
+
+const clearDueDateFields = function() {
+    $(".due-date-label").text("");
+    $(".due-date-label").val("");
+}
 
