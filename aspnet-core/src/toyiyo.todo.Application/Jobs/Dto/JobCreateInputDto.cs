@@ -23,6 +23,6 @@ namespace toyiyo.todo.Jobs
         /// <summary>
         /// Date when the job is due.  Due dates can't be set to the past
         /// </summary>
-        public DateTime DueDate {get; set;}
+        public DateTime? DueDate {get; set;}
     }
 }
