@@ -107,7 +107,13 @@
             {
                 targets: 3,
                 data: 'dueDate',
-                defaultContent: ''
+                defaultContent: '',
+                width: '8em',
+                render: (data, type, row, meta) => {
+                    const friendlyDueOnDate = moment(row.dueDate).fromNow();
+                    if (moment(row.dueDate).year() > 2000) {return `<span title="due ${friendlyDueOnDate}">${friendlyDueOnDate}</span>`}
+                    else {return ``}
+                }
             },
             {
                 targets: 4,
@@ -136,27 +142,7 @@
         }
 
         //due date initializer
-
-       // $('[data-toggle="tooltip"]').tooltip();
-
-        function formatDate(date) {
-            return (
-                date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
-            );
-        }
-
-        $(".due-date-button").datepicker({
-            'todayHighlight': true
-        });
-
-        $(".due-date-button").on("click", function (event) {
-            $(".due-date-button")
-                .datepicker("show")
-                .on("changeDate", function (dateChangeEvent) {
-                    $(".due-date-button").datepicker("hide");
-                    setDueDateFields($, formatDate, dateChangeEvent);
-                });
-        });
+        document.getElementById("due-date-button").setAttribute("min", new Date().toJSON().split('T')[0]);
     });
 
 
@@ -178,7 +164,7 @@
 
         var job = _$form.serializeFormToObject();
         job.projectId = $('#ProjectId').val();
-        job.dueDate = $(".due-date-label").val();
+        job.dueDate = $(".due-date-button").val();
 
         abp.ui.setBusy(_$JobCreateModal);
         _jobService
@@ -186,7 +172,6 @@
             .done(function () {
                 _$JobCreateModal.modal('hide');
                 _$form[0].reset();
-                clearDueDateFields();
                 abp.notify.info(l('SavedSuccessfully'));
                 _$jobsTable.ajax.reload();
             })
@@ -364,14 +349,4 @@
 
 })(jQuery);
 
-
-const setDueDateFields = function ($, formatDate, dateChangeEvent) {
-    $(".due-date-label").text(formatDate(dateChangeEvent.date));
-    $(".due-date-label").val(formatDate(dateChangeEvent.date));
-}
-
-const clearDueDateFields = function() {
-    $(".due-date-label").text("");
-    $(".due-date-label").val("");
-}
 

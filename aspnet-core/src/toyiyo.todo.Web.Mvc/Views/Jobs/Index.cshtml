@@ -41,13 +41,8 @@
                                             <input class="form-control form-control-lg border-0 add-todo-input bg-transparent rounded" type="text" id="jobtitle" name="title" required maxlength="500" minlength="2" placeholder=@L("AddNew") />
                                         </div>
                                         <div class="col-auto m-0 px-2 d-flex align-items-center">
-                                            <label class="text-secondary my-2 p-0 px-1 view-opt-label d-none d-sm-block due-date-label">Due date not set</label>
-                                            <button class="btn btn-sm bg-default my-2 px-1 due-date-button" data-toggle="tooltip" data-placement="bottom" title="Set a Due date" type="button">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar3" viewBox="0 0 16 16">
-                                                    <path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z"/>
-                                                    <path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
-                                                </svg>
-                                            </button>
+                                            <input type="date" class="btn btn-sm bg-default my-2 px-1 due-date-button" id="due-date-button" title="Set a Due date">
+                                            </input>
                                         </div>
                                         <div class="col-auto px-0 mx-0 mr-2">
                                             <button type="submit" class="btn btn-primary save-button">
@@ -81,7 +76,7 @@
                                         <th>order</th>
                                         <th>status</th>
                                         <th>title</th>
-                                        <th class="min-phone-l desktop">due date</th>
+                                        <th class="min-phone-l desktop">due</th>
                                         <th>edit</th>
                                     </tr>
 
