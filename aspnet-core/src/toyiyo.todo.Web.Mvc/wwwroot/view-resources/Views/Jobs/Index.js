@@ -116,7 +116,7 @@
                 defaultContent: '',
                 width: '8em',
                 render: (data, type, row, meta) => {
-                    const friendlyDueOnDate = moment(row.dueDate).fromNow();//moment(row.dueDate).format('ll');
+                    const friendlyDueOnDate = moment(row.dueDate).fromNow();
                     if (moment(row.dueDate).year() > 2000) { return `<span title="due ${friendlyDueOnDate}">${friendlyDueOnDate}</span>` }
                     else { return `` }
                 }
@@ -147,7 +147,7 @@
             loadJobDetailsModal(jobId);
         }
 
-        //due date initializer
+        //due date initializer - do not allow dates in the past
         document.getElementById("due-date-button").setAttribute("min", new Date().toJSON().split('T')[0]);
     });
 
