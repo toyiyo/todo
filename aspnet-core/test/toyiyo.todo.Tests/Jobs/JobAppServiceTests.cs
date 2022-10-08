@@ -42,6 +42,7 @@ namespace toyiyo.todo.Tests.Jobs
             job.Owner.Id.ShouldBe(currentUser.Id);
         }
 
+        [Fact]
         public async Task CreateJob_DueDateIsToday_ReturnsNewJob()
         {
             // Arrange
@@ -63,6 +64,7 @@ namespace toyiyo.todo.Tests.Jobs
             job.DueDate.ShouldBe(dueDate);
         }
 
+        [Fact]
         public async Task CreateJob_DueDateIsYesterday_ThrowsArgumentOutOfRangeException()
         {
             // Arrange
