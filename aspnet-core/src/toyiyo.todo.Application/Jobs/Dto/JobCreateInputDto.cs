@@ -21,7 +21,7 @@ namespace toyiyo.todo.Jobs
         /// </summary>
         public Guid ProjectId { get; set; }
         /// <summary>
-        /// Date when the job is due.  Due dates can't be set to the past
+        /// Date when the job is due.  Due dates can't be set to the past.  Date is UTC
         /// </summary>
         public DateTime? DueDate {get; set;}
     }

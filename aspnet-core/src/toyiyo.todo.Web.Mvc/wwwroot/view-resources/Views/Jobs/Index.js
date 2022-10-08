@@ -48,7 +48,12 @@
             dataSrc: 'orderByDate',
             update: false
         },
-        responsive: true,
+        responsive: {
+            details: {
+                type: 'column',
+                target: 2
+            }
+        },
         paging: true,
         serverSide: true,
         select: true,
@@ -72,6 +77,7 @@
         },
         buttons: [],
         columnDefs: [
+            // { className: 'dtr-control', orderable: false, targets: 0 },
             { orderable: true, className: 'reorder', targets: 0 },
             { orderable: false, targets: '_all' },
             {
@@ -110,9 +116,9 @@
                 defaultContent: '',
                 width: '8em',
                 render: (data, type, row, meta) => {
-                    const friendlyDueOnDate = moment(row.dueDate).fromNow();
-                    if (moment(row.dueDate).year() > 2000) {return `<span title="due ${friendlyDueOnDate}">${friendlyDueOnDate}</span>`}
-                    else {return ``}
+                    const friendlyDueOnDate = moment(row.dueDate).fromNow();//moment(row.dueDate).format('ll');
+                    if (moment(row.dueDate).year() > 2000) { return `<span title="due ${friendlyDueOnDate}">${friendlyDueOnDate}</span>` }
+                    else { return `` }
                 }
             },
             {
@@ -164,7 +170,7 @@
 
         var job = _$form.serializeFormToObject();
         job.projectId = $('#ProjectId').val();
-        job.dueDate = $(".due-date-button").val();
+        job.dueDate = moment($(".due-date-button").val()).endOf('day').utc();
 
         abp.ui.setBusy(_$JobCreateModal);
         _jobService
