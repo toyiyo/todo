@@ -3,6 +3,8 @@
     const Editor = toastui.Editor;
     const _$getLinkButton = $('.btn-pane-get-link');
 
+    document.getElementById("dueDate").setAttribute("min", new Date().toJSON().split('T')[0]);
+
     const editor = new Editor({
         el: document.querySelector('#Description'),
         initialValue: $('#descriptionFromServer').val(),
@@ -25,6 +27,7 @@
         //We need to get the div contents and manually add them to the job object
         var job = _$form.serializeFormToObject();
         job.description = editor.getMarkdown();
+        job.dueDate = moment($("dueDate").val()).endOf('day').utc();
 
         abp.ui.setBusy(_$form);
         //calling multiple services in parallel will fetch data from the DB in parallel.
@@ -32,15 +35,15 @@
         //This is due to the initial load.
         //to fix it, we must update one field at a time, or create a call to update all fields in bulk
 
-
-        _jobService.setTitle(job).done(
-            () => _jobService.setDescription(job).done(
-                () =>
-                    _$modal.modal('hide'),
-                abp.notify.info(l('SavedSuccessfully')),
-                abp.event.trigger('job.edited', job)
-            )).always(
-                () => abp.ui.clearBusy(_$form));
+        _jobService.setDueDate(job).done(() =>
+            _jobService.setTitle(job).done(() =>
+                _jobService.setDescription(job).done(
+                    () =>
+                        _$modal.modal('hide'),
+                    abp.notify.info(l('SavedSuccessfully')),
+                    abp.event.trigger('job.edited', job)
+                )).always(
+                    () => abp.ui.clearBusy(_$form)));
     }
 
     _$form.closest('div.modal-content').find(".save-button").click(function (e) {
@@ -69,7 +72,7 @@
         window.history.pushState(nextState, nextTitle, nextUrl);
     });
 
-    _$getLinkButton.on('click', function(){
+    _$getLinkButton.on('click', function () {
         navigator.clipboard.writeText(window.location.href);
         abp.notify.info('link is in your clipboard');
     });
