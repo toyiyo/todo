@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using Abp.Application.Services.Dto;
 using Abp.AutoMapper;
-using toyiyo.todo.Authorization.Users;
 using toyiyo.todo.Projects.Dto;
 using toyiyo.todo.Users.Dto;
 using static toyiyo.todo.Jobs.Job;
