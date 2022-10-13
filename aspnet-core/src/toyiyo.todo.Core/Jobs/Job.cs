@@ -1,5 +1,7 @@
 using System;
-using System.Collections.Generic;
+using Abp;
+using Abp.Dependency;
+using Abp.UI;
 using System.ComponentModel.DataAnnotations;
 using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
@@ -13,7 +15,7 @@ namespace toyiyo.todo.Jobs
     [Index(nameof(JobStatus))]
     public class Job : FullAuditedEntity<Guid>, IMustHaveTenant
     {
-        public enum Status {Open, InProgress, Done };
+        public enum Status { Open, InProgress, Done };
         private DateTime _orderByDate;
         public const int MaxTitleLength = 500; //todo: max length should be defined in the configuration
         public const int MaxDescriptionLength = 2000000; // 2MB limit | 307692 - 400000 words | 1230.8 - 1600.0 pages
@@ -25,17 +27,17 @@ namespace toyiyo.todo.Jobs
         [StringLength(MaxTitleLength)]
         public string Title { get; protected set; }
         [StringLength(MaxDescriptionLength)]
-        public string Description {get; protected set;}
+        public string Description { get; protected set; }
         public DateTime DueDate { get; protected set; }
         public User Owner { get; protected set; }
         public User Assignee { get; protected set; }
         //todo: reintroduce members many to many relationship later
         //public virtual ICollection<User> Members { get; protected set; }
-        public Status JobStatus {get; protected set;}
+        public Status JobStatus { get; protected set; }
         [Required]
         public virtual int TenantId { get; set; }
         //our default ordering is by date created, give we don't have all the values in the DB, we are returning a default value in code
-        public DateTime OrderByDate {get {return (_orderByDate == DateTime.MinValue) ? CreationTime : _orderByDate; } protected set {_orderByDate = value;} }
+        public DateTime OrderByDate { get { return (_orderByDate == DateTime.MinValue) ? CreationTime : _orderByDate; } protected set { _orderByDate = value; } }
 
         /// <summary>
         /// We don't make constructor public and forcing to create events using <see cref="Create"/> method.
@@ -47,12 +49,13 @@ namespace toyiyo.todo.Jobs
 
         }
 
-        public static Job Create(Project project, string title, string description, User user, int tenantId)
+        public static Job Create(Project project, string title, string description, User user, int tenantId, DateTime dueDate = default)
         {
-            if (title == null || user == null || tenantId <= 0 || project == null)
-            {
-                throw new ArgumentNullException(nameof(title) + " " + nameof(user) + " " + nameof(tenantId) + " " + nameof(project));
-            }
+            if (title == null) { throw new ArgumentNullException(nameof(title)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if (tenantId <= 0) { throw new ArgumentNullException(nameof(tenantId)); }
+            if (project == null) { throw new ArgumentNullException(nameof(project)); }
+            if ((dueDate != default) && (dueDate < Clock.Now.Date)) { throw new ArgumentOutOfRangeException(nameof(dueDate), "due date must be in the future"); }
 
             var job = new Job
             {
@@ -62,7 +65,6 @@ namespace toyiyo.todo.Jobs
                 TenantId = tenantId,
                 Owner = user,
                 Assignee = user,
-                //Members = new List<User>() {user},
                 CreatorUserId = user.Id,
                 LastModifierUserId = user.Id,
                 CreationTime = Clock.Now,
@@ -70,6 +72,7 @@ namespace toyiyo.todo.Jobs
                 JobStatus = Status.Open,
                 OrderByDate = Clock.Now
             };
+            if (dueDate != default) { job.DueDate = dueDate; }
 
             return job;
         }

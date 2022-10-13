@@ -48,7 +48,12 @@
             dataSrc: 'orderByDate',
             update: false
         },
-        responsive: true,
+        responsive: {
+            details: {
+                type: 'column',
+                target: 2
+            }
+        },
         paging: true,
         serverSide: true,
         select: true,
@@ -72,6 +77,7 @@
         },
         buttons: [],
         columnDefs: [
+            // { className: 'dtr-control', orderable: false, targets: 0 },
             { orderable: true, className: 'reorder', targets: 0 },
             { orderable: false, targets: '_all' },
             {
@@ -81,7 +87,7 @@
                 className: 'reorder',
                 render: (data, type, row, meta) => {
                     return [
-                        `<div data-order-datetime"${row.lastModificationTime}">`,
+                        `<div data-order-datetime="${row.lastModificationTime}">`,
                         `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grip-vertical" viewBox="0 0 16 16">`,
                         `<path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>`,
                         `</svg>`,
@@ -106,6 +112,17 @@
             },
             {
                 targets: 3,
+                data: 'dueDate',
+                defaultContent: '',
+                width: '8em',
+                render: (data, type, row, meta) => {
+                    const friendlyDueOnDate = moment(row.dueDate).fromNow();
+                    if (moment(row.dueDate).year() > 2000) { return `<span title="due ${friendlyDueOnDate}">${friendlyDueOnDate}</span>` }
+                    else { return `` }
+                }
+            },
+            {
+                targets: 4,
                 data: null,
                 autoWidth: false,
                 defaultContent: '',
@@ -129,12 +146,19 @@
         if (jobId) {
             loadJobDetailsModal(jobId);
         }
+
+        //due date initializer - do not allow dates in the past
+        document.getElementById("due-date-button").setAttribute("min", new Date().toJSON().split('T')[0]);
     });
+
+
     //handle filtering by job status
     $(document).on('click', '.job-status-filter', function (_e) {
         $('#SelectedJobStatus').val($(this).attr('data-job-status-filter'));
         _$jobsTable.ajax.reload();
     });
+
+
 
     //Job creation
     _$form.submit((e) => {
@@ -146,6 +170,7 @@
 
         var job = _$form.serializeFormToObject();
         job.projectId = $('#ProjectId').val();
+        job.dueDate = moment($(".due-date-button").val()).endOf('day').utc();
 
         abp.ui.setBusy(_$JobCreateModal);
         _jobService
@@ -231,7 +256,7 @@
                 //set content from ajax call into modal
                 $('#JobEditModal div.modal-content').html(content);
                 //set the job status button html - check for a job status, if one is not available, we need to get it from the hidden field as we just loaded from server instead of from js.
-                if (!jobStatus) { jobStatus = $('#JobEditModal').find('input[name="jobStatus"]').val();}
+                if (!jobStatus) { jobStatus = $('#JobEditModal').find('input[name="jobStatus"]').val(); }
                 const jobStatusPaneButtonHtml = getStatusButton(+jobStatus, jobId);
                 $('#JobEditModal button.btn-pane-template').html(jobStatusPaneButtonHtml);
                 //show the modal
