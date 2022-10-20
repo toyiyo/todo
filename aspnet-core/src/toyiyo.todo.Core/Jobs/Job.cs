@@ -138,11 +138,8 @@ namespace toyiyo.todo.Jobs
 
         public static Job SetStatus(Job job, Status status, User user)
         {
-            //validate parameters
-            if (job == null || user == null)
-            {
-                throw new ArgumentNullException(nameof(job) + " " + nameof(user));
-            }
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
 
             job.JobStatus = status;
             SetLastModified(job, user);
@@ -152,23 +149,15 @@ namespace toyiyo.todo.Jobs
 
         public static Job SetDueDate(Job job, DateTime dueDate, User user)
         {
-            //validate parameters
-            if (job == null || dueDate == DateTime.MinValue || user == null)
-            {
-                throw new ArgumentNullException(nameof(job) + " " + nameof(dueDate) + " " + nameof(user));
-            }
-
-            if (dueDate < DateTime.Now)
-            {
-                throw new ArgumentOutOfRangeException(nameof(dueDate));
-            }
+            //due dates can be set to null, but if they are set, they must be in the future
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if ((dueDate != default) && (dueDate < Clock.Now.Date)) { throw new ArgumentOutOfRangeException(nameof(dueDate), "due date must be in the future"); }
 
             job.DueDate = dueDate;
             SetLastModified(job, user);
 
             return job;
         }
-
-
     }
 }
