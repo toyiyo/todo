@@ -33,6 +33,7 @@ using toyiyo.todo.Editions;
 using toyiyo.todo.Authorization.Roles;
 using toyiyo.todo.MultiTenancy.Dto;
 using Abp.Runtime.Security;
+using Microsoft.AspNetCore.Authentication;
 
 namespace toyiyo.todo.Web.Controllers
 {
@@ -489,11 +490,11 @@ namespace toyiyo.todo.Web.Controllers
 
             return Challenge(
                 // TODO: ...?
-                // new Microsoft.AspNetCore.Http.Authentication.AuthenticationProperties
-                // {
-                //     Items = { { "LoginProvider", provider } },
-                //     RedirectUri = redirectUrl
-                // },
+                new AuthenticationProperties
+                {
+                    Items = { { "LoginProvider", provider } },
+                    RedirectUri = redirectUrl
+                },
                 provider
             );
         }

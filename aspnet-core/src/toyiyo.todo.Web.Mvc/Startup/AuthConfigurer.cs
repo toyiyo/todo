@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -16,7 +18,7 @@ namespace toyiyo.todo.Web.Startup
                     .AddJwtBearer(options =>
                     {
                         options.Audience = configuration["Authentication:JwtBearer:Audience"];
-                        
+
                         options.TokenValidationParameters = new TokenValidationParameters
                         {
                             // The signing key must match!
@@ -38,8 +40,14 @@ namespace toyiyo.todo.Web.Startup
                             ClockSkew = TimeSpan.Zero
                         };
                     });
-                
+
             }
+            services.AddAuthentication().AddGoogle(googleOptions =>
+                {
+                    googleOptions.ClientId = Environment.GetEnvironmentVariable("GoogleClientId");
+                    googleOptions.ClientSecret = Environment.GetEnvironmentVariable("GoogleClietSecret");
+                    googleOptions.SignInScheme = IdentityConstants.ExternalScheme;
+                });
         }
     }
 }
