@@ -19,6 +19,7 @@ using Abp.Json;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
 using Abp.Timing;
+using Microsoft.AspNetCore.HttpOverrides;
 using Sentry.AspNetCore;
 
 namespace toyiyo.todo.Web.Startup
@@ -37,6 +38,9 @@ namespace toyiyo.todo.Web.Startup
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            //configure aspnet core services to work with proxy servers https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-6.0
+            services.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
+
             // MVC
             services.AddControllersWithViews(
                     options =>
@@ -78,6 +82,14 @@ namespace toyiyo.todo.Web.Startup
         {
             app.UseAbp(); // Initializes ABP framework.
 
+            app.Use((context, next) =>
+            {
+                context.Request.Scheme = "https";
+                return next(context);
+            });
+
+            app.UseForwardedHeaders();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -85,6 +97,7 @@ namespace toyiyo.todo.Web.Startup
             else
             {
                 app.UseExceptionHandler("/Error");
+                app.UseHsts();
             }
 
             app.UseStaticFiles();
