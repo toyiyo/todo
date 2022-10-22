@@ -1,7 +1,18 @@
-﻿@using toyiyo.todo
-<footer class="main-footer">
-    <strong>Copyright &copy; @DateTime.Now.Year <a href="javascript:void(0);">todo</a>.</strong> All rights reserved.
-    <div class="float-right d-none d-sm-inline-block">
-        <b>@L("Version")</b> @AppVersionHelper.Version [@AppVersionHelper.ReleaseDate.ToString("yyyyMMdd")]
+﻿<footer class="main-footer">
+    <div class="float-left nav-link">
+        <p>Copyright &copy; @DateTime.Now.Year Toyiyo, llc</p> 
+    </div>
+    <div class="float-right">
+        <ul class="nav justify-content-end">
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("Privacy", "Legal")">@L("Privacy")</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("Terms", "Legal")">@L("Terms")</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("Cookies", "Legal")">@L("Cookie")</a>
+            </li>
+        </ul>
     </div>
 </footer>
