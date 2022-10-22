@@ -105,6 +105,9 @@
     <text name="UserRoles">User roles</text>
     <text name="ConfirmPassword">Confirm password</text>
     <text name="Version">Version</text>
+    <text name="Privacy">Privacy Policy</text>
+    <text name="Terms">Terms of Use</text>
+    <text name="Cookie">Cookie Policy</text>
     <text name="On">On</text>
     <text name="Off">Off</text>
     <text name="AreYouSureWantToDelete">Are you sure want to delete {0}?</text>

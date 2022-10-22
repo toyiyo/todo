@@ -1,0 +1,31 @@
+@using Abp.Configuration.Startup
+@using Abp.Web.Security.AntiForgery
+@using toyiyo.todo.Web.Resources
+@inject IAbpAntiForgeryManager AbpAntiForgeryManager
+@inject IWebResourceManager WebResourceManager
+@inject ILanguageManager LanguageManager
+@inject IMultiTenancyConfig MultiTenancyConfig
+@{
+    Layout = null;
+
+    var pageTitle = !string.IsNullOrWhiteSpace(ViewBag.Title) ? ViewBag.Title : "";
+}
+<!DOCTYPE html>
+<html lang="@LanguageManager.CurrentLanguage.Name">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    @await Html.PartialAsync("~/Views/Shared/Layout/_Styles.cshtml")
+    @RenderSection("styles", required: false)
+    <title>@pageTitle</title>
+</head>
+<body>
+<section class="vh-100">
+  <div class="container-fluid h-custom">
+    @RenderBody()
+  </div>
+  @await Html.PartialAsync("~/Views/Shared/Layout/_Footer.cshtml")
+</section>
+</body>
+</html>

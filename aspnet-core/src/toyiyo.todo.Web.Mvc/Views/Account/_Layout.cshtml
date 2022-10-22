@@ -27,40 +27,55 @@
 </head>
 <body class="login-page">
 <section class="vh-100">
-  <div class="container-fluid h-custom">
-    <div class="row d-flex justify-content-center align-items-center h-100">
-      <div class="col-md-9 col-lg-6 col-xl-5">
-        <img src="/img/logo.png" alt="Logo" class="img-fluid img-circle elevation-3" style="opacity: .8" >
-      </div>
-      <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
-        <div class="card">
-            @if (MultiTenancyConfig.IsEnabled)
-            {
-                  <div class="card-header">
-                      <vc:tenant-change></vc:tenant-change>
-                  </div>
-            }
-            <div class="card-body login-card-body">
-              @RenderBody()
+   <div class="container-fluid h-custom">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        
+         <div class="col-md-6 d-flex justify-content-center">
+            <img src="/img/logo.png" alt="Logo" class="img-fluid img-circle elevation-3" style="opacity: .8; max-height:350px" >
+         </div>
+         <div class="col-md-6 d-flex justify-content-center">
+            <div class="card">
+               @if (MultiTenancyConfig.IsEnabled)
+               {
+               <div class="card-header">
+                  <vc:tenant-change></vc:tenant-change>
+               </div>
+               }
+               <div class="card-body login-card-body">
+                  @RenderBody()
+               </div>
+               <div class="card-footer">
+               </div>
             </div>
-            <div class="card-footer">
-            </div>
-        </div>
+         </div>
       </div>
-    </div>
-  </div>
-  <div
-    class="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-dark">
-    <!-- Copyright -->
-    <div class="text-white mb-3 mb-md-0">
-      <small>&copy; @DateTime.Now.Year todo. <b>Version </b> @AppVersionHelper.Version [@AppVersionHelper.ReleaseDate.ToString("yyyyMMdd")]</small>
-    </div>
-    <!-- Copyright -->
-    <!-- Right -->
-
-    <!-- Right -->
-  </div>
+   </div>
+      <div class="container-fluid justify-content-center mw-100">
+         <footer class="footer mt-auto">
+            <div class="float-left d-none d-sm-inline-block mx-auto">
+                <p>Copyright &copy; @DateTime.Now.Year Toyiyo, llc</p> 
+            </div>
+            <div class="float-right d-none d-sm-inline-block mx-auto">
+                <ul class="nav justify-content-end">
+                    <li class="nav-item">
+                        <a class="nav-link px-1 text-muted" href="@Url.Action("Privacy", "Legal")">@L("Privacy")</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-1 text-muted" href="@Url.Action("Terms", "Legal")">@L("Terms")</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-1 text-muted" href="@Url.Action("Cookies", "Legal")">@L("Cookie")</a>
+                    </li>
+                </ul>
+            </div>
+        </footer>
+      </div>
 </section>
+
+@* <section>
+  @await Html.PartialAsync("~/Views/Shared/Layout/_Footer.cshtml")
+</section> *@
+
   @await Html.PartialAsync("_Scripts.cshtml")
   @RenderSection("scripts", required: false)
   @WebResourceManager.RenderScripts()
