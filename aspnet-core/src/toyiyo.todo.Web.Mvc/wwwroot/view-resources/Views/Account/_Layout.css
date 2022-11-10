@@ -24,3 +24,35 @@ height: calc(100% - 73px);
 height: 100%;
 }
 }
+
+.googleButton {
+  display: inline-block;
+  background: #4285F4;
+  color: white;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.googleButton:hover {
+  cursor: pointer;
+}
+span.label {
+  font-family: serif;
+  font-weight: normal;
+}
+span.icon {
+  background: url('/img/g-logo.png') transparent 50% no-repeat;
+  display: inline-block;
+  vertical-align: middle;
+  width: 42px;
+  height: 42px;
+}
+span.buttonText {
+  display: inline-block;
+  vertical-align: middle;
+  padding-left: 42px;
+  padding-right: 42px;
+  font-size: 14px;
+  font-weight: bold;
+  /* Use the Roboto font that is loaded in the <head> */
+  font-family: 'Roboto', sans-serif;
+}

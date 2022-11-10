@@ -54,7 +54,7 @@
     <text name="CanBeEmptyToLoginAsHost" value="Can be empty to login as host." />
     <text name="Register" value="Register" />
     <text name="RegisterNewCompany" value="Register a new company" />
-    <text name="OrLoginWith" value="Or login with" />
+    <text name="ContinueWith" value="Continue With" />
     <text name="WaitingForActivationMessage" value="Your account is waiting to be activated by system admin." />
     <text name="TenantSelection" value="Company Selection" />
     <text name="TenantSelection_Detail" value="Please select one of the following Companies." />

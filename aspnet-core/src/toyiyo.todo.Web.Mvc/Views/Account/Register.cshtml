@@ -75,8 +75,9 @@
 <div class="social-auth-links text-center">
     <p>- OR -</p>
     <form asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="Google" method="post">
-        <button type="submit" class="btn btn-block btn-danger">
-            <i class="fab fa-google mr-2" aria-hidden="true"></i> @L("OrLoginWith") Google
-        </button>
+            <button type="submit" class="googleButton">
+                    <span class="icon"></span>
+                    <span class="buttonText">@L("ContinueWith") Google</span>
+            </button>
     </form>
 </div>
