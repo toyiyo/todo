@@ -43,6 +43,8 @@ namespace toyiyo.todo.Authorization.Users
 
             var tenant = await GetActiveTenantAsync();
 
+            CheckForSelfRegistration(tenant);
+
             var user = new User
             {
                 TenantId = tenant.Id,
@@ -68,6 +70,14 @@ namespace toyiyo.todo.Authorization.Users
             await CurrentUnitOfWork.SaveChangesAsync();
 
             return user;
+        }
+
+        private void CheckForSelfRegistration(Tenant tenant)
+        {
+            if (!tenant.AllowsSelfRegistration)
+            {
+                throw new UserFriendlyException(L("TenantSelfRegistrationIsDisabled{0}", tenant.Name));
+            }
         }
 
         private void CheckForTenant()
