@@ -60,6 +60,7 @@
     <text name="TenantSelection_Detail" value="Please select one of the following Companies." />
     <text name="Logout" value="Logout" />
     <text name="RegisterFormUserNameInvalidMessage">Please don't enter an email address for username.</text>
+    <text name="RegisterSelfToHostNotAllowed" value="Self registration to host is not allowed!" />
     <text name="DatabaseConnectionString" value="Database connection string" />
     <text name="Users" value="Users" />
     <text name="IsActive" value="Is active" />

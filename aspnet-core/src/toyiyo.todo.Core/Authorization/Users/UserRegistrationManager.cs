@@ -33,6 +33,7 @@ namespace toyiyo.todo.Authorization.Users
             _userManager = userManager;
             _roleManager = roleManager;
             _passwordHasher = passwordHasher;
+            LocalizationSourceName = todoConsts.LocalizationSourceName;
 
             AbpSession = NullAbpSession.Instance;
         }
@@ -84,7 +85,7 @@ namespace toyiyo.todo.Authorization.Users
         {
             if (!AbpSession.TenantId.HasValue)
             {
-                throw new InvalidOperationException("Can not register host users!");
+                throw new UserFriendlyException(L("RegisterSelfToHostNotAllowed"));
             }
         }
 

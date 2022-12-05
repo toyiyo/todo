@@ -20,6 +20,8 @@ using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Shouldly;
+using toyiyo.todo.MultiTenancy;
+using toyiyo.todo.Authorization.Roles;
 
 namespace toyiyo.todo.Web.Tests
 {
@@ -31,7 +33,7 @@ namespace toyiyo.todo.Web.Tests
         {
             ContentRootFolder = new Lazy<string>(WebContentDirectoryFinder.CalculateContentRootFolder, true);
         }
-        
+
         protected override IWebHostBuilder CreateWebHostBuilder()
         {
             return base
@@ -68,9 +70,9 @@ namespace toyiyo.todo.Web.Tests
         }
 
         #endregion
-        
+
         #region Authenticate
-        
+
         /// <summary>
         /// /api/TokenAuth/Authenticate
         /// TokenAuthController
@@ -81,7 +83,7 @@ namespace toyiyo.todo.Web.Tests
         protected async Task AuthenticateAsync(string tenancyName, AuthenticateModel input)
         {
             if (tenancyName.IsNullOrWhiteSpace())
-            { 
+            {
                 var tenant = UsingDbContext(context => context.Tenants.FirstOrDefault(t => t.TenancyName == tenancyName));
                 if (tenant != null)
                 {
@@ -97,12 +99,12 @@ namespace toyiyo.todo.Web.Tests
                 JsonConvert.DeserializeObject<AjaxResponse<AuthenticateResultModel>>(
                     await response.Content.ReadAsStringAsync());
             Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Result.AccessToken);
-            
+
             AbpSession.UserId = result.Result.UserId;
         }
-        
+
         #endregion
-        
+
         #region Login
 
         protected void LoginAsHostAdmin()
@@ -212,5 +214,16 @@ namespace toyiyo.todo.Web.Tests
         }
 
         #endregion
+
+        //function to set the tenant 
+        protected void SetDefaultTenant()
+        {
+            var tenant = UsingDbContext(context => context.Tenants.FirstOrDefault(t => t.TenancyName == AbpTenantBase.DefaultTenantName));
+            if (tenant != null)
+            {
+                AbpSession.TenantId = tenant.Id;
+                Client.DefaultRequestHeaders.Add("Abp.TenantId", tenant.Id.ToString());  //Set TenantId
+            }
+        }
     }
 }
