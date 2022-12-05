@@ -69,4 +69,5 @@ namespace toyiyo.todo.Web.Tests.Controllers
             result.StatusCode.ShouldBe(HttpStatusCode.OK);
             result.Content.ReadAsStringAsync().Result.ShouldContain("Self registration is disabled");
         }
+    }
 }
