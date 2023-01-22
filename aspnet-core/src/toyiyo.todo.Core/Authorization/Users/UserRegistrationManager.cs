@@ -33,6 +33,7 @@ namespace toyiyo.todo.Authorization.Users
             _userManager = userManager;
             _roleManager = roleManager;
             _passwordHasher = passwordHasher;
+            LocalizationSourceName = todoConsts.LocalizationSourceName;
 
             AbpSession = NullAbpSession.Instance;
         }
@@ -42,6 +43,8 @@ namespace toyiyo.todo.Authorization.Users
             CheckForTenant();
 
             var tenant = await GetActiveTenantAsync();
+
+            CheckForSelfRegistration(tenant);
 
             var user = new User
             {
@@ -70,11 +73,19 @@ namespace toyiyo.todo.Authorization.Users
             return user;
         }
 
+        private void CheckForSelfRegistration(Tenant tenant)
+        {
+            if (!tenant.AllowsSelfRegistration)
+            {
+                throw new UserFriendlyException(L("TenantSelfRegistrationIsDisabled{0}", tenant.Name));
+            }
+        }
+
         private void CheckForTenant()
         {
             if (!AbpSession.TenantId.HasValue)
             {
-                throw new InvalidOperationException("Can not register host users!");
+                throw new UserFriendlyException(L("RegisterSelfToHostNotAllowed"));
             }
         }
 

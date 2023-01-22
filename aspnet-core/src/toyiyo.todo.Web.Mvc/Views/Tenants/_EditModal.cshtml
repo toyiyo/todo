@@ -26,6 +26,11 @@
                 <input id="isactive" type="checkbox" name="IsActive" value="true" @(Model.IsActive ? "checked" : "") />
             </div>
         </div>
+        <div class="form-group row">
+            <label class="col-md-3 col-form-label" for="AllowsSelfRegistration">@L("AllowsSelfRegistration")</label>
+            <div class="col-md-9">
+                <input id="isactive" type="checkbox" name="AllowsSelfRegistration" value="true" @(Model.AllowsSelfRegistration ? "checked" : "") />
+            </div>
     </div>
     @await Html.PartialAsync("~/Views/Shared/Modals/_ModalFooterWithSaveAndCancel.cshtml")
 </form>

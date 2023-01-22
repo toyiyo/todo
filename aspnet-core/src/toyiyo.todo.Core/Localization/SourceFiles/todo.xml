@@ -60,9 +60,11 @@
     <text name="TenantSelection_Detail" value="Please select one of the following Companies." />
     <text name="Logout" value="Logout" />
     <text name="RegisterFormUserNameInvalidMessage">Please don't enter an email address for username.</text>
+    <text name="RegisterSelfToHostNotAllowed" value="Self registration to host is not allowed!" />
     <text name="DatabaseConnectionString" value="Database connection string" />
     <text name="Users" value="Users" />
     <text name="IsActive" value="Is active" />
+    <text name="AllowsSelfRegistration" value="Allows self registration" />
     <text name="FullName" value="Full name" />
     <text name="CreateNewUser" value="Create new user" />
     <text name="Yes" value="Yes" />
@@ -91,6 +93,7 @@
     <text name="EditUser">Edit user</text>
     <text name="TenantIdIsNotActive{0}">CompanyId {0} is not active</text>
     <text name="UnknownTenantId{0}">Unknown companyId {0}</text>
+    <text name="TenantSelfRegistrationIsDisabled{0}">self registration is disabled for {0}</text>
     <text name="ThisFieldIsRequired">This field is required</text>
     <text name="PleaseWait">Please wait...</text>
     <text name="Administration">Administration</text>
