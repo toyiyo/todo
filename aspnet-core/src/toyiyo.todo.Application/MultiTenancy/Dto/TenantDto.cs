@@ -18,5 +18,10 @@ namespace toyiyo.todo.MultiTenancy.Dto
         public string Name { get; set; }        
         
         public bool IsActive {get; set;}
+
+        /// <summary>
+        /// To manage self registration ability for a tenant.  Default value: false.
+        /// </summary>
+        public bool AllowsSelfRegistration { get; set; }
     }
 }

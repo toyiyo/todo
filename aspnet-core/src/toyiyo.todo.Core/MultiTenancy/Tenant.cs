@@ -7,7 +7,7 @@ namespace toyiyo.todo.MultiTenancy
     public class Tenant : AbpTenant<User>
     {
         [DefaultValue("false")]
-        public bool AllowsSelfRegistration { get; protected set; }
+        public bool AllowsSelfRegistration { get; set; }
         public Tenant()
         {            
         }

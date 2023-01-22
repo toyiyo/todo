@@ -104,6 +104,7 @@ namespace toyiyo.todo.MultiTenancy
             entity.Name = updateInput.Name;
             entity.TenancyName = updateInput.TenancyName;
             entity.IsActive = updateInput.IsActive;
+            entity.AllowsSelfRegistration = updateInput.AllowsSelfRegistration;
         }
 
         public override async Task DeleteAsync(EntityDto<int> input)
