@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
@@ -41,6 +43,28 @@ namespace toyiyo.todo.Jobs
             var jobs = await _jobManager.GetAll(input);
             var jobsTotalCount = await _jobManager.GetAllCount(input);
             return new PagedResultDto<JobDto>(jobsTotalCount, ObjectMapper.Map<List<JobDto>>(jobs));
+        }
+
+        public async Task<JobStatsDto> GetJobStats(GetAllJobsInput getAllJobsInput)
+        {
+            var jobs = await GetAll(new GetAllJobsInput(){MaxResultCount = int.MaxValue});
+            return new JobStatsDto
+            {
+                TotalJobs = jobs.Items.Count(),
+                TotalOpenJobs = jobs.Items.Count(x => x.JobStatus == Job.Status.Open),
+                TotalInProgressJobs = jobs.Items.Count(x => x.JobStatus == Job.Status.InProgress),
+                TotalCompletedJobs = jobs.Items.Count(x => x.JobStatus == Job.Status.Done),
+                TotalCompletedJobsPerMonth = //return job items grouped by date and count
+                jobs.Items
+                    .Where(x => x.JobStatus == Job.Status.Done)
+                    .GroupBy(x => new { x.LastModificationTime.Value.Year, x.LastModificationTime.Value.Month })
+                    .Select(x => new JobStatsPerMonthDto
+                    {
+                        Year = x.Key.Year,
+                        Month = DateTimeFormatInfo.CurrentInfo.MonthNames[x.Key.Month - 1],
+                        Count = x.Count()
+                    }).ToList()
+            };
         }
 
         public async Task<JobDto> SetDescription(JobSetDescriptionInputDto jobSetDescriptionInputDto)

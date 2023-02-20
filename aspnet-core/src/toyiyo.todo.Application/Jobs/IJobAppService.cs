@@ -17,5 +17,6 @@ namespace toyiyo.todo.Jobs
         Task<JobDto> SetDueDate(JobSetDueDateInputDto jobSetDueDateInputDto);
         Task<IActionResult> Delete(Guid id);
         Task<ActionResult<JobDto>> PatchOrderByDate(JobPatchOrderByDateInputDto jobPatchOrderByDateInputDto);
+        Task<JobStatsDto> GetJobStats(GetAllJobsInput getAllJobsInput);
     }
 }
