@@ -47,7 +47,7 @@ namespace toyiyo.todo.Jobs
 
         public async Task<JobStatsDto> GetJobStats(GetAllJobsInput getAllJobsInput)
         {
-            var jobs = await GetAll(new GetAllJobsInput(){MaxResultCount = int.MaxValue});
+            var jobs = await GetAll(getAllJobsInput);
             return new JobStatsDto
             {
                 TotalJobs = jobs.Items.Count(),
