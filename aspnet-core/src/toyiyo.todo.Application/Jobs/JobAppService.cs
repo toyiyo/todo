@@ -45,8 +45,10 @@ namespace toyiyo.todo.Jobs
             return new PagedResultDto<JobDto>(jobsTotalCount, ObjectMapper.Map<List<JobDto>>(jobs));
         }
 
-        public async Task<JobStatsDto> GetJobStats(GetAllJobsInput getAllJobsInput)
+        public async Task<JobStatsDto> GetJobStats()
         {
+            //getting stats for the account, for the future, we should allow filtering by project.
+            var getAllJobsInput = new GetAllJobsInput(){ MaxResultCount = int.MaxValue };
             var jobs = await GetAll(getAllJobsInput);
             return new JobStatsDto
             {

@@ -19,7 +19,7 @@ namespace toyiyo.todo.Web.Controllers
 
         public async Task<ActionResult> IndexAsync()
         {
-            var jobStats = await _jobAppService.GetJobStats(new GetAllJobsInput(){ MaxResultCount = int.MaxValue });
+            var jobStats = await _jobAppService.GetJobStats();
             var jsonTotalCompletedJobsPerMonth= JsonConvert.SerializeObject(jobStats.TotalCompletedJobsPerMonth);
             ViewBag.TotalCompletedJobsPerMonth = jsonTotalCompletedJobsPerMonth;
             return View(jobStats);
