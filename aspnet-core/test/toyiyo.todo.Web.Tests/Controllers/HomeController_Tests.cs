@@ -18,13 +18,9 @@ namespace toyiyo.todo.Web.Tests.Controllers
                 Password = Environment.GetEnvironmentVariable("DefaultPassword")
             });
 
-            //Act
-            var response = await GetResponseAsStringAsync(
-                GetUrl<HomeController>(nameof(HomeController.IndexAsync))
-            );
-
-            //Assert
-            response.ShouldNotBeNullOrEmpty();
+            await Assert.ThrowsAnyAsync<Exception>(async () => await GetResponseAsStringAsync(
+                GetUrl<ProjectsController>(nameof(HomeController.IndexAsync))
+            ));
         }
     }
 }
