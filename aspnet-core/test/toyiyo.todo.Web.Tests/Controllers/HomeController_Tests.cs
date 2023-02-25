@@ -4,13 +4,14 @@ using toyiyo.todo.Web.Controllers;
 using Shouldly;
 using Xunit;
 using System;
+using Abp.MultiTenancy;
 
 namespace toyiyo.todo.Web.Tests.Controllers
 {
-    public class HomeController_Tests: todoWebTestBase
+    public class HomeController_Tests : todoWebTestBase
     {
         [Fact]
-        public async Task Index_Test()
+        public async Task Index_NoTenant_ThrowsUnauthorized()
         {
             await AuthenticateAsync(null, new AuthenticateModel
             {
@@ -19,8 +20,20 @@ namespace toyiyo.todo.Web.Tests.Controllers
             });
 
             await Assert.ThrowsAnyAsync<Exception>(async () => await GetResponseAsStringAsync(
-                GetUrl<ProjectsController>(nameof(HomeController.IndexAsync))
-            ));
+                GetUrl<HomeController>("Index")));
+        }
+
+        [Fact]
+        public async Task Index_TenantSet_ReturnsOk()
+        {
+            SetDefaultTenant();
+            await AuthenticateAsync(AbpTenantBase.DefaultTenantName, new AuthenticateModel
+            {
+                UserNameOrEmailAddress = "admin",
+                Password = Environment.GetEnvironmentVariable("DefaultPassword")
+            });
+
+           await GetResponseAsync(GetUrl<HomeController>("Index"));
         }
     }
 }
