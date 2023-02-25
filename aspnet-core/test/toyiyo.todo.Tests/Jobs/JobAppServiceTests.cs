@@ -315,5 +315,28 @@ namespace toyiyo.todo.Tests.Jobs
             //assert
             response.Result.ShouldBeOfType<NotFoundResult>();
         }
+
+        [Fact]
+        public async Task GetJobStats_getsStatsForCurrentJobs()
+        {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var currentTenant = await GetCurrentTenantAsync();
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job"});
+            var job2 = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job2", Description = "test job2" });
+            var job3 = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job3", Description = "test job3" });
+
+            // Act
+            var jobStats = await _jobAppService.GetJobStats();
+
+            // Assert items count is 1 and total count is 2 and is sorted by creation date desc
+            jobStats.ShouldNotBeNull();
+            jobStats.TotalJobs.ShouldBe(3);
+            jobStats.TotalCompletedJobs.ShouldBe(0);
+            jobStats.TotalInProgressJobs.ShouldBe(0);
+            jobStats.TotalOpenJobs.ShouldBe(3);
+            jobStats.TotalCompletedJobsPerMonth.Count.ShouldBe(0);
+        }
     }
 }

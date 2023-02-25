@@ -1,15 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Abp.AspNetCore.Mvc.Authorization;
 using toyiyo.todo.Controllers;
+using toyiyo.todo.Jobs;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace toyiyo.todo.Web.Controllers
 {
     [AbpMvcAuthorize]
     public class HomeController : todoControllerBase
     {
-        public ActionResult Index()
+        private IJobAppService _jobAppService;
+
+        public HomeController(IJobAppService jobAppService)
         {
-            return View();
+            _jobAppService = jobAppService;
+        }
+
+        public async Task<ActionResult> IndexAsync()
+        {
+            var jobStats = await _jobAppService.GetJobStats();
+            var jsonTotalCompletedJobsPerMonth= JsonConvert.SerializeObject(jobStats.TotalCompletedJobsPerMonth);
+            ViewBag.TotalCompletedJobsPerMonth = jsonTotalCompletedJobsPerMonth;
+            return View(jobStats);
         }
     }
 }

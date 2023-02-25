@@ -15,11 +15,51 @@
     var salesChartCanvas = $('#salesChart').get(0).getContext('2d');
     // This will get the first returned node in the jQuery collection.
 
+    const MONTHS = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
+    ];
+
+    var completedPerMonth = JSON.parse(document.querySelector('#home-page-stats-data').dataset.completedMonthly);
+
+    function filterAndGroupByMonth(data) {
+        // Get the current year
+        const currentYear = new Date().getFullYear();
+
+        // Filter the data by year and sort it by month
+        const filteredData = data
+            .filter(item => item.Year === currentYear)
+            .sort((a, b) => {
+                // Compare the month names to sort them in chronological order
+                return MONTHS.indexOf(a.Month) - MONTHS.indexOf(b.Month);
+            });
+
+        // Group the data by month and get the counts
+        const groupedData = Array(12).fill(0); // Initialize an array with 12 zeros
+        filteredData.forEach(item => {
+            const monthIndex = new Date(`${item.Month} 1, 2000`).getMonth(); // Get the month index (0-11) from the month name
+            groupedData[monthIndex] += item.Count; // Add the count to the corresponding month index
+        });
+
+        // Return the grouped data as an array of integers
+        return groupedData;
+    }
+
     var salesChartData = {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+        labels: MONTHS,
         datasets: [
             {
-                label: 'Electronics',
+                label: 'Completed',
                 fill: '#dee2e6',
                 borderColor: '#ced4da',
                 pointBackgroundColor: '#ced4da',
@@ -27,19 +67,8 @@
                 pointHoverBackgroundColor: '#fff',
                 pointHoverBorderColor: 'rgb(220,220,220)',
                 spanGaps: true,
-                data: [65, 59, 80, 81, 56, 55, 40]
+                data: filterAndGroupByMonth(completedPerMonth)
             },
-            {
-                label: 'Digital Goods',
-                fill: 'rgba(0, 123, 255, 0.9)',
-                borderColor: 'rgba(0, 123, 255, 1)',
-                pointBackgroundColor: '#3b8bba',
-                pointBorderColor: 'rgba(0, 123, 255, 1)',
-                pointHoverBackgroundColor: '#fff',
-                pointHoverBorderColor: 'rgba(0, 123, 255, 1)',
-                spanGaps: true,
-                data: [28, 48, 40, 19, 86, 27, 90]
-            }
         ]
     };
 
