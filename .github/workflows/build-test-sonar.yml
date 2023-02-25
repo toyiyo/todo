@@ -44,5 +44,4 @@ jobs:
     - name: Install coverage
       run: dotnet tool install --global dotnet-coverage
     - name: test
-      run: dotnet-coverage collect 'dotnet test aspnet-core/toyiyo.todo.sln' -f xml  -o 'coverage.xml'
-
+      run: dotnet-coverage collect "dotnet test aspnet-core/toyiyo.todo.sln" -f xml -o "coverage.xml"
