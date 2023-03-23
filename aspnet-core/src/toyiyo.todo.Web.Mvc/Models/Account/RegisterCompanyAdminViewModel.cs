@@ -6,7 +6,7 @@ using Abp.Runtime.Validation;
 
 namespace toyiyo.todo.Web.Models.Account
 {
-    public class RegisterCompanyAdminViewModel : ICustomValidate
+    public class RegisterCompanyAdminViewModel
     {
         [Required]
         [StringLength(AbpTenantBase.MaxTenancyNameLength)]
@@ -34,13 +34,5 @@ namespace toyiyo.todo.Web.Models.Account
         public bool IsExternalLogin { get; set; }
 
         public string ExternalLoginAuthSchema { get; set; }
-
-        public void AddValidationErrors(CustomValidationContext context)
-        {
-            if (!EmailAddress.Contains(TenancyName))
-            {
-                context.Results.Add(new ValidationResult("Email must match the domain registered"));
-            }
-        }
     }
 }
