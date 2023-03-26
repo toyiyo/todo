@@ -6,6 +6,7 @@ using toyiyo.todo.Jobs;
 using System.Threading.Tasks;
 using System;
 using toyiyo.todo.Web.Models.Jobs;
+using System.Collections.Generic;
 
 namespace toyiyo.todo.Web.Controllers
 {
@@ -38,7 +39,7 @@ namespace toyiyo.todo.Web.Controllers
 
                 var subTasks = await JobAppService.GetAll(new GetAllJobsInput() { ParentJobId = JobId, MaxResultCount = int.MaxValue });
                 //convert map all subtasks to a list of editjobmodalviewmodel and add to viewbag
-                ViewBag.SubTasks = subTasks.Items;
+                ViewBag.SubTasks = new List<EditJobModalViewModel>();
 
                 var model = ObjectMapper.Map<EditJobModalViewModel>(output);
                 return PartialView("_EditModal", model);
