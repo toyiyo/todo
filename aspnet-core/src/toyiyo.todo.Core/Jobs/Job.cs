@@ -34,6 +34,7 @@ namespace toyiyo.todo.Jobs
         //todo: reintroduce members many to many relationship later
         //public virtual ICollection<User> Members { get; protected set; }
         public Status JobStatus { get; protected set; }
+        public Guid ParentId { get; protected set; }
         [Required]
         public virtual int TenantId { get; set; }
         //our default ordering is by date created, give we don't have all the values in the DB, we are returning a default value in code
@@ -49,7 +50,7 @@ namespace toyiyo.todo.Jobs
 
         }
 
-        public static Job Create(Project project, string title, string description, User user, int tenantId, DateTime dueDate = default)
+        public static Job Create(Project project, string title, string description, User user, int tenantId, DateTime dueDate = default, Guid parentId = default)
         {
             if (title == null) { throw new ArgumentNullException(nameof(title)); }
             if (user == null) { throw new ArgumentNullException(nameof(user)); }
@@ -70,6 +71,7 @@ namespace toyiyo.todo.Jobs
                 CreationTime = Clock.Now,
                 LastModificationTime = Clock.Now,
                 JobStatus = Status.Open,
+                ParentId = parentId,
                 OrderByDate = Clock.Now
             };
             if (dueDate != default) { job.DueDate = dueDate; }
@@ -155,6 +157,17 @@ namespace toyiyo.todo.Jobs
             if ((dueDate != default) && (dueDate < Clock.Now.Date)) { throw new ArgumentOutOfRangeException(nameof(dueDate), "due date must be in the future"); }
 
             job.DueDate = dueDate;
+            SetLastModified(job, user);
+
+            return job;
+        }
+
+        public static Job SetParent(Job job, Guid parentId, User user)
+        {
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+
+            job.ParentId = parentId;
             SetLastModified(job, user);
 
             return job;

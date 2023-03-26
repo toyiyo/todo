@@ -10,6 +10,7 @@ namespace toyiyo.todo.Jobs
         public string Keyword { get; set; }
         public Guid ProjectId { get; set; }
         public Status? JobStatus { get; set; }
+        public Guid ParentJobId { get; set; }
     }
 
 }
