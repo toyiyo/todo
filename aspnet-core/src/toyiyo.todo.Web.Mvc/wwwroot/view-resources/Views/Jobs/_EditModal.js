@@ -18,6 +18,19 @@
         _$modal = $('#JobEditModal'),
         _$form = _$modal.find('form');
 
+        mermaid.initialize({
+            startOnLoad: false
+        });
+        document.getElementById("generateDiagramBtn").addEventListener("click", function (e) {
+            e.preventDefault();
+            var diagramDescription = document.getElementById("diagramDescription").value;
+            var diagramDiv = document.getElementById("diagram");
+            diagramDiv.setAttribute("class", "mermaid");
+            diagramDiv.setAttribute("style", "margin-top: 20px;");
+            diagramDiv.innerHTML = diagramDescription;
+            mermaid.init(undefined, diagramDiv);
+        });
+
     function save() {
         if (!_$form.valid()) {
             return;
