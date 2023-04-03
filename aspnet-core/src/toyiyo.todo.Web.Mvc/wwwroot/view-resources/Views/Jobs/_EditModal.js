@@ -24,12 +24,24 @@
         document.getElementById("generateDiagramBtn").addEventListener("click", function (e) {
             e.preventDefault();
             var diagramDescription = document.getElementById("diagramDescription").value;
-            var diagramDiv = document.getElementById("diagram");
-            diagramDiv.setAttribute("class", "mermaid");
-            diagramDiv.setAttribute("style", "margin-top: 20px;");
-            diagramDiv.innerHTML = diagramDescription;
-            mermaid.init(undefined, diagramDiv);
+        
+            // Create new diagram div
+            var oldDiagramDiv = document.getElementById("diagram");
+            var newDiagramDiv = document.createElement("div");
+            newDiagramDiv.setAttribute("id", "diagram");
+            newDiagramDiv.setAttribute("class", "mermaid");
+            newDiagramDiv.setAttribute("style", "margin-top: 20px;");
+            oldDiagramDiv.parentNode.replaceChild(newDiagramDiv, oldDiagramDiv);
+        
+            // Set diagram content
+            newDiagramDiv.innerHTML = diagramDescription;
+        
+            // Render diagram
+            mermaid.init(undefined, newDiagramDiv);
         });
+        
+        
+
 
     function save() {
         if (!_$form.valid()) {
