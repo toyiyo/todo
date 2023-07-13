@@ -1,6 +1,6 @@
 @model List<toyiyo.todo.Web.Models.Jobs.EditJobSubTaskModalViewModel>
 @await Html.PartialAsync("~/Views/Shared/Modals/_modalAddByTitle.cshtml")
-<table class="table">
+<table class="table" id="subtask-table">
     <thead>
         <tr>
             <th></th>
@@ -12,7 +12,8 @@
         {
             <tr>                     
                 <td>
-                    <input type="text" class="form-control" value="@subTask.Title" data-subtask-id="@subTask.Id" />
+                    <span class="subtask-text" data-subtask-id="@subTask.Id">@subTask.Title</span>
+                    <input type="text" class="form-control subtask-input d-none" value="@subTask.Title" data-subtask-id="@subTask.Id" />
                 </td>
                 <td>
                     <button type="button" class="btn btn-danger btn-sm">Delete</button>

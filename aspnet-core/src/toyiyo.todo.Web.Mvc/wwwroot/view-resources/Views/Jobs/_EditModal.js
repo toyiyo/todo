@@ -2,6 +2,8 @@
 
     const Editor = toastui.Editor;
     const _$getLinkButton = $('.btn-pane-get-link');
+    var _debounceTimer = null;
+    const _$subtaskForm = $('#AddByTitle');
 
     document.getElementById("dueDate").setAttribute("min", new Date().toJSON().split('T')[0]);
 
@@ -17,8 +19,7 @@
         l = abp.localization.getSource('todo'),
         _$modal = $('#JobEditModal'),
         _$form = _$modal.find('form');
-        _debounceTimer = null;
-        _$subtaskForm = $('#AddByTitle');
+
 
     function save() {
         if (!_$form.valid()) {
@@ -91,6 +92,13 @@
     });
 
     //function to create a sub task
+    function Subtask(title, dueDate, parentId, id) {
+        this.title = title;
+        this.dueDate = dueDate;
+        this.parentId = parentId;
+        this.id = id;
+    }
+
     function createSubtask() {
         var title = _$subtaskForm.find('#add-by-title-input').val();
         var dueDate = _$subtaskForm.find('#due-date-button').val();
@@ -109,13 +117,12 @@
             dueDate: dueDate,
             parentId: parentId,
             projectId: projectId
-        })
-        .done(function () {
+        }).done(function(data) {
             abp.notify.info(l('SavedSuccessfully'));
             _$subtaskForm.find('#add-by-title-input').val('');
             _$subtaskForm.find('#due-date-button').val('');
-        })
-        .always(function () {
+            addSubtaskToTable(new Subtask(title, dueDate, parentId, data.id));
+        }).always(function () {
             abp.ui.clearBusy(_$subtaskForm);
         });
     }
@@ -130,5 +137,37 @@
             createSubtask();
         }
     });
+
+    $('table').on('click', '.subtask-text', function () {
+        var $text = $(this);
+        var $input = $text.next('.subtask-input');
+        $text.addClass('d-none');
+        $input.removeClass('d-none');
+        $input.focus();
+    });
+
+    $('table').on('blur', '.subtask-input', function () {
+        var $input = $(this);
+        var $text = $input.prev('.subtask-text');
+        $input.addClass('d-none');
+        $text.removeClass('d-none');
+        $text.text($input.val());
+    });
+
+    function addSubtaskToTable(subtask) {
+        var $row = $(`
+        <tr>
+        <td>
+            <span class="subtask-text" data-subtask-id="${subtask.id}">${subtask.title}</span>
+            <input type="text" class="form-control subtask-input d-none" value="${subtask.title}" data-subtask-id="${subtask.id}" />
+        </td>
+        <td>
+            <button type="button" class="btn btn-danger btn-sm">Delete</button>
+        </td>
+        </tr>
+    `);
+
+        $row.appendTo('#subtask-table tbody');
+    }
 
 })(jQuery);
