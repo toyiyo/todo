@@ -18,6 +18,7 @@
         _$modal = $('#JobEditModal'),
         _$form = _$modal.find('form');
         _debounceTimer = null;
+        _$subtaskForm = $('#AddByTitle');
 
     function save() {
         if (!_$form.valid()) {
@@ -87,6 +88,47 @@
     _$getLinkButton.on('click', function () {
         navigator.clipboard.writeText(window.location.href);
         abp.notify.info('link is in your clipboard');
+    });
+
+    //function to create a sub task
+    function createSubtask() {
+        var title = _$subtaskForm.find('#add-by-title-input').val();
+        var dueDate = _$subtaskForm.find('#due-date-button').val();
+        var parentId = _$form.find('input[name="id"]').val();
+        var projectId = $('#ProjectId').val();
+
+        if (!title) {
+            abp.notify.warn(l('TitleIsRequired'));
+            return;
+        }
+
+        abp.ui.setBusy(_$subtaskForm);
+
+        _jobService.create({
+            title: title,
+            dueDate: dueDate,
+            parentId: parentId,
+            projectId: projectId
+        })
+        .done(function () {
+            abp.notify.info(l('SavedSuccessfully'));
+            _$subtaskForm.find('#add-by-title-input').val('');
+            _$subtaskForm.find('#due-date-button').val('');
+        })
+        .always(function () {
+            abp.ui.clearBusy(_$subtaskForm);
+        });
+    }
+    //create a subtask when the button is clicked
+    _$subtaskForm.find('.create-by-title-button').on('click', function () {
+        createSubtask();
+    });
+    //create a subtask when the enter key is pressed
+    _$subtaskForm.find('#add-by-title-input').on('keydown', function (event) {
+        if (event.keyCode === 13) { // Enter key
+            event.preventDefault();
+            createSubtask();
+        }
     });
 
 })(jQuery);
