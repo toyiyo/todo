@@ -20,7 +20,7 @@
         _$modal = $('#JobEditModal'),
         _$form = _$modal.find('form');
 
-
+    //JOB
     function save() {
         if (!_$form.valid()) {
             return;
@@ -69,7 +69,7 @@
             var job = _$form.serializeFormToObject();
             job.description = editor.getMarkdown();
             _jobService.setDescription(job);
-        }, 1000);
+        }, 700);
     });
 
     _$modal.on('shown.bs.modal', function () {
@@ -91,7 +91,7 @@
         abp.notify.info('link is in your clipboard');
     });
 
-    //function to create a sub task
+    //SUBTASKS
     function Subtask(title, dueDate, parentId, id) {
         this.title = title;
         this.dueDate = dueDate;
@@ -137,7 +137,7 @@
             createSubtask();
         }
     });
-
+    //show hide subtask input field
     $('table').on('click', '.subtask-text', function () {
         var $text = $(this);
         var $input = $text.next('.subtask-input');
@@ -153,7 +153,7 @@
         $text.removeClass('d-none');
         $text.text($input.val());
     });
-
+    //add subtask to UI when subtask is created
     function addSubtaskToTable(subtask) {
         var $row = $(`
         <tr>
@@ -169,5 +169,26 @@
 
         $row.appendTo('#subtask-table tbody');
     }
+    //set the subtask title when the user stops typing
+    $('.subtask-input').on('input', function () {
+        var $input = $(this);
+        if (_debounceTimer) {
+            clearTimeout(_debounceTimer);
+        }
+        _debounceTimer = setTimeout(function () {
+            var jobSetSubTaskTitleInputDto = {
+                id: $input.data('subtask-id'),
+                title: $input.val()
+            };
+            _jobService.setTitle(jobSetSubTaskTitleInputDto).done(function () {abp.notify.info(l('SavedSuccessfully'));});
+        }, 700);
+    });
+
+    $('.subtask-input').on('keydown', function (event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            _jobService.setTitle(jobSetSubTaskTitleInputDto).done(function () {abp.notify.info(l('SavedSuccessfully'));});
+        }
+    });
 
 })(jQuery);
