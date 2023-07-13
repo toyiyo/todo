@@ -14,6 +14,7 @@
     <text name="JobTitle" value="Job title" />
     <text name="Jobs" value="Jobs" />
     <text name="JobDescription" value="Job Description" />
+    <text name="Subtasks" value="Subtasks" />
     <text name="DueDate" value="Due"/>
     <text name="WelcomeMessage" value="Welcome to todo!" />
     <text name="FormIsNotValidMessage" value="Form is not valid. Please check and fix errors." />
