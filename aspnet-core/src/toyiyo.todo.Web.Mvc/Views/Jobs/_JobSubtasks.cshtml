@@ -1,31 +1,23 @@
 @model List<toyiyo.todo.Web.Models.Jobs.EditJobSubTaskModalViewModel>
-
-<div class="card">
-    <div class="card-header">
-        <h4>Sub-tasks</h4>
-    </div>
-    <div class="card-body">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Description</th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var subTask in Model)
-                {
-                    <tr>                     
-                        <td>
-                            <input type="text" class="form-control" value="@subTask.Title" data-subtask-id="@subTask.Id" />
-                        </td>
-                        <td>
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
+@await Html.PartialAsync("~/Views/Shared/Modals/_modalAddByTitle.cshtml")
+<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var subTask in Model)
+        {
+            <tr>                     
+                <td>
+                    <input type="text" class="form-control" value="@subTask.Title" data-subtask-id="@subTask.Id" />
+                </td>
+                <td>
+                    <button class="btn btn-danger btn-sm">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
