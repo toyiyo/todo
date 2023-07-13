@@ -17,6 +17,7 @@
         l = abp.localization.getSource('todo'),
         _$modal = $('#JobEditModal'),
         _$form = _$modal.find('form');
+        _debounceTimer = null;
 
     function save() {
         if (!_$form.valid()) {
@@ -56,6 +57,17 @@
             e.preventDefault();
             save();
         }
+    });
+    //this is a debounce function that will wait 1 second after the user stops typing to update the description
+    $('#Description').on('input', function () {
+        if (_debounceTimer) {
+            clearTimeout(_debounceTimer);
+        }
+        _debounceTimer = setTimeout(function () {
+            var job = _$form.serializeFormToObject();
+            job.description = editor.getMarkdown();
+            _jobService.setDescription(job);
+        }, 1000);
     });
 
     _$modal.on('shown.bs.modal', function () {
