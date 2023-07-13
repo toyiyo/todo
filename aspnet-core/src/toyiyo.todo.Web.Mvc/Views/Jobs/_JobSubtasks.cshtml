@@ -1,4 +1,4 @@
-@model List<toyiyo.todo.Web.Models.Jobs.EditJobModalViewModel>
+@model List<toyiyo.todo.Web.Models.Jobs.EditJobSubTaskModalViewModel>
 
 <div class="card">
     <div class="card-header">
@@ -16,16 +16,9 @@
             <tbody>
                 @foreach (var subTask in Model)
                 {
-                    <tr>
+                    <tr>                     
                         <td>
-                            @* <select class="form-control">
-                                <option value="1" @(subTask.StatusId == 1 ? "selected" : "")>Not started</option>
-                                <option value="2" @(subTask.StatusId == 2 ? "selected" : "")>In progress</option>
-                                <option value="3" @(subTask.StatusId == 3 ? "selected" : "")>Completed</option>
-                            </select> *@
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" value="@subTask.Description" />
+                            <input type="text" class="form-control" value="@subTask.Title" data-subtask-id="@subTask.Id" />
                         </td>
                         <td>
                             <button class="btn btn-danger btn-sm">Delete</button>
