@@ -1,21 +1,24 @@
 @model List<toyiyo.todo.Web.Models.Jobs.EditJobSubTaskModalViewModel>
-@await Html.PartialAsync("~/Views/Shared/Modals/_modalAddByTitle.cshtml")
 <table class="table" id="subtask-table">
     <thead>
         <tr>
-            <th></th>
-            <th></th>
+            <th>status</th>
+            <th>title</th>
+            <th>delete</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var subTask in Model)
         {
-            <tr>                     
-                <td>
-                    <span class="subtask-text" data-subtask-id="@subTask.Id">@subTask.Title</span>
-                    <input type="text" class="form-control subtask-input d-none" value="@subTask.Title" data-subtask-id="@subTask.Id" />
+            <tr>
+                <td class="col-1 align-items-center justify-content-start">
+                    <input type="checkbox" class="form-check-input subtask-checkbox mr-2 pr-2" data-subtask-id="@subTask.Id" @if (subTask.JobStatusId == 2) { <text>checked</text> }>
+                </td>                     
+                <td class="col">
+                    <span class="subtask-text form-control border-0 add-todo-input bg-transparent rounded" data-subtask-id="@subTask.Id">@subTask.Title</span>
+                    <input type="text" class="form-control border-0 add-todo-input bg-transparent rounded subtask-input d-none" value="@subTask.Title" data-subtask-id="@subTask.Id" />
                 </td>
-                <td>
+                <td class="col px-0 mx-0 mr-2 pr-2 text-right">
                     <button type="button" class="btn btn-danger btn-sm">Delete</button>
                 </td>
             </tr>
