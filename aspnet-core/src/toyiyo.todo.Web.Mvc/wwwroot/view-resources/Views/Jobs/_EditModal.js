@@ -117,7 +117,7 @@
             dueDate: dueDate,
             parentId: parentId,
             projectId: projectId
-        }).done(function(data) {
+        }).done(function (data) {
             abp.notify.info(l('SavedSuccessfully'));
             _$subtaskForm.find('#add-by-title-input').val('');
             _$subtaskForm.find('#due-date-button').val('');
@@ -183,15 +183,25 @@
                 id: $input.data('subtask-id'),
                 title: $input.val()
             };
-            _jobService.setTitle(jobSetSubTaskTitleInputDto).done(function () {abp.notify.info(l('SavedSuccessfully'));});
+            _jobService.setTitle(jobSetSubTaskTitleInputDto).done(function () { abp.notify.info(l('SavedSuccessfully')); });
         }, 700);
     });
 
     $('.subtask-input').on('keydown', function (event) {
         if (event.keyCode === 13) {
             event.preventDefault();
-            _jobService.setTitle(jobSetSubTaskTitleInputDto).done(function () {abp.notify.info(l('SavedSuccessfully'));});
+            _jobService.setTitle(jobSetSubTaskTitleInputDto).done(function () { abp.notify.info(l('SavedSuccessfully')); });
         }
+    });
+
+    $('.subtask-checkbox').on('change', function () {
+        var $checkbox = $(this);
+        let jobSetSubTaskStatusInputDto = {
+            id: $checkbox.data('subtask-id'),
+            jobstatus: $checkbox.is(':checked') ? 2 : 0 // Assuming 2 is the ID for "completed" status and 0 is the ID for "open" status
+        }
+
+        _jobService.setJobStatus(jobSetSubTaskStatusInputDto).done(function () { abp.notify.info(l('SavedSuccessfully')); });
     });
 
 })(jQuery);
