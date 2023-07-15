@@ -157,15 +157,18 @@
     function addSubtaskToTable(subtask) {
         var $row = $(`
         <tr>
-        <td>
-            <span class="subtask-text" data-subtask-id="${subtask.id}">${subtask.title}</span>
-            <input type="text" class="form-control subtask-input d-none" value="${subtask.title}" data-subtask-id="${subtask.id}" />
-        </td>
-        <td>
-            <button type="button" class="btn btn-danger btn-sm">Delete</button>
-        </td>
+            <td>
+                <input type="checkbox" class="subtask-checkbox" data-subtask-id="${subtask.id}" ${subtask.jobStatusId === 2 ? 'checked' : ''} />
+            </td> 
+            <td class="align-middle w-100">
+                <span class="subtask-text form-control border-0 add-todo-input bg-transparent rounded" data-subtask-id="${subtask.id}">${subtask.title}</span>
+                <input type="text" class="form-control border-1 add-todo-input bg-transparent rounded subtask-input d-none" value="${subtask.title}" data-subtask-id="${subtask.id}" />
+            </td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm">Delete</button>
+            </td>
         </tr>
-    `);
+        `);
 
         $row.appendTo('#subtask-table tbody');
     }

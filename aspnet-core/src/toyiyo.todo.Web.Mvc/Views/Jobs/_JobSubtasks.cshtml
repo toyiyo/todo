@@ -12,20 +12,14 @@
         {
             <tr>
                 <td>
-                    <label class="form-check-label" data-toggle="tooltip" title="complete">
-                        <input type="checkbox" class="subtask-checkbox" data-subtask-id="@subTask.Id" @if (subTask.JobStatusId == 2) { <text>checked</text> } />
-                    </label>
+                    <input type="checkbox" class="subtask-checkbox" data-subtask-id="@subTask.Id" @if (subTask.JobStatusId == 2) { <text>checked</text> } />
                 </td>                     
-                <td>
-
-                        <span class="subtask-text form-control border-0 add-todo-input bg-transparent rounded" data-subtask-id="@subTask.Id">@subTask.Title</span>
-                        <input type="text" class="form-control border-1 add-todo-input bg-transparent rounded subtask-input d-none" value="@subTask.Title" data-subtask-id="@subTask.Id" />
-
+                <td class="align-middle w-100">
+                    <span class="subtask-text form-control border-0 add-todo-input bg-transparent rounded" data-subtask-id="@subTask.Id">@subTask.Title</span>
+                    <input type="text" class="form-control border-1 add-todo-input bg-transparent rounded subtask-input d-none" value="@subTask.Title" data-subtask-id="@subTask.Id" />
                 </td>
                 <td>
-
                     <button type="button" class="btn btn-danger btn-sm">Delete</button>
-
                 </td>
             </tr>
         }
