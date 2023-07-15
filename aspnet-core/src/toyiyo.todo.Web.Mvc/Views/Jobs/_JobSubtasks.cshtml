@@ -11,15 +11,21 @@
         @foreach (var subTask in Model)
         {
             <tr>
-                <td class="col-1 align-items-center justify-content-start">
-                    <input type="checkbox" class="form-check-input subtask-checkbox mr-2 pr-2" data-subtask-id="@subTask.Id" @if (subTask.JobStatusId == 2) { <text>checked</text> }>
+                <td>
+                    <label class="form-check-label" data-toggle="tooltip" title="complete">
+                        <input type="checkbox" class="subtask-checkbox" data-subtask-id="@subTask.Id" @if (subTask.JobStatusId == 2) { <text>checked</text> } />
+                    </label>
                 </td>                     
-                <td class="col">
-                    <span class="subtask-text form-control border-0 add-todo-input bg-transparent rounded" data-subtask-id="@subTask.Id">@subTask.Title</span>
-                    <input type="text" class="form-control border-0 add-todo-input bg-transparent rounded subtask-input d-none" value="@subTask.Title" data-subtask-id="@subTask.Id" />
+                <td>
+
+                        <span class="subtask-text form-control border-0 add-todo-input bg-transparent rounded" data-subtask-id="@subTask.Id">@subTask.Title</span>
+                        <input type="text" class="form-control border-1 add-todo-input bg-transparent rounded subtask-input d-none" value="@subTask.Title" data-subtask-id="@subTask.Id" />
+
                 </td>
-                <td class="col px-0 mx-0 mr-2 pr-2 text-right">
+                <td>
+
                     <button type="button" class="btn btn-danger btn-sm">Delete</button>
+
                 </td>
             </tr>
         }
