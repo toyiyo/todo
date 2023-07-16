@@ -50,11 +50,17 @@ namespace toyiyo.todo.Jobs
         private IQueryable<Job> GetAllJobsQueryable(GetAllJobsInput input)
         {
             //repository methods already filter by tenant, we can check other attributes by adding "or" "||" to the whereif clause
-            return _jobRepository.GetAll()
+            var query =  _jobRepository.GetAll()
             .WhereIf(!input.ProjectId.Equals(Guid.Empty), x => x.Project.Id == input.ProjectId)
             .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), p => p.Title.ToUpper().Contains(input.Keyword.ToUpper()))
             .WhereIf(input.JobStatus != null, p => p.JobStatus == input.JobStatus)
             .WhereIf(!input.ParentJobId.Equals(Guid.Empty), p => p.ParentId == input.ParentJobId);
+
+            if (input.OnlyRootJobs)
+            {
+                query = query.Where(j => j.ParentId == null || j.ParentId == Guid.Empty);
+            }
+            return query;
         }
 
         public async Task<Job> Create(Job inputJob)
