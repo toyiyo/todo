@@ -165,7 +165,7 @@
                 <input type="text" class="form-control border-1 add-todo-input bg-transparent rounded subtask-input d-none" value="${subtask.title}" data-subtask-id="${subtask.id}" />
             </td>
             <td>
-                <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                <button type="button" class="btn btn-danger btn-sm subtask-delete" data-subtask-id="${subtask.id}">Delete</button>
             </td>
         </tr>
         `);
@@ -173,7 +173,7 @@
         $row.appendTo('#subtask-table tbody');
     }
     //set the subtask title when the user stops typing
-    $('.subtask-input').on('input', function () {
+    $('#subtask-table').on('input', '.subtask-input', function () {
         let $input = $(this);
         if (_debounceTimer) {
             clearTimeout(_debounceTimer);
@@ -187,14 +187,19 @@
         }, 700);
     });
 
-    $('.subtask-input').on('keydown', function (event) {
+    $('#subtask-table').on('keydown', '.subtask-input', function (event) {
         if (event.keyCode === 13) {
             event.preventDefault();
+            let $input = $(this);
+            let jobSetSubTaskTitleInputDto = {
+                id: $input.data('subtask-id'),
+                title: $input.val()
+            };
             _jobService.setTitle(jobSetSubTaskTitleInputDto).done(function () { abp.notify.info(l('SavedSuccessfully')); });
         }
     });
 
-    $('.subtask-checkbox').on('change', function () {
+    $('#subtask-table').on('change', '.subtask-checkbox', function () {
         let $checkbox = $(this);
         let jobSetSubTaskStatusInputDto = {
             id: $checkbox.data('subtask-id'),
@@ -204,7 +209,7 @@
         _jobService.setJobStatus(jobSetSubTaskStatusInputDto).done(function () { abp.notify.info(l('SavedSuccessfully')); });
     });
 
-    $('.subtask-delete').on('click', function () {
+    $('#subtask-table').on('click', '.subtask-delete', function () {
         let $button = $(this);
         let jobId = $button.data('subtask-id');
 
