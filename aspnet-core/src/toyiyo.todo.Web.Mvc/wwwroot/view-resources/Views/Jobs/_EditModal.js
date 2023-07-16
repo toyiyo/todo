@@ -174,12 +174,12 @@
     }
     //set the subtask title when the user stops typing
     $('.subtask-input').on('input', function () {
-        var $input = $(this);
+        let $input = $(this);
         if (_debounceTimer) {
             clearTimeout(_debounceTimer);
         }
         _debounceTimer = setTimeout(function () {
-            var jobSetSubTaskTitleInputDto = {
+            let jobSetSubTaskTitleInputDto = {
                 id: $input.data('subtask-id'),
                 title: $input.val()
             };
@@ -195,7 +195,7 @@
     });
 
     $('.subtask-checkbox').on('change', function () {
-        var $checkbox = $(this);
+        let $checkbox = $(this);
         let jobSetSubTaskStatusInputDto = {
             id: $checkbox.data('subtask-id'),
             jobstatus: $checkbox.is(':checked') ? 2 : 0 // Assuming 2 is the ID for "completed" status and 0 is the ID for "open" status
@@ -203,5 +203,24 @@
 
         _jobService.setJobStatus(jobSetSubTaskStatusInputDto).done(function () { abp.notify.info(l('SavedSuccessfully')); });
     });
+
+    $('.subtask-delete').on('click', function () {
+        let $button = $(this);
+        let jobId = $button.data('subtask-id');
+
+        deleteJob(jobId)
+            .done(function () {
+                abp.notify.info(l('Deleted Successfully'));
+                $button.closest('tr').remove();
+            });
+    });
+    //since our service returns IactionResult (httpresponse), it doesn't get ajax wrapping from apb framework, causing a js error if we use the default _jobService.Delete function since it expects a wrapper object
+    //https://aspnetboilerplate.com/Pages/Documents/Javascript-API/AJAX?searchKey=MvcAjaxResponse
+    const deleteJob = function (id) {
+        return $.ajax({
+            url: abp.appPath + 'api/services/app/Job/Delete' + abp.utils.buildQueryString([{ name: 'id', value: id }]) + '',
+            type: 'DELETE'
+        });
+    };
 
 })(jQuery);
