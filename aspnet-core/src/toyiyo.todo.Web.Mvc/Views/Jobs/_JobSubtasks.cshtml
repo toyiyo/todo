@@ -1,0 +1,27 @@
+@model List<toyiyo.todo.Web.Models.Jobs.EditJobSubTaskModalViewModel>
+<table class="table" id="subtask-table" aria-describedby="subtasks">
+    <thead>
+        <tr>
+            <th>status</th>
+            <th>title</th>
+            <th>delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var subTask in Model)
+        {
+            <tr>
+                <td>
+                    <input type="checkbox" class="subtask-checkbox" data-subtask-id="@subTask.Id" @if (subTask.JobStatusId == 2) { <text>checked</text> } />
+                </td>                     
+                <td class="align-middle w-100">
+                    <span class="subtask-text form-control border-0 add-todo-input bg-transparent rounded" data-subtask-id="@subTask.Id">@subTask.Title</span>
+                    <input type="text" class="form-control border-1 add-todo-input bg-transparent rounded subtask-input d-none" value="@subTask.Title" data-subtask-id="@subTask.Id" />
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm subtask-delete" data-subtask-id="@subTask.Id">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

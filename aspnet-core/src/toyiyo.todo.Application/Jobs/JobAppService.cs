@@ -27,7 +27,7 @@ namespace toyiyo.todo.Jobs
         {
             var tenant = await GetCurrentTenantAsync();
             var project = await _projectManager.Get(input.ProjectId);
-            var job = Job.Create(project, input.Title, input.Description, await GetCurrentUserAsync(), tenant.Id, input.DueDate ?? default );
+            var job = Job.Create(project, input.Title, input.Description, await GetCurrentUserAsync(), tenant.Id, input.DueDate ?? default, input.ParentId ?? default );
             await _jobManager.Create(job);
             return ObjectMapper.Map<JobDto>(job);
         }
@@ -48,7 +48,9 @@ namespace toyiyo.todo.Jobs
         public async Task<JobStatsDto> GetJobStats()
         {
             //getting stats for the account, for the future, we should allow filtering by project.
-            var getAllJobsInput = new GetAllJobsInput(){ MaxResultCount = int.MaxValue };
+            //we'll manually remove subtasks from the stats count for now.  
+            //todo, once we have a job type defined, we can filter by job type
+            var getAllJobsInput = new GetAllJobsInput(){ MaxResultCount = int.MaxValue, OnlyRootJobs = true};
             var jobs = await GetAll(getAllJobsInput);
             return new JobStatsDto
             {

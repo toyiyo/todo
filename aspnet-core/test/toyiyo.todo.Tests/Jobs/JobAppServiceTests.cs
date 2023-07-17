@@ -76,6 +76,24 @@ namespace toyiyo.todo.Tests.Jobs
             // Act
             await Assert.ThrowsAnyAsync<Exception>(async () => await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job", DueDate = dueDate }));
         }
+        [Fact]
+        public async Task CreateJob_WithParentId_CreatesSubtask()
+        {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var currentTenant = await GetCurrentTenantAsync();
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var parentJob = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "parent job", Description = "parent job" });
+
+            // Act
+            var subtask = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "subtask", Description = "subtask", ParentId = parentJob.Id });
+
+            // Assert
+            subtask.ShouldNotBeNull();
+            subtask.Title.ShouldBe("subtask");
+            subtask.Description.ShouldBe("subtask");
+            subtask.ParentId.ShouldBe(parentJob.Id);
+        }
 
         [Fact]
         public async Task GetJob_ReturnsJob()
@@ -323,7 +341,7 @@ namespace toyiyo.todo.Tests.Jobs
             var currentUser = await GetCurrentUserAsync();
             var currentTenant = await GetCurrentTenantAsync();
             var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
-            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job"});
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job" });
             var job2 = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job2", Description = "test job2" });
             var job3 = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job3", Description = "test job3" });
 
