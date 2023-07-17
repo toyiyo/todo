@@ -4,21 +4,38 @@ using toyiyo.todo.Web.Controllers;
 using Shouldly;
 using Xunit;
 using System;
+using toyiyo.todo.Jobs;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Net.Http;
+using toyiyo.todo.Web.Models.Jobs;
 using System.Collections.Generic;
 using toyiyo.todo.Projects;
-using toyiyo.todo.Sessions;
-using Newtonsoft.Json;
 using toyiyo.todo.Projects.Dto;
-using Newtonsoft.Json.Serialization;
+using Abp.Application.Services.Dto;
+using toyiyo.todo.Jobs.Dto;
+using Abp.MultiTenancy;
+using Abp.Domain.Repositories;
 
 namespace toyiyo.todo.Web.Tests.Controllers
 {
     public class JobsController_Tests : todoWebTestBase
     {
+        private readonly IJobAppService _jobAppService;
         private readonly IProjectAppService _projectAppService;
+        private readonly IProjectManager _projectManager;
+        private readonly IJobManager _jobManager;
+        private readonly IRepository<Project, Guid> _projectRepository;
+        private readonly IRepository<Job, Guid> _jobRepository;
 
-        public JobsController_Tests() { _projectAppService = Resolve<IProjectAppService>(); }
+        public JobsController_Tests() { 
+            _jobAppService = Resolve<IJobAppService>(); 
+            _projectAppService = Resolve<IProjectAppService>(); 
+            _projectManager = Resolve<IProjectManager>();
+            _jobManager = Resolve<IJobManager>();
+            _projectRepository = Resolve<IRepository<Project, Guid>>();
+            _jobRepository = Resolve<IRepository<Job, Guid>>();
+            }
 
         [Fact]
         public async Task JobIndex_InvalidProject_ReturnsNotFound()
@@ -38,39 +55,68 @@ namespace toyiyo.todo.Web.Tests.Controllers
             //Assert
             response.ShouldBeNullOrEmpty();
         }
+        // Assuming you have references to the required testing frameworks and namespaces
 
+        [Fact]
+        public async Task Index_ReturnsView()
+        {
+            // Arrange
+            var projectId = Guid.NewGuid();
+            var jobId = Guid.NewGuid();
+
+            // Create an instance of the controller
+            var controller = new JobsController(_jobAppService);
+
+            // Act
+            // Invoke the action method with the required parameters
+            var result = await controller.Index(projectId, jobId);
+
+            // Assert
+            // Check the returned result and its properties
+            var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.Null(viewResult.ViewName);  // Check if view name is null or empty
+
+            Assert.True(viewResult.ViewData.ContainsKey("ProjectId"));
+            Assert.True(viewResult.ViewData.ContainsKey("JobId"));
+            Assert.Equal(projectId, viewResult.ViewData["ProjectId"]);
+            Assert.Equal(jobId, viewResult.ViewData["JobId"]);
+        }
+
+        //todo - follow testing guidelines here https://aspnetboilerplate.com/Pages/Documents/Articles/Unit-Testing-with-Entity-Framework,-xUnit-Effort/index.html?searchKey=mock
+        
         // [Fact]
-        // public async Task JobIndex_ValidProject_ReturnsOk()
+        // public async Task EditModal_ReturnsPartialViewWithModel()
         // {
-        //     //arrange
-        //     LoginAsDefaultTenantAdmin();
-        //     Console.WriteLine("user id {0}", AbpSession.UserId );
-        //     Console.WriteLine("tenant id {0}", AbpSession.TenantId );
-        //     //create a project via the API so we can use it in the controller
-        //     var createProjectUrl = GetUrl<ProjectAppService>(nameof(ProjectAppService.Create));
-
-        //     var content = new Dictionary<string, string>();
-        //     content.Add("title", "test description");
-
-        //     var data = new FormUrlEncodedContent(content);
-        //     var projectResponse = await Client.PostAsync(createProjectUrl, data);
-
-        //     Console.WriteLine("response {0}", await projectResponse.Content.ReadAsStringAsync());
-        //     //todo: figure out why we get an empty response here.  If this fails, go back to attempting to create a project via the API instead.
-        //     var projectDtoResponse = JsonConvert.DeserializeObject<ProjectDto>(await projectResponse.Content.ReadAsStringAsync(), new JsonSerializerSettings
+        //     // Arrange
+        //     SetDefaultTenant();
+        //     await AuthenticateAsync(AbpTenantBase.DefaultTenantName, new AuthenticateModel
         //     {
-        //         ContractResolver = new CamelCasePropertyNamesContractResolver()
-        //     }); 
+        //         UserNameOrEmailAddress = "admin",
+        //         Password = Environment.GetEnvironmentVariable("DefaultPassword")
+        //     });
+        //     //we don't mock the app service, we want to test the actual services so we use them to create the test data.  This goes into a temp database - https://aspnetboilerplate.com/Pages/Documents/Articles/Unit-Testing-with-Entity-Framework,-xUnit-Effort/index.html?searchKey=mock
+        //     var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "project.Title", Description = "project.Description"});
+        //     var parentJob = await _jobAppService.Create(new JobCreateInputDto(){ Title = "parent job", Description = "parent job description", ProjectId = project.Id});
+        //     var childJob1 = await _jobAppService.Create(new JobCreateInputDto(){ Title = "child job 1", Description = "child job 1 description", ProjectId = project.Id, ParentId = parentJob.Id});
+        //     var childJob2 = await _jobAppService.Create(new JobCreateInputDto(){ Title = "child job 2", Description = "child job 2 description", ProjectId = project.Id, ParentId = parentJob.Id});
+        //     var subTasks = new List<JobDto>() {childJob1, childJob2};
+        //     var controller = new JobsController(_jobAppService);
 
-        //     //Console.WriteLine("Project DTO id = {0}", projectDtoResponse.Id);
+        //     // Act
+        //     var result = await controller.EditModal(parentJob.Id);
 
-        //     //act - load the page
-        //     var response = await GetResponseAsStringAsync(
-        //         GetUrl<JobsController>(nameof(JobsController.Index), new { id = projectDtoResponse.Id }), System.Net.HttpStatusCode.OK
-        //     );
+        //     // Assert
+        //     var partialViewResult = Assert.IsType<PartialViewResult>(result);
+        //     Assert.Equal("_EditModal", partialViewResult.ViewName);
 
-        //     //Assert
-        //     response.ShouldNotBeNullOrEmpty();
+        //     var model = Assert.IsType<EditJobModalViewModel>(partialViewResult.Model);
+        //     Assert.Equal(parentJob.Id, model.Id);
+        //     Assert.Equal(parentJob.Title, model.Title);
+
+        //     var subTaskModels = Assert.IsType<List<EditJobSubTaskModalViewModel>>(controller.ViewBag.SubTasks);
+        //     Assert.Equal(subTasks.Count, subTaskModels.Count);
+        //     Assert.Equal(subTasks[0].Title, subTaskModels[0].Title);
+        //     Assert.Equal(subTasks[1].Title, subTaskModels[1].Title);
         // }
     }
 }
