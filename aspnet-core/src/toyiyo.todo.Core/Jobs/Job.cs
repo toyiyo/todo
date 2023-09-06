@@ -12,7 +12,7 @@ using toyiyo.todo.Projects;
 
 namespace toyiyo.todo.Jobs
 {
-    [Index(nameof(JobStatus))]
+    [Index(nameof(JobStatus), nameof(Level))]
     public class Job : FullAuditedEntity<Guid>, IMustHaveTenant
     {
         //doing this as an enum means any new status will require a code change, consider using a lookup table in the future
