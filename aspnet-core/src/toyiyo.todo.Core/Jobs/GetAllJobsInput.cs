@@ -12,6 +12,7 @@ namespace toyiyo.todo.Jobs
         public Status? JobStatus { get; set; }
         public Guid ParentJobId { get; set; }
         public bool OnlyRootJobs { get; set; } //this is a hack to filter out subtasks given we don't have a job type defined yet
+        public JobLevel? Level { get; set; }
     }
 
 }

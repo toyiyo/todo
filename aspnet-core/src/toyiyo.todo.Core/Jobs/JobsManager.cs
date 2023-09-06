@@ -54,6 +54,7 @@ namespace toyiyo.todo.Jobs
             .WhereIf(!input.ProjectId.Equals(Guid.Empty), x => x.Project.Id == input.ProjectId)
             .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), p => p.Title.ToUpper().Contains(input.Keyword.ToUpper()))
             .WhereIf(input.JobStatus != null, p => p.JobStatus == input.JobStatus)
+            .WhereIf(input.Level != null, p => p.Level == input.Level)
             .WhereIf(!input.ParentJobId.Equals(Guid.Empty), p => p.ParentId == input.ParentJobId);
 
             if (input.OnlyRootJobs)

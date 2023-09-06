@@ -87,13 +87,14 @@ namespace toyiyo.todo.Tests.Jobs
             var parentJob = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "parent job", Description = "parent job" });
 
             // Act
-            var subtask = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "subtask", Description = "subtask", ParentId = parentJob.Id });
+            var subtask = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "subtask", Description = "subtask", ParentId = parentJob.Id, Level =  JobLevel.SubTask });
 
             // Assert
             subtask.ShouldNotBeNull();
             subtask.Title.ShouldBe("subtask");
             subtask.Description.ShouldBe("subtask");
             subtask.ParentId.ShouldBe(parentJob.Id);
+            subtask.Level.ShouldBe(JobLevel.SubTask);
         }
 
         [Fact]
@@ -113,6 +114,31 @@ namespace toyiyo.todo.Tests.Jobs
             job2.Title.ShouldBe("test job");
         }
 
+        [Fact]
+        public async Task GetAllJobs_FilterByJobLevel() {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var currentTenant = await GetCurrentTenantAsync();
+            var project = await _projectAppService.Create(new CreateProjectInputDto(){ Title = "test"});
+            var job = await _jobAppService.Create(new JobCreateInputDto(){ ProjectId = project.Id, Title = "test job", Description = "test job"});
+            var subtask = await _jobAppService.Create(new JobCreateInputDto(){ ProjectId = project.Id, Title = "subtask", Description = "subtask", ParentId = job.Id, Level =  JobLevel.SubTask});
+
+            // Act
+            var jobs = await _jobAppService.GetAll(new GetAllJobsInput(){ ProjectId = project.Id, Level = JobLevel.Task});
+            var subtasks = await _jobAppService.GetAll(new GetAllJobsInput(){ ProjectId = project.Id, Level = JobLevel.SubTask});
+            var all = await _jobAppService.GetAll(new GetAllJobsInput(){ ProjectId = project.Id});
+
+            // Assert
+            jobs.Items.Count.ShouldBe(1);
+            jobs.Items[0].Id.ShouldBe(job.Id);
+
+            subtasks.Items.Count.ShouldBe(1);
+            subtasks.Items[0].Id.ShouldBe(subtask.Id);
+
+            all.Items.Count.ShouldBe(2);
+            all.Items[0].Id.ShouldBe(job.Id);
+            all.Items[1].Id.ShouldBe(subtask.Id);
+        }
         [Fact]
         public async Task GetAllJobs_FilterByJobStatus()
         {
