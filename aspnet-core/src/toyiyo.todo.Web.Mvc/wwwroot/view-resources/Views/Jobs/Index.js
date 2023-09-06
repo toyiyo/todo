@@ -64,7 +64,7 @@
                     keyword: $('#JobsSearchForm input[type=search]').val(),
                     jobStatus: $('#SelectedJobStatus').val(),
                     projectId: $('#ProjectId').val(),
-                    onlyRootJobs: true,
+                    level: 0,
                     sorting: 'OrderByDate DESC',
                 }
             },

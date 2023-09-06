@@ -51,7 +51,7 @@ namespace toyiyo.todo.Jobs
             //getting stats for the account, for the future, we should allow filtering by project.
             //we'll manually remove subtasks from the stats count for now.  
             //todo, once we have a job type defined, we can filter by job type
-            var getAllJobsInput = new GetAllJobsInput(){ MaxResultCount = int.MaxValue, OnlyRootJobs = true, Level = JobLevel.Task};
+            var getAllJobsInput = new GetAllJobsInput(){ MaxResultCount = int.MaxValue, Level = JobLevel.Task};
             var jobs = await GetAll(getAllJobsInput);
             return new JobStatsDto
             {

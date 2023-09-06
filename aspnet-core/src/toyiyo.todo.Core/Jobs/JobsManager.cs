@@ -57,10 +57,6 @@ namespace toyiyo.todo.Jobs
             .WhereIf(input.Level != null, p => p.Level == input.Level)
             .WhereIf(!input.ParentJobId.Equals(Guid.Empty), p => p.ParentId == input.ParentJobId);
 
-            if (input.OnlyRootJobs)
-            {
-                query = query.Where(j => j.ParentId == null || j.ParentId == Guid.Empty);
-            }
             return query;
         }
 
