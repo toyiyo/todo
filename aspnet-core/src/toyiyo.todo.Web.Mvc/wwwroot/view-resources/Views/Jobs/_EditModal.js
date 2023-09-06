@@ -92,18 +92,20 @@
     });
 
     //SUBTASKS
-    function Subtask(title, dueDate, parentId, id) {
+    function Subtask(title, dueDate, parentId, id, level) {
         this.title = title;
         this.dueDate = dueDate;
         this.parentId = parentId;
         this.id = id;
+        this.level = level;
     }
 
     function createSubtask() {
-        var title = _$subtaskForm.find('#add-by-title-input').val();
-        var dueDate = _$subtaskForm.find('#due-date-button').val();
-        var parentId = _$form.find('input[name="id"]').val();
-        var projectId = $('#ProjectId').val();
+        const title = _$subtaskForm.find('#add-by-title-input').val();
+        const dueDate = _$subtaskForm.find('#due-date-button').val();
+        const parentId = _$form.find('input[name="id"]').val();
+        const projectId = $('#ProjectId').val();
+        const level = 1;
 
         if (!title) {
             abp.notify.warn(l('TitleIsRequired'));
@@ -116,12 +118,13 @@
             title: title,
             dueDate: dueDate,
             parentId: parentId,
-            projectId: projectId
+            projectId: projectId,
+            level: level
         }).done(function (data) {
             abp.notify.info(l('SavedSuccessfully'));
             _$subtaskForm.find('#add-by-title-input').val('');
             _$subtaskForm.find('#due-date-button').val('');
-            addSubtaskToTable(new Subtask(title, dueDate, parentId, data.id));
+            addSubtaskToTable(new Subtask(title, dueDate, parentId, data.id, data.level));
         }).always(function () {
             abp.ui.clearBusy(_$subtaskForm);
         });
