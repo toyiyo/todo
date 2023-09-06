@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using static toyiyo.todo.Jobs.Job;
 
 namespace toyiyo.todo.Jobs
 {
@@ -26,5 +27,6 @@ namespace toyiyo.todo.Jobs
         public DateTime? DueDate {get; set;}
 
         public Guid? ParentId { get; set;}
+        public JobLevel Level { get; set; }
     }
 }

@@ -15,7 +15,9 @@ namespace toyiyo.todo.Jobs
     [Index(nameof(JobStatus))]
     public class Job : FullAuditedEntity<Guid>, IMustHaveTenant
     {
+        //doing this as an enum means any new status will require a code change, consider using a lookup table in the future
         public enum Status { Open, InProgress, Done };
+        public enum JobLevel { Task, SubTask, Epic };
         private DateTime _orderByDate;
         public const int MaxTitleLength = 500; //todo: max length should be defined in the configuration
         public const int MaxDescriptionLength = 2000000; // 2MB limit | 307692 - 400000 words | 1230.8 - 1600.0 pages
@@ -34,6 +36,7 @@ namespace toyiyo.todo.Jobs
         //todo: reintroduce members many to many relationship later
         //public virtual ICollection<User> Members { get; protected set; }
         public Status JobStatus { get; protected set; }
+        public JobLevel Level { get; protected set; }
         public Guid ParentId { get; protected set; }
         [Required]
         public virtual int TenantId { get; set; }
@@ -50,13 +53,26 @@ namespace toyiyo.todo.Jobs
 
         }
 
-        public static Job Create(Project project, string title, string description, User user, int tenantId, DateTime dueDate = default, Guid parentId = default)
+        /// <summary>
+        /// Creates a new job with the specified parameters.
+        /// </summary>
+        /// <param name="project">The project the job belongs to.</param>
+        /// <param name="title">The title of the job.</param>
+        /// <param name="description">The description of the job.</param>
+        /// <param name="user">The user who created the job.</param>
+        /// <param name="tenantId">The ID of the tenant the job belongs to.</param>
+        /// <param name="dueDate">The due date of the job (optional).</param>
+        /// <param name="parentId">The ID of the parent job (optional).</param>
+        /// <param name="jobLevel">The level of the job (optional). Defaults to task.  Options are Task, SubTask, Epic</param>
+        /// <returns>The newly created job.</returns>
+        public static Job Create(Project project, string title, string description, User user, int tenantId, DateTime dueDate = default, Guid parentId = default, JobLevel jobLevel = 0)
         {
             if (title == null) { throw new ArgumentNullException(nameof(title)); }
             if (user == null) { throw new ArgumentNullException(nameof(user)); }
             if (tenantId <= 0) { throw new ArgumentNullException(nameof(tenantId)); }
             if (project == null) { throw new ArgumentNullException(nameof(project)); }
             if ((dueDate != default) && (dueDate.Kind != DateTimeKind.Utc ? dueDate.ToUniversalTime().Date : dueDate.Date) < DateTime.UtcNow.Date) {throw new ArgumentOutOfRangeException(nameof(dueDate), "due date must be in the future"); }
+            if (jobLevel == JobLevel.Epic && parentId != default) { throw new ArgumentOutOfRangeException(nameof(parentId), "epics cannot have parents"); }
 
             var job = new Job
             {
@@ -72,7 +88,8 @@ namespace toyiyo.todo.Jobs
                 LastModificationTime = Clock.Now,
                 JobStatus = Status.Open,
                 ParentId = parentId,
-                OrderByDate = Clock.Now
+                OrderByDate = Clock.Now,
+                Level = jobLevel
             };
             if (dueDate != default) { job.DueDate = dueDate; }
 
@@ -166,6 +183,7 @@ namespace toyiyo.todo.Jobs
         {
             if (job == null) { throw new ArgumentNullException(nameof(job)); }
             if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if (job.Level == JobLevel.Epic && parentId != default) { throw new ArgumentOutOfRangeException(nameof(parentId), "epics cannot have parents"); }
 
             job.ParentId = parentId;
             SetLastModified(job, user);

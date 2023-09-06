@@ -40,6 +40,7 @@ namespace toyiyo.todo.Tests.Jobs
             job.JobStatus.ShouldBe(Status.Open);
             job.Assignee.Id.ShouldBe(currentUser.Id);
             job.Owner.Id.ShouldBe(currentUser.Id);
+            
         }
 
         [Fact]
