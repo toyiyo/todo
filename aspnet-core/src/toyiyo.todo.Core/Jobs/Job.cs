@@ -179,12 +179,13 @@ namespace toyiyo.todo.Jobs
             return job;
         }
 
-        public static Job SetParent(Job job, Guid parentId, User user)
+        public static Job SetParent(Job job, Job parentJob, User user)
         {
+            Guid parentId = parentJob == null ? default : parentJob.Id;
             if (job == null) { throw new ArgumentNullException(nameof(job)); }
             if (user == null) { throw new ArgumentNullException(nameof(user)); }
             if (job.Level == JobLevel.Epic && parentId != default) { throw new ArgumentOutOfRangeException(nameof(parentId), "epics cannot have parents"); }
-
+            if (job.parentId == parentId) { return job; }
             job.ParentId = parentId;
             SetLastModified(job, user);
 

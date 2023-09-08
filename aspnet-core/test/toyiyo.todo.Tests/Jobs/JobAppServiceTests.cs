@@ -383,5 +383,7 @@ namespace toyiyo.todo.Tests.Jobs
             jobStats.TotalOpenJobs.ShouldBe(3);
             jobStats.TotalCompletedJobsPerMonth.Count.ShouldBe(0);
         }
+
+        
     }
 }

@@ -54,6 +54,17 @@
                 target: 2
             }
         },
+        rowGroup: {
+            dataSrc: function(row) {
+                if (row.parentId === null) {
+                    return "no epic";
+                } else if (row.parentId === "00000000-0000-0000-0000-000000000000") {
+                    return "no epic";
+                } else {
+                    return row.parentId;
+                }
+            }
+        },
         paging: true,
         serverSide: true,
         select: true,
@@ -109,7 +120,14 @@
                 targets: 2,
                 data: 'title',
                 className: 'title',
-                defaultContent: ''
+                defaultContent: '',
+                render: function (data, type, row, meta) {
+                    if (row.parentId === null) {
+                        return '<strong>' + data + '</strong>';
+                    } else {
+                        return '&nbsp;&nbsp;&nbsp;&nbsp;' + data;
+                    }
+                }
             },
             {
                 targets: 3,
@@ -138,8 +156,15 @@
                     ].join('');
                 }
             },
+            {
+                targets: 5,
+                visible: false,
+                data: 'parentId',
+                defaultContent: '',
+            }
         ]
     });
+
     //Initializers
     $(window).on('load', function () {
         const jobId = $('#JobId').val();
@@ -302,7 +327,7 @@
 
         //if no newOrderByDate date is found, it means we moved the row in place and no change is necessary
         if (orderByDate != null) {
-            var jobPatchOrderByDateInputDto = { id: jobId, orderByDate: orderByDate };
+            const jobPatchOrderByDateInputDto = { id: jobId, orderByDate: orderByDate };
 
             e.preventDefault();
 
@@ -311,8 +336,26 @@
                 .always(function () {
                     abp.ui.clearBusy(_$JobCreateModal);
                 });
+
+            //call function to update the parent id to that of the new parent fromt he rowGroup
+            updateParentId(jobId, diff);
         }
     });
+
+    const updateParentId = function (jobId, diff) {
+        const newPosition = diff[0].newPosition;
+        const newParentRow = _$jobsTable.row(newPosition).node();
+        if (newParentRow) {
+            const newParentRowData = _$jobsTable.row(newParentRow).data();
+            const newParentId = newParentRowData.parentId;
+            const jobPatchParentIdInputDto = { id: jobId, parentId: newParentId };
+            _jobService.setParent(jobPatchParentIdInputDto)
+                .done(function () { })
+                .always(function () {
+                    abp.ui.clearBusy(_$JobCreateModal);
+                });
+        }
+    };
 
     //Job Deletion handlers
     //triggered when the delete modal - sets the job id to be deleted

@@ -101,6 +101,19 @@ namespace toyiyo.todo.Jobs
             return ObjectMapper.Map<JobDto>(job);
         }
 
+        //set the parentId of a job
+        public async Task<JobDto> SetParent(JobSetParentInputDto jobSetParentInputDto)
+        {
+            var job = await _jobManager.Get(jobSetParentInputDto.Id);
+            var parentJob = jobSetParentInputDto.ParentId == null || jobSetParentInputDto.ParentId == Guid.Empty ? null : await _jobManager.Get(jobSetParentInputDto.ParentId.Value);
+            var user = await GetCurrentUserAsync();
+            
+            job = Job.SetParent(job, parentJob, user);
+            await _jobManager.Update(job);            
+
+            return ObjectMapper.Map<JobDto>(job);
+        }
+
         /// <summary>
         /// sets the order by date to manually sort
         /// </summary>

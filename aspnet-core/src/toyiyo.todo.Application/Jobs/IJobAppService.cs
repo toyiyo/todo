@@ -15,6 +15,7 @@ namespace toyiyo.todo.Jobs
         Task<JobDto> SetDescription(JobSetDescriptionInputDto jobSetDescriptionInputDto);
         Task<JobDto> SetJobStatus(JobSetStatusInputDto jobSetStatusInputDto);
         Task<JobDto> SetDueDate(JobSetDueDateInputDto jobSetDueDateInputDto);
+        Task<JobDto> SetParent(JobSetParentInputDto jobSetParentInputDto);
         Task<IActionResult> Delete(Guid id);
         Task<ActionResult<JobDto>> PatchOrderByDate(JobPatchOrderByDateInputDto jobPatchOrderByDateInputDto);
         Task<JobStatsDto> GetJobStats();
