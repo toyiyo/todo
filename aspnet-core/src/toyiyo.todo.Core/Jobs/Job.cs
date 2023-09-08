@@ -185,7 +185,7 @@ namespace toyiyo.todo.Jobs
             if (job == null) { throw new ArgumentNullException(nameof(job)); }
             if (user == null) { throw new ArgumentNullException(nameof(user)); }
             if (job.Level == JobLevel.Epic && parentId != default) { throw new ArgumentOutOfRangeException(nameof(parentId), "epics cannot have parents"); }
-            if (job.parentId == parentId) { return job; }
+            if (job.ParentId == parentId) { return job; }
             job.ParentId = parentId;
             SetLastModified(job, user);
 
