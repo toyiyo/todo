@@ -184,6 +184,7 @@ namespace toyiyo.todo.Jobs
             Guid parentId = parentJob == null ? default : parentJob.Id;
             if (job == null) { throw new ArgumentNullException(nameof(job)); }
             if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if (parentJob != null && job.Project.Id != parentJob.Project.Id) { throw new ArgumentOutOfRangeException(nameof(parentJob), "parent job must be in the same project"); }
             if (job.Level == JobLevel.Epic && parentId != default) { throw new ArgumentOutOfRangeException(nameof(parentId), "epics cannot have parents"); }
             if (job.ParentId == parentId) { return job; }
             job.ParentId = parentId;

@@ -136,8 +136,8 @@ namespace toyiyo.todo.Tests.Jobs
             subtasks.Items[0].Id.ShouldBe(subtask.Id);
 
             all.Items.Count.ShouldBe(2);
-            all.Items[0].Id.ShouldBe(job.Id);
-            all.Items[1].Id.ShouldBe(subtask.Id);
+            all.Items[1].Id.ShouldBe(job.Id);
+            all.Items[0].Id.ShouldBe(subtask.Id);
         }
         [Fact]
         public async Task GetAllJobs_FilterByJobStatus()
@@ -384,6 +384,22 @@ namespace toyiyo.todo.Tests.Jobs
             jobStats.TotalCompletedJobsPerMonth.Count.ShouldBe(0);
         }
 
+        [Fact]
+        public async Task SetParent_Success()
+        {
+            // Arrange
+            await GetCurrentUserAsync();
+            await GetCurrentTenantAsync();
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var parentJob = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "parent job", Description = "parent job" });
+            var childJob = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "child job", Description = "child job" });
+
+            //act
+            var response = await _jobAppService.SetParent(new JobSetParentInputDto { Id = childJob.Id, ParentId = parentJob.Id });
+
+            //assert
+            response.ParentId.ShouldBe(parentJob.Id);
+        }
         
     }
 }

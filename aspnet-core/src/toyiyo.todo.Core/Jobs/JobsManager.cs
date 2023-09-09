@@ -24,8 +24,12 @@ namespace toyiyo.todo.Jobs
 
         public async Task<Job> Get(Guid id)
         {
-            var job = await _jobRepository.GetAsync(id);
-            return job;
+            return await _jobRepository.Query(q => q.Where(p => p.Id == id)
+                        .Include(p => p.Project)
+                        .Include(p => p.Assignee)
+                        .Include(p => p.Owner)
+                        .FirstOrDefaultAsync());
+
         }
         //GetAll() repository method requires a unit of work to be open. see https://aspnetboilerplate.com/Pages/Documents/Unit-Of-Work#irepository-getall-method
         [UnitOfWork]
