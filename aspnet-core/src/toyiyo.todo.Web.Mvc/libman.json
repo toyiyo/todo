@@ -71,17 +71,6 @@
     },
     {
       "provider": "jsdelivr",
-      "library": "bootstrap@4.6.0",
-      "destination": "wwwroot/libs/bootstrap",
-      "files": [
-        "dist/js/bootstrap.bundle.js",
-        "dist/js/bootstrap.bundle.min.js",
-        "dist/js/bootstrap.bundle.js.map",
-        "dist/js/bootstrap.bundle.min.js.map"
-      ]
-    },
-    {
-      "provider": "jsdelivr",
       "library": "@fortawesome/fontawesome-free@5.15.3",
       "destination": "wwwroot/libs/font-awesome"
     },
@@ -182,6 +171,10 @@
       "files": [
         "js/dataTables.rowGroup.min.js"
       ]
+    },
+    {
+      "library": "bootstrap@5.3.1",
+      "destination": "wwwroot/libs/bootstrap"
     }
   ]
 }
