@@ -58,7 +58,7 @@
         serverSide: true,
         select: true,
         listAction: {
-            ajaxFunction: abp.services.app.job.getAll,
+            ajaxFunction: _jobService.getAll,
             inputFilter: function () {
                 return {
                     keyword: $('#JobsSearchForm input[type=search]').val(),
@@ -174,18 +174,6 @@
             $(this).addClass('selected active');
         }
         _$jobsTable.ajax.reload();
-    });
-
-    // Toggle the epics panel when the button is clicked
-    $('#toggle-epics').on('click', function () {
-        $('#epics-panel').toggleClass('d-none');
-        var tableDiv = $('.table-responsive');
-        if (tableDiv.hasClass('col-12')) {
-            tableDiv.removeClass('col-12').addClass('col-9');
-            loadEpics($('#JobsSearchForm input[type=search]').val(), $('#SelectedJobStatus').val(), $('#ProjectId').val(), 2);
-        } else {
-            tableDiv.removeClass('col-9').addClass('col-12');
-        }
     });
 
     //Job creation
@@ -345,24 +333,20 @@
         }
     });
 
-    const updateParentId = function (jobId, diff) {
-        const newPosition = diff[0].newPosition;
-        const newParentRow = _$jobsTable.row(newPosition).node();
-        if (newParentRow) {
-            const newParentRowData = _$jobsTable.row(newParentRow).data();
-            const newParentId = newParentRowData.parentId;
-            const jobPatchParentIdInputDto = { id: jobId, parentId: newParentId };
-            _jobService.setParent(jobPatchParentIdInputDto)
-                .done(function () { })
-                .always(function () {
-                    abp.ui.clearBusy(_$JobCreateModal);
-                });
+    // Epics Panel
+    $('#toggle-epics').on('click', function () {
+        $('#epics-panel').toggleClass('d-none');
+        var tableDiv = $('.table-responsive');
+        if (tableDiv.hasClass('col-12')) {
+            tableDiv.removeClass('col-12').addClass('col-9');
+            loadEpics($('#JobsSearchForm input[type=search]').val(), $('#SelectedJobStatus').val(), $('#ProjectId').val(), 2);
+        } else {
+            tableDiv.removeClass('col-9').addClass('col-12');
         }
-    };
-
+    });
     const loadEpics = function (keyword, jobStatus, projectId, level) {
         abp.services.app.job.getAll({
-            keyword: keyword, 
+            keyword: keyword,
             jobStatus: 0, // only showing active epics
             projectId: projectId,
             level: level, // Set level to 1
@@ -373,7 +357,13 @@
             // Add the filtered data to the tablist
             if (data.items && Array.isArray(data.items)) {
                 data.items.forEach(function (item) {
-                    $('#list-tab-epics').append('<a class="list-group-item list-group-item-action epic-filter" id="list-' + item.id + '-list" data-epic-id-filter="' + item.id + '" data-toggle="pill" href="#list-' + item.id + '" role="tab" aria-controls="list-' + item.id + '">' + item.title + '</a>');
+                    $('#list-tab-epics').append('<div class="d-flex align-items-center">' +
+                        '<a class="list-group-item list-group-item-action epic-filter flex-grow-1" id="list-' + item.id + '-list" data-epic-id-filter="' + item.id + '" data-toggle="pill" href="#list-' + item.id + '" role="tab" aria-controls="list-' + item.id + '">' + item.title + '</a>' +
+                        '<button type="button" class="btn btn-sm bg-default edit-job" data-job-id="' + item.id + '" data-job-status="0" data-toggle="modal" data-target="#JobEditModal">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">' +
+                        '<path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>' +
+                        '</svg>' +
+                        '</button></div>');
                 });
             } else {
                 //no eipc found
