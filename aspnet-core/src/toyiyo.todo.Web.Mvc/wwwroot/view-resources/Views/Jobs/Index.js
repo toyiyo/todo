@@ -65,6 +65,8 @@
                     jobStatus: $('#SelectedJobStatus').val(),
                     projectId: $('#ProjectId').val(),
                     level: 0,
+                    //include parentJobId only if the value of ParentJobId is not null
+                    parentJobId: $('#SelectedEpicId').val(),
                     sorting: 'OrderByDate DESC',
                 }
             },
@@ -162,20 +164,29 @@
 
     //handle filtering by selected epic
     $(document).on('click', '.epic-filter', function (_e) {
-        $('#SelectedEpicId').val($(this).attr('data-epic-id-filter'));
+        if ($(this).hasClass('selected')) {
+            // If the epic is already selected, clear the selection
+            $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
+            $(this).removeClass('selected active');
+        } else {
+            // If the epic is not selected, select it
+            $('#SelectedEpicId').val($(this).attr('data-epic-id-filter'));
+            $(this).addClass('selected active');
+        }
         _$jobsTable.ajax.reload();
     });
 
     // Toggle the epics panel when the button is clicked
-    $('#toggle-epics').on('click', function() {
+    $('#toggle-epics').on('click', function () {
         $('#epics-panel').toggleClass('d-none');
         var tableDiv = $('.table-responsive');
         if (tableDiv.hasClass('col-12')) {
-          tableDiv.removeClass('col-12').addClass('col-9');
+            tableDiv.removeClass('col-12').addClass('col-9');
+            loadEpics($('#JobsSearchForm input[type=search]').val(), $('#SelectedJobStatus').val(), $('#ProjectId').val(), 2);
         } else {
-          tableDiv.removeClass('col-9').addClass('col-12');
+            tableDiv.removeClass('col-9').addClass('col-12');
         }
-      });
+    });
 
     //Job creation
     _$form.submit((e) => {
@@ -188,6 +199,7 @@
         var job = _$form.serializeFormToObject();
         job.projectId = $('#ProjectId').val();
         job.dueDate = moment($(".due-date-button").val()).endOf('day').utc();
+        job.parentId = $('#SelectedEpicId').val();
 
         abp.ui.setBusy(_$JobCreateModal);
         _jobService
@@ -346,6 +358,30 @@
                     abp.ui.clearBusy(_$JobCreateModal);
                 });
         }
+    };
+
+    const loadEpics = function (keyword, jobStatus, projectId, level) {
+        abp.services.app.job.getAll({
+            keyword: keyword, 
+            jobStatus: 0, // only showing active epics
+            projectId: projectId,
+            level: level, // Set level to 1
+            sorting: 'OrderByDate DESC',
+        }).done(function (data) {
+            // Clear the contents of #list-tab-epics
+            $('#list-tab-epics').empty();
+            // Add the filtered data to the tablist
+            if (data.items && Array.isArray(data.items)) {
+                data.items.forEach(function (item) {
+                    $('#list-tab-epics').append('<a class="list-group-item list-group-item-action epic-filter" id="list-' + item.id + '-list" data-epic-id-filter="' + item.id + '" data-toggle="pill" href="#list-' + item.id + '" role="tab" aria-controls="list-' + item.id + '">' + item.title + '</a>');
+                });
+            } else {
+                //no eipc found
+                $('#list-tab-epics').append('<a class="list-group-item list-group-item-action" id="list-no-epics-list" data-toggle="pill" href="#list-no-epics" role="tab" aria-controls="list-no-epics">No Epics Found</a>');
+            }
+        }).fail(function (error) {
+            console.error('Error:', error);
+        });
     };
 
     //Job Deletion handlers

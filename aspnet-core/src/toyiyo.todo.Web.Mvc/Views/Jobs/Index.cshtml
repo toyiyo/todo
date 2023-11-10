@@ -16,6 +16,7 @@
 <input type="hidden" name="ProjectId" id="ProjectId" value="@ViewBag.ProjectId" />
 <input type="hidden" name="JobId" id="JobId" value="@ViewBag.JobId" />
 <input type="hidden" name="SelectedJobStatus" id="SelectedJobStatus" value="0" />
+<input type="hidden" name="SelectedEpicId" id="SelectedEpicId" value='00000000-0000-0000-0000-000000000000' />
 <section class="content-header">
     <div class="container-fluid">
         <div class="row">
@@ -72,11 +73,8 @@
                                 <button id="toggle-epics" type="button" class="btn btn-primary mb-3">Epics</button>
                                 <div id="epics-panel" class="d-none">
                                     <div class="list-group" id="epics-list">
-                                        <div class="list-group" id="list-tab" role="tablist">
-                                        <a class="list-group-item list-group-item-action active" id="list-home-list" data-toggle="pill" href="#list-home" role="tab" aria-controls="list-home" aria-selected="true">Home</a>
-                                        <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="pill" href="#list-profile" role="tab" aria-controls="list-profile" aria-selected="false">Profile</a>
-                                        <a class="list-group-item list-group-item-action" id="list-messages-list" data-toggle="pill" href="#list-messages" role="tab" aria-controls="list-messages" aria-selected="false">Messages</a>
-                                        <a class="list-group-item list-group-item-action" id="list-settings-list" data-toggle="pill" href="#list-settings" role="tab" aria-controls="list-settings" aria-selected="false">Settings</a>
+                                        <div class="list-group" id="list-tab-epics" role="tablist">
+
                                         </div>
                                     </div>
                                 </div>
