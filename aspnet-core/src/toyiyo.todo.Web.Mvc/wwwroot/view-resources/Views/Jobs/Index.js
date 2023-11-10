@@ -54,17 +54,6 @@
                 target: 2
             }
         },
-        rowGroup: {
-            dataSrc: function(row) {
-                if (row.parentId === null) {
-                    return "no epic";
-                } else if (row.parentId === "00000000-0000-0000-0000-000000000000") {
-                    return "no epic";
-                } else {
-                    return row.parentId;
-                }
-            }
-        },
         paging: true,
         serverSide: true,
         select: true,
@@ -121,13 +110,6 @@
                 data: 'title',
                 className: 'title',
                 defaultContent: '',
-                render: function (data, type, row, meta) {
-                    if (row.parentId === null) {
-                        return '<strong>' + data + '</strong>';
-                    } else {
-                        return '&nbsp;&nbsp;&nbsp;&nbsp;' + data;
-                    }
-                }
             },
             {
                 targets: 3,
@@ -156,12 +138,6 @@
                     ].join('');
                 }
             },
-            {
-                targets: 5,
-                visible: false,
-                data: 'parentId',
-                defaultContent: '',
-            }
         ]
     });
 
@@ -184,7 +160,22 @@
         _$jobsTable.ajax.reload();
     });
 
+    //handle filtering by selected epic
+    $(document).on('click', '.epic-filter', function (_e) {
+        $('#SelectedEpicId').val($(this).attr('data-epic-id-filter'));
+        _$jobsTable.ajax.reload();
+    });
 
+    // Toggle the epics panel when the button is clicked
+    $('#toggle-epics').on('click', function() {
+        $('#epics-panel').toggleClass('d-none');
+        var tableDiv = $('.table-responsive');
+        if (tableDiv.hasClass('col-12')) {
+          tableDiv.removeClass('col-12').addClass('col-9');
+        } else {
+          tableDiv.removeClass('col-9').addClass('col-12');
+        }
+      });
 
     //Job creation
     _$form.submit((e) => {
@@ -338,7 +329,7 @@
                 });
 
             //call function to update the parent id to that of the new parent fromt he rowGroup
-            updateParentId(jobId, diff);
+            //updateParentId(jobId, diff); - no longer calling on re-order, will create left panel to drag items into.
         }
     });
 
