@@ -56,27 +56,33 @@
                             </div>
                         </div>
                     <div class="p-2 mx-4 border-black-25 border-bottom"></div>
-                        <div class="row m-1 p-3  justify-content-end">
-                            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link active job-status-filter" id="pills-backlog-tab" data-job-status-filter="0" data-toggle="pill" href="#pills-backlog" role="tab" aria-controls="pills-backlog" aria-selected="true">Backlog</a>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link job-status-filter" id="pills-in progress-tab" data-job-status-filter="1" data-toggle="pill" href="#pills-in-progress" role="tab" aria-controls="pills-in-progress" aria-selected="false">In progress</a>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link job-status-filter" id="pills-done-tab" data-job-status-filter="2" data-toggle="pill" href="#pills-done" role="tab" aria-controls="pills-done" aria-selected="false">Done</a>
-                                </li>
-                            </ul>
+                        <div class="row m-1 p-3 justify-content-between">
+                            <div class="col-3">
+                                <button id="toggle-epics" type="button" class="btn btn-primary mb-3">Epics</button>
+                            </div>
+                            <div class="col-9">
+                                <ul class="nav nav-pills mb-3 float-right" id="pills-tab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link active job-status-filter" id="pills-backlog-tab" data-job-status-filter="0" data-toggle="pill" href="#pills-backlog" role="tab" aria-controls="pills-backlog" aria-selected="true">Backlog</a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link job-status-filter" id="pills-in progress-tab" data-job-status-filter="1" data-toggle="pill" href="#pills-in-progress" role="tab" aria-controls="pills-in-progress" aria-selected="false">In progress</a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link job-status-filter" id="pills-done-tab" data-job-status-filter="2" data-toggle="pill" href="#pills-done" role="tab" aria-controls="pills-done" aria-selected="false">Done</a>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
 
                         <div class="row">
                             <div class="col-3">
-                                <button id="toggle-epics" type="button" class="btn btn-primary mb-3">Epics</button>
                                 <div id="epics-panel" class="d-none">
                                     <div class="list-group" id="epics-list">
                                         @await Html.PartialAsync("~/Views/Shared/Components/_AddJobByTitle.cshtml", new JobCreateInputDto { Level = JobLevel.Epic })
-                                        <div class="list-group" id="list-tab-epics" role="tablist">
+                                            <div class="card-body">
+                                                <div class="list-group" id="list-tab-epics" role="tablist">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
