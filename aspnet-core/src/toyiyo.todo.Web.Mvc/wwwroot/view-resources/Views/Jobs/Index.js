@@ -344,6 +344,17 @@
             tableDiv.removeClass('col-9').addClass('col-12');
         }
     });
+
+    const addEpicRow = function (item) {
+        $('#list-tab-epics').append('<div class="d-flex align-items-center">' +
+            '<a class="list-group-item list-group-item-action epic-filter flex-grow-1" id="list-' + item.id + '-list" data-epic-id-filter="' + item.id + '" data-toggle="pill" href="#list-' + item.id + '" role="tab" aria-controls="list-' + item.id + '">' + item.title + '</a>' +
+            '<button type="button" class="btn btn-sm bg-default edit-job" data-job-id="' + item.id + '" data-job-status="0" data-toggle="modal" data-target="#JobEditModal">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">' +
+            '<path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>' +
+            '</svg>' +
+            '</button></div>');
+    };
+
     const loadEpics = function (keyword, jobStatus, projectId, level) {
         abp.services.app.job.getAll({
             keyword: keyword,
@@ -356,15 +367,7 @@
             $('#list-tab-epics').empty();
             // Add the filtered data to the tablist
             if (data.items && Array.isArray(data.items)) {
-                data.items.forEach(function (item) {
-                    $('#list-tab-epics').append('<div class="d-flex align-items-center">' +
-                        '<a class="list-group-item list-group-item-action epic-filter flex-grow-1" id="list-' + item.id + '-list" data-epic-id-filter="' + item.id + '" data-toggle="pill" href="#list-' + item.id + '" role="tab" aria-controls="list-' + item.id + '">' + item.title + '</a>' +
-                        '<button type="button" class="btn btn-sm bg-default edit-job" data-job-id="' + item.id + '" data-job-status="0" data-toggle="modal" data-target="#JobEditModal">' +
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">' +
-                        '<path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>' +
-                        '</svg>' +
-                        '</button></div>');
-                });
+                data.items.forEach(function(item){addEpicRow(item)});
             } else {
                 //no eipc found
                 $('#list-tab-epics').append('<a class="list-group-item list-group-item-action" id="list-no-epics-list" data-toggle="pill" href="#list-no-epics" role="tab" aria-controls="list-no-epics">No Epics Found</a>');
@@ -373,7 +376,47 @@
             console.error('Error:', error);
         });
     };
+    const _$createEpicForm = $('#epics-list #AddByTitle');
 
+    function createEpic() {
+        const title = _$createEpicForm.find('#add-by-title-input').val();
+        const dueDate = _$createEpicForm.find('#due-date-button').val();
+        const projectId = $('#ProjectId').val();
+        const level = $('#epics-list #level').data('level');
+
+        if (!title) {
+            abp.notify.warn(l('TitleIsRequired'));
+            return;
+        }
+
+        abp.ui.setBusy(_$createEpicForm);
+
+        _jobService.create({
+            title: title,
+            dueDate: dueDate,
+            projectId: projectId,
+            level: level //level is passed down via the model initializer to the partial view and set as the level attribute
+        }).done(function (data) {
+            abp.notify.info(l('SavedSuccessfully'));
+            _$createEpicForm.find('#add-by-title-input').val('');
+            _$createEpicForm.find('#due-date-button').val('');
+            addEpicRow(data);
+        }).always(function () {
+            abp.ui.clearBusy(_$createEpicForm);
+        });
+    }
+
+    //create a subtask when the button is clicked
+    _$createEpicForm.find('.create-by-title-button').on('click', function () {
+        createEpic();
+    });
+    //create a subtask when the enter key is pressed
+    _$createEpicForm.find('#add-by-title-input').on('keydown', function (event) {
+        if (event.keyCode === 13) { // Enter key
+            event.preventDefault();
+            createEpic();
+        }
+    });
     //Job Deletion handlers
     //triggered when the delete modal - sets the job id to be deleted
     _$deleteModal.on('show.bs.modal', function (e) {
@@ -415,5 +458,7 @@
     };
 
 })(jQuery);
+
+
 
 

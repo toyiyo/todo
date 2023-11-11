@@ -1,4 +1,6 @@
 ﻿@using toyiyo.todo.Web.Models.Common.Modals
+@using toyiyo.todo.Jobs;
+@using static toyiyo.todo.Jobs.Job;
 @model toyiyo.todo.Web.Models.Jobs.EditJobModalViewModel
 @{
     Layout = null;
@@ -54,7 +56,7 @@
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="subtasks" role="tabpanel" aria-labelledby="subtasks-tab">
-                        @await Html.PartialAsync("~/Views/Shared/Components/_AddJobByTitle.cshtml", new { Level = 1 })
+                        @await Html.PartialAsync("~/Views/Shared/Components/_AddJobByTitle.cshtml", new JobCreateInputDto { Level = JobLevel.SubTask })
                         @await Html.PartialAsync("_JobSubtasks", (List<toyiyo.todo.Web.Models.Jobs.EditJobSubTaskModalViewModel>)ViewBag.SubTasks)
                     </div>
                 </div>

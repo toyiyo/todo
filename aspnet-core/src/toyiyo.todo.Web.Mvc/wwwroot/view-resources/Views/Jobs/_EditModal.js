@@ -3,7 +3,7 @@
     const Editor = toastui.Editor;
     const _$getLinkButton = $('.btn-pane-get-link');
     var _debounceTimer = null;
-    const _$subtaskForm = $('#AddByTitle');
+    const _$subtaskForm = $('#subtasks #AddByTitle');
 
     document.getElementById("dueDate").setAttribute("min", new Date().toJSON().split('T')[0]);
 
@@ -105,7 +105,7 @@
         const dueDate = _$subtaskForm.find('#due-date-button').val();
         const parentId = _$form.find('input[name="id"]').val();
         const projectId = $('#ProjectId').val();
-        const level = 1;
+        const level = $('#subtasks #level').data('level');
 
         if (!title) {
             abp.notify.warn(l('TitleIsRequired'));

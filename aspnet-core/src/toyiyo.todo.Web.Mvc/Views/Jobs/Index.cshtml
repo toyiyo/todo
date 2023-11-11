@@ -1,4 +1,6 @@
 @using toyiyo.todo.Web.Startup
+@using toyiyo.todo.Jobs;
+@using static toyiyo.todo.Jobs.Job;
 @model toyiyo.todo.Web.Models.Jobs.JobListViewModel
 @{
     ViewBag.Title = L("Jobs");
@@ -73,7 +75,7 @@
                                 <button id="toggle-epics" type="button" class="btn btn-primary mb-3">Epics</button>
                                 <div id="epics-panel" class="d-none">
                                     <div class="list-group" id="epics-list">
-                                        @await Html.PartialAsync("~/Views/Shared/Components/_AddJobByTitle.cshtml", new { Level = 1, ParentId = Guid.Empty })
+                                        @await Html.PartialAsync("~/Views/Shared/Components/_AddJobByTitle.cshtml", new JobCreateInputDto { Level = JobLevel.Epic })
                                         <div class="list-group" id="list-tab-epics" role="tablist">
                                         </div>
                                     </div>
