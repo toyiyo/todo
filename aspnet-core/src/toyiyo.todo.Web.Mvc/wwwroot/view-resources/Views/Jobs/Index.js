@@ -164,14 +164,17 @@
 
     //handle filtering by selected epic
     $(document).on('click', '.epic-filter', function (_e) {
+        // If the epic is already active, clear the selection
         if ($(this).hasClass('selected')) {
-            // If the epic is already selected, clear the selection
-            $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
             $(this).removeClass('selected active');
+            $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
         } else {
-            // If the epic is not selected, select it
-            $('#SelectedEpicId').val($(this).attr('data-epic-id-filter'));
+            // If the epic is not active, select it
+            // First, remove 'selected' and 'active' classes from all items
+            $('.epic-filter').removeClass('selected active');
+            // Then, add 'selected' and 'active' classes to the clicked item
             $(this).addClass('selected active');
+            $('#SelectedEpicId').val($(this).attr('data-epic-id-filter'));
         }
         _$jobsTable.ajax.reload();
     });
@@ -367,7 +370,7 @@
             $('#list-tab-epics').empty();
             // Add the filtered data to the tablist
             if (data.items && Array.isArray(data.items)) {
-                data.items.forEach(function(item){addEpicRow(item)});
+                data.items.forEach(function (item) { addEpicRow(item) });
             } else {
                 //no eipc found
                 $('#list-tab-epics').append('<a class="list-group-item list-group-item-action" id="list-no-epics-list" data-toggle="pill" href="#list-no-epics" role="tab" aria-controls="list-no-epics">No Epics Found</a>');
