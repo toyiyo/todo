@@ -162,23 +162,6 @@
         _$jobsTable.ajax.reload();
     });
 
-    //handle filtering by selected epic
-    $(document).on('click', '.epic-filter', function (_e) {
-        // If the epic is already active, clear the selection
-        if ($(this).hasClass('selected')) {
-            $(this).removeClass('selected active');
-            $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
-        } else {
-            // If the epic is not active, select it
-            // First, remove 'selected' and 'active' classes from all items
-            $('.epic-filter').removeClass('selected active');
-            // Then, add 'selected' and 'active' classes to the clicked item
-            $(this).addClass('selected active');
-            $('#SelectedEpicId').val($(this).attr('data-epic-id-filter'));
-        }
-        _$jobsTable.ajax.reload();
-    });
-
     //Job creation
     _$form.submit((e) => {
         e.preventDefault();
@@ -342,10 +325,27 @@
         var tableDiv = $('.table-responsive');
         if (tableDiv.hasClass('col-12')) {
             tableDiv.removeClass('col-12').addClass('col-9');
-            loadEpics($('#JobsSearchForm input[type=search]').val(), $('#SelectedJobStatus').val(), $('#ProjectId').val(), 2);
+            loadEpics(null, 0, $('#ProjectId').val(), 2);
         } else {
             tableDiv.removeClass('col-9').addClass('col-12');
         }
+    });
+
+    //handle filtering by selected epic
+    $(document).on('click', '.epic-filter', function (_e) {
+        // If the epic is already active, clear the selection
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected active');
+            $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
+        } else {
+            // If the epic is not active, select it
+            // First, remove 'selected' and 'active' classes from all items
+            $('.epic-filter').removeClass('selected active');
+            // Then, add 'selected' and 'active' classes to the clicked item
+            $(this).addClass('selected active');
+            $('#SelectedEpicId').val($(this).attr('data-epic-id-filter'));
+        }
+        _$jobsTable.ajax.reload();
     });
 
     const addEpicRow = function (item) {
@@ -361,7 +361,7 @@
     const loadEpics = function (keyword, jobStatus, projectId, level) {
         abp.services.app.job.getAll({
             keyword: keyword,
-            jobStatus: 0, // only showing active epics
+            jobStatus: jobStatus, // only showing active epics
             projectId: projectId,
             level: level, // Set level to 1
             sorting: 'OrderByDate DESC',
@@ -446,6 +446,7 @@
             .done(function () {
                 abp.notify.info(l('Deleted Successfully'));
                 _$jobsTable.ajax.reload();
+                loadEpics(null, 0, $('#ProjectId').val(), 2);
             })
             .always(function () {
                 abp.ui.clearBusy(_$deleteModal);
