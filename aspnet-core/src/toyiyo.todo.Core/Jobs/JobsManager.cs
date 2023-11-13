@@ -24,8 +24,12 @@ namespace toyiyo.todo.Jobs
 
         public async Task<Job> Get(Guid id)
         {
-            var job = await _jobRepository.GetAsync(id);
-            return job;
+            return await _jobRepository.Query(q => q.Where(p => p.Id == id)
+                        .Include(p => p.Project)
+                        .Include(p => p.Assignee)
+                        .Include(p => p.Owner)
+                        .FirstOrDefaultAsync());
+
         }
         //GetAll() repository method requires a unit of work to be open. see https://aspnetboilerplate.com/Pages/Documents/Unit-Of-Work#irepository-getall-method
         [UnitOfWork]
@@ -54,12 +58,9 @@ namespace toyiyo.todo.Jobs
             .WhereIf(!input.ProjectId.Equals(Guid.Empty), x => x.Project.Id == input.ProjectId)
             .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), p => p.Title.ToUpper().Contains(input.Keyword.ToUpper()))
             .WhereIf(input.JobStatus != null, p => p.JobStatus == input.JobStatus)
+            .WhereIf(input.Level != null, p => p.Level == input.Level)
             .WhereIf(!input.ParentJobId.Equals(Guid.Empty), p => p.ParentId == input.ParentJobId);
 
-            if (input.OnlyRootJobs)
-            {
-                query = query.Where(j => j.ParentId == null || j.ParentId == Guid.Empty);
-            }
             return query;
         }
 

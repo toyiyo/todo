@@ -62,6 +62,7 @@
       "wwwroot/libs/datatables/js/dataTables.responsive.min.js",
       "wwwroot/libs/datatables/js/responsive.bootstrap4.min.js",
       "wwwroot/libs/datatables/js/dataTables.buttons.js",
+      "wwwroot/libs/datatables/js/dataTables.rowGroup.min.js",
       "wwwroot/libs/datatables/js/buttons.bootstrap4.js",
       "wwwroot/libs/admin-lte/dist/js/adminlte.js",
 

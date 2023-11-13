@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using toyiyo.todo.Authorization;
 using toyiyo.todo.Jobs.Dto;
 using toyiyo.todo.Projects;
+using static toyiyo.todo.Jobs.Job;
 
 namespace toyiyo.todo.Jobs
 {
@@ -27,7 +28,7 @@ namespace toyiyo.todo.Jobs
         {
             var tenant = await GetCurrentTenantAsync();
             var project = await _projectManager.Get(input.ProjectId);
-            var job = Job.Create(project, input.Title, input.Description, await GetCurrentUserAsync(), tenant.Id, input.DueDate ?? default, input.ParentId ?? default );
+            var job = Job.Create(project, input.Title, input.Description, await GetCurrentUserAsync(), tenant.Id, input.DueDate ?? default, input.ParentId ?? default, input.Level );
             await _jobManager.Create(job);
             return ObjectMapper.Map<JobDto>(job);
         }
@@ -50,7 +51,7 @@ namespace toyiyo.todo.Jobs
             //getting stats for the account, for the future, we should allow filtering by project.
             //we'll manually remove subtasks from the stats count for now.  
             //todo, once we have a job type defined, we can filter by job type
-            var getAllJobsInput = new GetAllJobsInput(){ MaxResultCount = int.MaxValue, OnlyRootJobs = true};
+            var getAllJobsInput = new GetAllJobsInput(){ MaxResultCount = int.MaxValue, Level = JobLevel.Task};
             var jobs = await GetAll(getAllJobsInput);
             return new JobStatsDto
             {
@@ -97,6 +98,19 @@ namespace toyiyo.todo.Jobs
         {
             var job = Job.SetDueDate(await _jobManager.Get(jobSetDueDateInputDto.Id), jobSetDueDateInputDto.DueDate ?? default, await GetCurrentUserAsync());
             await _jobManager.Update(job);
+            return ObjectMapper.Map<JobDto>(job);
+        }
+
+        //set the parentId of a job
+        public async Task<JobDto> SetParent(JobSetParentInputDto jobSetParentInputDto)
+        {
+            var job = await _jobManager.Get(jobSetParentInputDto.Id);
+            var parentJob = jobSetParentInputDto.ParentId == null || jobSetParentInputDto.ParentId == Guid.Empty ? null : await _jobManager.Get(jobSetParentInputDto.ParentId.Value);
+            var user = await GetCurrentUserAsync();
+            
+            job = Job.SetParent(job, parentJob, user);
+            await _jobManager.Update(job);            
+
             return ObjectMapper.Map<JobDto>(job);
         }
 

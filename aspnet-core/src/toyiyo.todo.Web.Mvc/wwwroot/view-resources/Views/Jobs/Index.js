@@ -58,13 +58,15 @@
         serverSide: true,
         select: true,
         listAction: {
-            ajaxFunction: abp.services.app.job.getAll,
+            ajaxFunction: _jobService.getAll,
             inputFilter: function () {
                 return {
                     keyword: $('#JobsSearchForm input[type=search]').val(),
                     jobStatus: $('#SelectedJobStatus').val(),
                     projectId: $('#ProjectId').val(),
-                    onlyRootJobs: true,
+                    level: 0,
+                    //include parentJobId only if the value of ParentJobId is not null
+                    parentJobId: $('#SelectedEpicId').val(),
                     sorting: 'OrderByDate DESC',
                 }
             },
@@ -109,7 +111,7 @@
                 targets: 2,
                 data: 'title',
                 className: 'title',
-                defaultContent: ''
+                defaultContent: '',
             },
             {
                 targets: 3,
@@ -140,6 +142,7 @@
             },
         ]
     });
+
     //Initializers
     $(window).on('load', function () {
         const jobId = $('#JobId').val();
@@ -159,8 +162,6 @@
         _$jobsTable.ajax.reload();
     });
 
-
-
     //Job creation
     _$form.submit((e) => {
         e.preventDefault();
@@ -172,6 +173,7 @@
         var job = _$form.serializeFormToObject();
         job.projectId = $('#ProjectId').val();
         job.dueDate = moment($(".due-date-button").val()).endOf('day').utc();
+        job.parentId = $('#SelectedEpicId').val();
 
         abp.ui.setBusy(_$JobCreateModal);
         _jobService
@@ -302,7 +304,7 @@
 
         //if no newOrderByDate date is found, it means we moved the row in place and no change is necessary
         if (orderByDate != null) {
-            var jobPatchOrderByDateInputDto = { id: jobId, orderByDate: orderByDate };
+            const jobPatchOrderByDateInputDto = { id: jobId, orderByDate: orderByDate };
 
             e.preventDefault();
 
@@ -311,9 +313,121 @@
                 .always(function () {
                     abp.ui.clearBusy(_$JobCreateModal);
                 });
+
+            //call function to update the parent id to that of the new parent fromt he rowGroup
+            //updateParentId(jobId, diff); - no longer calling on re-order, will create left panel to drag items into.
         }
     });
 
+    // Epics Panel
+    $('#toggle-epics').on('click', function () {
+        $('#epics-panel').toggleClass('d-none');
+        var tableDiv = $('.table-responsive');
+        if (tableDiv.hasClass('col-12')) {
+            tableDiv.removeClass('col-12').addClass('col-9');
+            loadEpics(null, 0, $('#ProjectId').val(), 2);
+        } else {
+            tableDiv.removeClass('col-9').addClass('col-12');
+            $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
+            _$jobsTable.ajax.reload();
+        }
+    });
+
+    //handle filtering by selected epic
+    $(document).on('click', '.epic-filter', function (_e) {
+        // If the epic is already active, clear the selection
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected active');
+            $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
+        } else {
+            // If the epic is not active, select it
+            // First, remove 'selected' and 'active' classes from all items
+            $('.epic-filter').removeClass('selected active');
+            // Then, add 'selected' and 'active' classes to the clicked item
+            $(this).addClass('selected active');
+            $('#SelectedEpicId').val($(this).attr('data-epic-id-filter'));
+        }
+        _$jobsTable.ajax.reload();
+    });
+
+    const pencilIconSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">' +
+        '<path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>' +
+        '</svg>';
+
+    const createListItem = function (item) {
+        return '<div class="d-flex align-items-center">' +
+            '<a class="list-group-item list-group-item-action epic-filter flex-grow-1 seamless-list-group" id="list-' + item.id + '-list" data-epic-id-filter="' + item.id + '" data-toggle="pill" href="#list-' + item.id + '" role="tab" aria-controls="list-' + item.id + '">' + item.title + '</a>' +
+            '<button type="button" class="btn btn-sm bg-default edit-job" data-job-id="' + item.id + '" data-job-status="0" data-toggle="modal" data-target="#JobEditModal">' +
+            pencilIconSvg +
+            '</button></div>';
+    };
+
+    const addEpicRow = function (item) {
+        $('#list-tab-epics').append(createListItem(item));
+    };
+
+    const loadEpics = function (keyword, jobStatus, projectId, level) {
+        abp.services.app.job.getAll({
+            keyword: keyword,
+            jobStatus: jobStatus, // only showing active epics
+            projectId: projectId,
+            level: level, // Set level to 1
+            sorting: 'OrderByDate DESC',
+        }).done(function (data) {
+            // Clear the contents of #list-tab-epics
+            $('#list-tab-epics').empty();
+            // Add the filtered data to the tablist
+            if (data.items && Array.isArray(data.items)) {
+                data.items.forEach(function (item) { addEpicRow(item) });
+            } else {
+                //no eipc found
+                $('#list-tab-epics').append('<a class="list-group-item list-group-item-action" id="list-no-epics-list" data-toggle="pill" href="#list-no-epics" role="tab" aria-controls="list-no-epics">No Epics Found</a>');
+            }
+        }).fail(function (error) {
+            console.error('Error:', error);
+        });
+    };
+    const _$createEpicForm = $('#epics-list #AddByTitle');
+
+    function createEpic() {
+        const title = _$createEpicForm.find('#add-by-title-input').val();
+        const dueDate = _$createEpicForm.find('#due-date-button').val();
+        const projectId = $('#ProjectId').val();
+        const level = $('#epics-list #level').data('level');
+
+        if (!title) {
+            abp.notify.warn(l('TitleIsRequired'));
+            return;
+        }
+
+        abp.ui.setBusy(_$createEpicForm);
+
+        _jobService.create({
+            title: title,
+            dueDate: dueDate,
+            projectId: projectId,
+            level: level //level is passed down via the model initializer to the partial view and set as the level attribute
+        }).done(function (data) {
+            abp.notify.info(l('SavedSuccessfully'));
+            _$createEpicForm.find('#add-by-title-input').val('');
+            _$createEpicForm.find('#due-date-button').val('');
+            addEpicRow(data);
+        }).always(function () {
+            abp.ui.clearBusy(_$createEpicForm);
+        });
+    }
+
+    //create a subtask when the button is clicked
+    _$createEpicForm.find('.create-by-title-button').on('click', function () {
+        createEpic();
+    });
+    //create a subtask when the enter key is pressed
+    _$createEpicForm.find('#add-by-title-input').on('keydown', function (event) {
+        if (event.keyCode === 13) { // Enter key
+            event.preventDefault();
+            createEpic();
+        }
+    });
     //Job Deletion handlers
     //triggered when the delete modal - sets the job id to be deleted
     _$deleteModal.on('show.bs.modal', function (e) {
@@ -340,6 +454,7 @@
             .done(function () {
                 abp.notify.info(l('Deleted Successfully'));
                 _$jobsTable.ajax.reload();
+                loadEpics(null, 0, $('#ProjectId').val(), 2);
             })
             .always(function () {
                 abp.ui.clearBusy(_$deleteModal);
@@ -355,5 +470,7 @@
     };
 
 })(jQuery);
+
+
 
 

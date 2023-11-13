@@ -1,8 +1,7 @@
 {
-  "defaultProvider": "cdnjs",
   "version": "1.0",
+  "defaultProvider": "cdnjs",
   "libraries": [
-    //core libs start
     {
       "library": "jquery@3.4.1",
       "destination": "wwwroot/libs/jquery",
@@ -12,12 +11,9 @@
         "jquery.min.map"
       ]
     },
-    //core libs end
-
-    //abp libs start
     {
-      "library": "abp-web-resources@4.1.0",
       "provider": "jsdelivr",
+      "library": "abp-web-resources@4.1.0",
       "destination": "wwwroot/libs/abp-web-resources"
     },
     {
@@ -49,20 +45,17 @@
       "destination": "wwwroot/libs/signalr"
     },
     {
-      "library": "@aspnet/signalr@1.0.0",
       "provider": "jsdelivr",
+      "library": "@aspnet/signalr@1.0.0",
       "destination": "wwwroot/libs/signalr",
       "files": [
         "dist/browser/signalr.js",
         "dist/browser/signalr.js.map"
       ]
     },
-    //abp libs end
-
-    //admin-lte libs start
     {
-      "library": "admin-lte@3.1.0",
       "provider": "jsdelivr",
+      "library": "admin-lte@3.1.0",
       "destination": "wwwroot/libs/admin-lte",
       "files": [
         "dist/js/adminlte.js",
@@ -77,8 +70,8 @@
       ]
     },
     {
-      "library": "bootstrap@4.6.0",
       "provider": "jsdelivr",
+      "library": "bootstrap@4.6.0",
       "destination": "wwwroot/libs/bootstrap",
       "files": [
         "dist/js/bootstrap.bundle.js",
@@ -88,13 +81,13 @@
       ]
     },
     {
-      "library": "@fortawesome/fontawesome-free@5.15.3",
       "provider": "jsdelivr",
+      "library": "@fortawesome/fontawesome-free@5.15.3",
       "destination": "wwwroot/libs/font-awesome"
     },
     {
-      "library": "icheck-bootstrap@3.0.1",
       "provider": "jsdelivr",
+      "library": "icheck-bootstrap@3.0.1",
       "destination": "wwwroot/libs/icheck-bootstrap",
       "files": [
         "icheck-bootstrap.css",
@@ -102,8 +95,8 @@
       ]
     },
     {
-      "library": "datatables.net@1.10.24",
       "provider": "jsdelivr",
+      "library": "datatables.net@1.10.24",
       "destination": "wwwroot/libs/datatables",
       "files": [
         "js/jquery.dataTables.js",
@@ -111,8 +104,8 @@
       ]
     },
     {
-      "library": "datatables.net-bs4@1.10.24",
       "provider": "jsdelivr",
+      "library": "datatables.net-bs4@1.10.24",
       "destination": "wwwroot/libs/datatables",
       "files": [
         "css/dataTables.bootstrap4.css",
@@ -122,8 +115,8 @@
       ]
     },
     {
-      "library": "datatables.net-responsive@2.2.7",
       "provider": "jsdelivr",
+      "library": "datatables.net-responsive@2.2.7",
       "destination": "wwwroot/libs/datatables",
       "files": [
         "js/dataTables.responsive.js",
@@ -131,8 +124,8 @@
       ]
     },
     {
-      "library": "datatables.net-responsive-bs4@2.2.7",
       "provider": "jsdelivr",
+      "library": "datatables.net-responsive-bs4@2.2.7",
       "destination": "wwwroot/libs/datatables",
       "files": [
         "css/responsive.bootstrap4.css",
@@ -142,8 +135,8 @@
       ]
     },
     {
-      "library": "datatables.net-buttons@1.7.0",
       "provider": "jsdelivr",
+      "library": "datatables.net-buttons@1.7.0",
       "destination": "wwwroot/libs/datatables",
       "files": [
         "js/dataTables.buttons.js",
@@ -151,8 +144,8 @@
       ]
     },
     {
-      "library": "datatables.net-buttons-bs4@1.7.0",
       "provider": "jsdelivr",
+      "library": "datatables.net-buttons-bs4@1.7.0",
       "destination": "wwwroot/libs/datatables",
       "files": [
         "css/buttons.bootstrap4.css",
@@ -162,17 +155,14 @@
       ]
     },
     {
-      "library": "chart.js@2.9.4",
       "provider": "jsdelivr",
+      "library": "chart.js@2.9.4",
       "destination": "wwwroot/libs/chartjs",
       "files": [
         "dist/Chart.css",
         "dist/Chart.js"
       ]
     },
-    //admin-lte libs end
-
-    //other libs start
     {
       "library": "jquery-validate@1.19.1",
       "destination": "wwwroot/libs/jquery-validate"
@@ -184,7 +174,14 @@
     {
       "library": "push.js@1.0.9",
       "destination": "wwwroot/libs/push.js"
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "datatables.net-rowgroup@1.4.0",
+      "destination": "wwwroot/libs/datatables",
+      "files": [
+        "js/dataTables.rowGroup.min.js"
+      ]
     }
-    //other libs end
   ]
 }

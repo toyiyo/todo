@@ -28,5 +28,6 @@ namespace toyiyo.todo.Jobs.Dto
         public Guid? ParentId { get; set; }
         public int? TenantId { get; set; }
         public DateTime OrderByDate { get; set; }
+        public JobLevel Level { get; set; }
     }
 }
