@@ -328,6 +328,8 @@
             loadEpics(null, 0, $('#ProjectId').val(), 2);
         } else {
             tableDiv.removeClass('col-9').addClass('col-12');
+            $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
+            _$jobsTable.ajax.reload();
         }
     });
 
