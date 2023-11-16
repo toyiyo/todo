@@ -22,12 +22,21 @@ using Newtonsoft.Json.Serialization;
 using Shouldly;
 using toyiyo.todo.MultiTenancy;
 using toyiyo.todo.Authorization.Roles;
+using toyiyo.todo.Projects;
+using toyiyo.todo.Jobs;
+using Microsoft.AspNetCore.Razor.Language;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using toyiyo.todo.Authorization.Users;
+using System.Linq.Dynamic.Core;
 
 namespace toyiyo.todo.Web.Tests
 {
     public abstract class todoWebTestBase : AbpAspNetCoreIntegratedTestBase<Startup>
     {
         protected static readonly Lazy<string> ContentRootFolder;
+        protected User User { get; set; }
+        protected Project Project { get; set; }
+        protected Job Job { get; set; }
 
         static todoWebTestBase()
         {
@@ -224,6 +233,27 @@ namespace toyiyo.todo.Web.Tests
                 AbpSession.TenantId = tenant.Id;
                 Client.DefaultRequestHeaders.Add("Abp.TenantId", tenant.Id.ToString());  //Set TenantId
             }
+        }
+
+        protected void SeedDb()
+        {
+            //create a project
+            LoginAsDefaultTenantAdmin();
+            User = UsingDbContext(context => context.Users.First(u => u.UserName == AbpUserBase.AdminUserName));
+            Project = UsingDbContext(context => context.Projects.FirstOrDefault())
+                ?? UsingDbContext(context =>
+                {
+                    Project entity = Project.Create("test project", User, (int)AbpSession.TenantId);
+                    return context.Projects.Add(entity);
+                }).Entity;
+
+            //create a job
+            // Job = UsingDbContext(context => context.Jobs.FirstOrDefault())
+            //     ?? UsingDbContext(context =>
+            //     {
+            //         Job entity = Job.Create(Project, "test job", "test description", User, (int)AbpSession.TenantId);
+            //         return context.Jobs.Add(entity);
+            //     }).Entity;
         }
     }
 }
