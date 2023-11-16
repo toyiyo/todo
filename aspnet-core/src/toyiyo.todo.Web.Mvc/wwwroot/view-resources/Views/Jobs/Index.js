@@ -19,6 +19,21 @@
                             <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/>
                         </svg>`;
 
+    const epicFavicon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-window-stack" viewBox="0 0 16 16">
+                            <path d="M4.5 6a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1ZM6 6a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Zm2-.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0Z"/>
+                            <path d="M12 1a2 2 0 0 1 2 2 2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2 2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h10ZM2 12V5a2 2 0 0 1 2-2h9a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1Zm1-4v5a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8H3Zm12-1V5a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v2h12Z"/>
+                        </svg>`;
+
+    const storyFavicon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-window" viewBox="0 0 16 16">
+                            <path d="M2.5 4a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1zm2-.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm1 .5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                            <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2zm13 2v2H1V3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1zM2 14a1 1 0 0 1-1-1V6h14v7a1 1 0 0 1-1 1H2z"/>
+                        </svg>`;
+
+    const subTaskFavicon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-window-split" viewBox="0 0 16 16">
+                            <path d="M2.5 4a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Zm2-.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0Zm1 .5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/>
+                            <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2Zm12 1a1 1 0 0 1 1 1v2H1V3a1 1 0 0 1 1-1h12ZM1 13V6h6.5v8H2a1 1 0 0 1-1-1Zm7.5 1V6H15v7a1 1 0 0 1-1 1H8.5Z"/>
+                        </svg>`;
+
     const getStatusDropdown = function (jobStatus, id, favicon) {
         return `<div class="dropdown show">
         <div class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-job-id="${id}" data-job-status="${jobStatus}">
@@ -153,6 +168,11 @@
 
         //due date initializer - do not allow dates in the past
         document.getElementById("due-date-button").setAttribute("min", new Date().toJSON().split('T')[0]);
+        //filter button content
+        document.getElementById('backlog-icon').innerHTML = backlogFavicon;
+        document.getElementById('in-progress-icon').innerHTML = inProgressFavicon;
+        document.getElementById('done-icon').innerHTML = doneFavicon;
+        document.getElementById('epic-icon').innerHTML = epicFavicon;
     });
 
 
@@ -323,13 +343,16 @@
     $('#toggle-epics').on('click', function () {
         $('#epics-panel').toggleClass('d-none');
         var tableDiv = $('.table-responsive');
+        var $toggleIcon = $(this).find('i'); // find the icon within the button
         if (tableDiv.hasClass('col-12')) {
             tableDiv.removeClass('col-12').addClass('col-9');
             loadEpics(null, 0, $('#ProjectId').val(), 2);
+            $toggleIcon.removeClass('fa-chevron-right').addClass('fa-chevron-left'); // change the icon
         } else {
             tableDiv.removeClass('col-9').addClass('col-12');
             $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
             _$jobsTable.ajax.reload();
+            $toggleIcon.removeClass('fa-chevron-left').addClass('fa-chevron-right'); // change the icon back
         }
     });
 
