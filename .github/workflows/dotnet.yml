@@ -9,7 +9,38 @@ on:
 
 jobs:
   build:
+    runs-on: windows-latest
 
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    - name: Build
+      run: dotnet build aspnet-core/toyiyo.todo.sln --no-restore
+
+  test:
+    needs: build
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    - name: Test
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        DefaultPassword: ${{ secrets.DEFAULT_PASSWORD_FOR_TEST }}
+        GoogleClientId: ${{ secrets.DEFAULT_PASSWORD_FOR_TEST }}
+        GoogleClietSecret: ${{ secrets.DEFAULT_PASSWORD_FOR_TEST }}
+      run: dotnet test aspnet-core/toyiyo.todo.sln
+
+  sonar-scan:
+    needs: test
     runs-on: windows-latest
 
     steps:
@@ -23,9 +54,6 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '17'
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
     - name: Cache SonarCloud packages
       uses: actions/cache@v1
       with:
@@ -45,7 +73,7 @@ jobs:
       run: |
         New-Item -Path .\.sonar\scanner -ItemType Directory
         dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-    - name: Build and analyze
+    - name: Run Sonar scanner
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -55,8 +83,5 @@ jobs:
       shell: powershell
       run: |
         .\.sonar\scanner\dotnet-sonarscanner begin /k:"toyiyo_todo" /o:"toyiyo" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
-        dotnet tool install --global dotnet-coverage
-        dotnet restore aspnet-core/toyiyo.todo.sln
         dotnet build aspnet-core/toyiyo.todo.sln --no-restore
-        dotnet-coverage collect 'dotnet test aspnet-core/toyiyo.todo.sln' -f xml  -o 'coverage.xml'
         .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
