@@ -8,26 +8,32 @@ using System;
 using toyiyo.todo.Web.Models.Jobs;
 using System.Collections.Generic;
 using static toyiyo.todo.Jobs.Job;
+using toyiyo.todo.Projects;
 
 namespace toyiyo.todo.Web.Controllers
 {
     [AbpMvcAuthorize]
     public class JobsController : todoControllerBase
     {
-        public JobsController(IJobAppService jobAppService)
+        public JobsController(IJobAppService jobAppService, IProjectAppService projectAppService)
         {
             JobAppService = jobAppService;
+            ProjectAppService = projectAppService;
         }
 
         public IJobAppService JobAppService { get; }
+        public IProjectAppService ProjectAppService { get; }
 
 
         [HttpGet("/projects/{projectId}/jobs")]
         [HttpGet("/projects/{projectId}/jobs/{jobId}")]
         public async Task<IActionResult> Index(Guid projectId, Guid? jobId)
         {
+            var project = await ProjectAppService.Get(projectId);
             ViewBag.ProjectId = projectId;
             ViewBag.JobId = jobId;
+            ViewBag.ProjectTitle = project.Title;
+
             return View();
         }
 

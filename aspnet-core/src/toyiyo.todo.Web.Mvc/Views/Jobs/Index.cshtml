@@ -23,7 +23,13 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6">
-                <h1>@L("Jobs")</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/Projects">Projects</a></li>
+                        <li class="breadcrumb-item">@ViewBag.ProjectTitle</li>
+                        <li class="breadcrumb-item active" aria-current="page">Jobs</li>
+                    </ol>
+                </nav>
             </div>
             <div class="col-sm-6">
                 @await Html.PartialAsync("~/Views/Jobs/Index.AdvancedSearch.cshtml")
