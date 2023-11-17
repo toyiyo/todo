@@ -85,8 +85,6 @@ jobs:
       run: |
         New-Item -Path .\.sonar\scanner -ItemType Directory
         dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-    - name: List Sonar scanner directory
-      run: ls .\.sonar\scanner
     - uses: actions/checkout@v2
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
@@ -98,6 +96,8 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: coverage
+    - name: List Sonar scanner directory
+      run: ls .\.sonar\scanner
     - name: Run Sonar scanner
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
