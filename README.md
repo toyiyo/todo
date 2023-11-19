@@ -1,5 +1,6 @@
 ![Build and Test](https://github.com/toyiyo/todo/actions/workflows/dotnet.yml/badge.svg)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=toyiyo_todo&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=toyiyo_todo)
+[![CodeQL](https://github.com/toyiyo/todo/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/toyiyo/todo/actions/workflows/github-code-scanning/codeql)
 
 # Introduction
 
