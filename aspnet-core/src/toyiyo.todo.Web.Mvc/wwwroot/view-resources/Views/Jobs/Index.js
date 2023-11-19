@@ -345,11 +345,11 @@
         var tableDiv = $('.table-responsive');
         var $toggleIcon = $(this).find('i'); // find the icon within the button
         if (tableDiv.hasClass('col-12')) {
-            tableDiv.removeClass('col-12').addClass('col-9');
+            tableDiv.removeClass('col-12').addClass('col-md-9');
             loadEpics(null, 0, $('#ProjectId').val(), 2);
             $toggleIcon.removeClass('fa-chevron-right').addClass('fa-chevron-left'); // change the icon
         } else {
-            tableDiv.removeClass('col-9').addClass('col-12');
+            tableDiv.removeClass('col-md-9').addClass('col-12');
             $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
             _$jobsTable.ajax.reload();
             $toggleIcon.removeClass('fa-chevron-left').addClass('fa-chevron-right'); // change the icon back
