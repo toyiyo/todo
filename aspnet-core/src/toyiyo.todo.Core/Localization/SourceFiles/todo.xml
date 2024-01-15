@@ -144,5 +144,9 @@
     <text name="UsersPasswordChange">Users Password Change</text>
     <text name="AddNew">Add New</text>
     <text name="Add">Add</text>
+    <text name="StripeApiError">We ran into a problem connecting to Stripe. Error code {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailNotFound">We couldn't find an admin with an active subscription with the email address {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailError">We ran into a problem retrieving an admin with an active subscription. Error message {0}.</text>
+    <text name="GetSubscriptionByEmailNotFound">We couldn't find an active subscription with the email address {0}.</text>
   </texts>
 </localizationDictionary>
