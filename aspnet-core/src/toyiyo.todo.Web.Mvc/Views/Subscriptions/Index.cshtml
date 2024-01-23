@@ -1,0 +1,47 @@
+@model toyiyo.todo.application.subscriptions.SubscriptionDto
+@section scripts {
+    <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+}
+@{
+    ViewBag.Title = L("Subscription");
+    ViewBag.CurrentPageName = toyiyo.todo.Web.Startup.PageNames.Subscriptions;
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page">Subscription</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+</section>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card container-fluid m-5 p-2 rounded mx-auto bg-light shadow">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                @if (!string.IsNullOrEmpty(Model?.ProductName) && !string.IsNullOrEmpty(Model?.PortalSessionUrl) ) {
+                                    <h2>Your current plan is @Model.ProductName</h2>
+                                    <a href="@Model.PortalSessionUrl" class="btn btn-primary">Manage Subscription</a>
+                                }
+                                else{
+                                    <stripe-pricing-table pricing-table-id="prctbl_1Oa38lDzmhWSJ02SwygMxqIs"
+                                        publishable-key="pk_live_51OVddkDzmhWSJ02SLnLCsejkejutSyvg2ak7ldGLyIZxAxFqmrvC0KZY7MugDKFA9SyzlB1QWXIoMDVrqRPrnvpf00dCrD5QT9">
+                                    </stripe-pricing-table>
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
