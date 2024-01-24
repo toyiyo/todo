@@ -10,7 +10,6 @@ namespace toyiyo.todo.application.subscriptions
     {
         Task<SubscriptionDto> Get(string id);
         Task<SubscriptionDto> GetSubscriptionForTenant();
-        Task<PlanDto> GetPlan(string planId);
         Task<ProductDto> GetProduct(string productId);
         Task<PortalSessionDto> CreatePortalSession(string stripeCustomerId, string returnUrl);
     }

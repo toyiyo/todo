@@ -24,7 +24,7 @@ namespace toyiyo.todo.Web.Controllers
             if (subscriptionDto != null && !string.IsNullOrEmpty(subscriptionDto.ProductId) && !string.IsNullOrEmpty(subscriptionDto.PlanId))
             {
                 var productDto = await _subscriptionsService.GetProduct(subscriptionDto.ProductId);
-                var planDto = await _subscriptionsService.GetPlan(subscriptionDto.PlanId);
+
                 Console.WriteLine($"Product: {productDto.Name}");
 
                 string returnUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}{Request.QueryString}";

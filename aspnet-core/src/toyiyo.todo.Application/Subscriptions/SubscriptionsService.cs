@@ -51,12 +51,6 @@ namespace toyiyo.todo.application.subscriptions
             return await Get(tenant.ExternalSubscriptionId);
         }
 
-        public async Task<PlanDto> GetPlan(string planId)
-        {
-            var plan = _subscriptionManager.GetPlan(planId);
-            return ObjectMapper.Map<PlanDto>(plan);
-        }
-
         public async Task<ProductDto> GetProduct(string productId)
         {
             var product = _subscriptionManager.GetProduct(productId);

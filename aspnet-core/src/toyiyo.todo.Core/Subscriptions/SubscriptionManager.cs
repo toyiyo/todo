@@ -96,19 +96,6 @@ namespace toyiyo.todo.Core.Subscriptions
             }
         }
 
-        public Plan GetPlan(string planId)
-        {
-            try
-            {
-                var service = new PlanService();
-                return service.Get(planId);
-            }
-            catch (System.Exception e)
-            {
-                return new Plan();
-            }
-        }
-
         public Product GetProduct(string productId)
         {
             try
