@@ -51,12 +51,23 @@ namespace toyiyo.todo.application.subscriptions
             return await Get(tenant.ExternalSubscriptionId);
         }
 
+        /// <summary>
+        /// Retrieves a product by its ID.
+        /// </summary>
+        /// <param name="productId">The ID of the product to retrieve.</param>
+        /// <returns>The product DTO.</returns>
         public async Task<ProductDto> GetProduct(string productId)
         {
             var product = _subscriptionManager.GetProduct(productId);
             return ObjectMapper.Map<ProductDto>(product);
         }
 
+        /// <summary>
+        /// Creates a portal session for the specified user and return URL.
+        /// </summary>
+        /// <param name="userId">The ID of the stripe user.</param>
+        /// <param name="returnUrl">The return URL after the portal session is created.</param>
+        /// <returns>The portal session DTO.</returns>
         public async Task<PortalSessionDto> CreatePortalSession(string userId, string returnUrl)
         {
             var session = _subscriptionManager.CreateBillingPortalConfiguration(userId, returnUrl);
