@@ -65,12 +65,12 @@ namespace toyiyo.todo.application.subscriptions
         /// <summary>
         /// Creates a portal session for the specified user and return URL.
         /// </summary>
-        /// <param name="userId">The ID of the stripe user.</param>
+        /// <param name="stripeCustomerId">The ID of the stripe user.</param>
         /// <param name="returnUrl">The return URL after the portal session is created.</param>
         /// <returns>The portal session DTO.</returns>
-        public async Task<PortalSessionDto> CreatePortalSession(string userId, string returnUrl)
+        public async Task<PortalSessionDto> CreatePortalSession(string stripeCustomerId, string returnUrl)
         {
-            var session = _subscriptionManager.CreateBillingPortalConfiguration(userId, returnUrl);
+            var session = _subscriptionManager.CreateBillingPortalConfiguration(stripeCustomerId, returnUrl);
             return ObjectMapper.Map<PortalSessionDto>(session);
         }
     }
