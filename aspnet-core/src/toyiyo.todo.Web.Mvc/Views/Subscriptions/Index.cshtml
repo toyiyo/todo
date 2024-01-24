@@ -1,6 +1,6 @@
 @model toyiyo.todo.application.subscriptions.SubscriptionDto
 @section scripts {
-    <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+    <script src="https://js.stripe.com/v3/pricing-table.js" integrity="sha384-1GZtzVnx/tj865Wa1BQLy7Ndkt0XpMD1nw68RGZ7fbSr7T3n+LUTvqeE1vllW/XP" crossorigin="anonymous"></script>
 }
 @{
     ViewBag.Title = L("Subscription");
@@ -33,7 +33,9 @@
                                 }
                                 else{
                                     <stripe-pricing-table pricing-table-id="prctbl_1Oa38lDzmhWSJ02SwygMxqIs"
-                                        publishable-key="pk_live_51OVddkDzmhWSJ02SLnLCsejkejutSyvg2ak7ldGLyIZxAxFqmrvC0KZY7MugDKFA9SyzlB1QWXIoMDVrqRPrnvpf00dCrD5QT9">
+                                        publishable-key="pk_live_51OVddkDzmhWSJ02SLnLCsejkejutSyvg2ak7ldGLyIZxAxFqmrvC0KZY7MugDKFA9SyzlB1QWXIoMDVrqRPrnvpf00dCrD5QT9"
+                                        customer-email=@ViewBag.Email
+                                        client-reference-id=@ViewBag.UserId>
                                     </stripe-pricing-table>
                                 }
 
