@@ -10,13 +10,10 @@ namespace toyiyo.todo.Core.Subscriptions
 {
     public class SubscriptionManager : DomainService, ISubscriptionManager
     {
-        //private readonly IStripeClient _stripeClient;
-
         public SubscriptionManager()
         {
             LocalizationSourceName = todoConsts.LocalizationSourceName;
-            //_stripeClient = stripeClient;
-            //todo: move keys to environment variables
+
             if (DebugHelper.IsDebug)
                 StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("StripeAPIKeyDebug");
             else
@@ -38,7 +35,7 @@ namespace toyiyo.todo.Core.Subscriptions
                 {
                     throw new UserFriendlyException(L("GetSubscriptionCustomerByEmailNotFound", email));
                 }
-                //todo: check if there are more than one customer with the same email, this should not happen
+
                 return customers.Data.FirstOrDefault();
             }
             catch (StripeException e)
@@ -90,7 +87,7 @@ namespace toyiyo.todo.Core.Subscriptions
                 var service = new SubscriptionService();
                 return service.Get(subscriptionId);
             }
-            catch (System.Exception e)
+            catch (System.Exception)
             {
                 return new Subscription();
             }
@@ -103,7 +100,7 @@ namespace toyiyo.todo.Core.Subscriptions
                 var service = new ProductService();
                 return service.Get(productId);
             }
-            catch (System.Exception e)
+            catch (System.Exception)
             {
                 return new Product();
             }

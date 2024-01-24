@@ -47,7 +47,7 @@ namespace toyiyo.todo.application.subscriptions
         public async Task<SubscriptionDto> GetSubscriptionForTenant()
         {
             var tenant = await GetCurrentTenantAsync();
-            //todo: use tenant.subscriptionId to get the subscription - this will be saved when handling the webhook for a new subscription
+            
             return await Get(tenant.ExternalSubscriptionId);
         }
 
