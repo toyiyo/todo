@@ -40,7 +40,7 @@ jobs:
         GoogleClientId: ${{ secrets.DEFAULT_PASSWORD_FOR_TEST }}
         GoogleClietSecret: ${{ secrets.DEFAULT_PASSWORD_FOR_TEST }}
         StripeAPIKeyDebug: ${{ secrets.STRIPE_API_KEY_DEBUG}}
-        StripeAPIKeyDebug: ${{ secrets.STRIPE_API_KEY_DEBUG}}
+        StripeAPIKeyProduction: ${{ secrets.STRIPE_API_KEY_DEBUG}}
       run: |
         dotnet tool install --global dotnet-coverage
         dotnet-coverage collect 'dotnet test aspnet-core/toyiyo.todo.sln' -f xml  -o 'coverage.xml'
