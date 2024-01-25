@@ -16,7 +16,7 @@ namespace toyiyo.todo.application.subscriptions
         /// </summary>
         /// <param name="id">The ID of the subscription.</param>
         /// <returns>The subscription DTO.</returns>
-        Task<SubscriptionDto> Get(string id);
+        SubscriptionDto Get(string id);
 
         /// <summary>
         /// Retrieves the subscription for the current tenant.
@@ -29,7 +29,7 @@ namespace toyiyo.todo.application.subscriptions
         /// </summary>
         /// <param name="productId">The ID of the product.</param>
         /// <returns>The product DTO.</returns>
-        Task<ProductDto> GetProduct(string productId);
+        ProductDto GetProduct(string productId);
 
         /// <summary>
         /// Creates a portal session for the specified Stripe customer and return URL.
@@ -37,6 +37,6 @@ namespace toyiyo.todo.application.subscriptions
         /// <param name="stripeCustomerId">The ID of the Stripe customer.</param>
         /// <param name="returnUrl">The return URL for the portal session.</param>
         /// <returns>The portal session DTO.</returns>
-        Task<PortalSessionDto> CreatePortalSession(string stripeCustomerId, string returnUrl);
+        PortalSessionDto CreatePortalSession(string stripeCustomerId, string returnUrl);
     }
 }

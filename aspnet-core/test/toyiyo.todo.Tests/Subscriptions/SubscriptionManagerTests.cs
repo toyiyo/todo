@@ -13,7 +13,6 @@ namespace toyiyo.todo.Tests.Subscriptions
     public class SubscriptoinManagerTests : todoTestBase
     {
         private readonly SubscriptionManager _subscriptionManager;
-        private readonly IStripeClient _stripeClient;
 
         public SubscriptoinManagerTests()
         {
@@ -21,7 +20,7 @@ namespace toyiyo.todo.Tests.Subscriptions
         }
 
         [Fact]
-        public async Task GetSubscriptionCustomerByEmail_ValidEmail_ReturnsCustomer()
+        public void GetSubscriptionCustomerByEmail_ValidEmail_ReturnsCustomer()
         {
             // Arrange
             var email = "jdelgado@toyiyo.com";
@@ -35,7 +34,7 @@ namespace toyiyo.todo.Tests.Subscriptions
         }
 
         [Fact]
-        public async Task GetSubscriptionCustomerByEmail_InvalidEmail_ThrowsException()
+        public void GetSubscriptionCustomerByEmail_InvalidEmail_ThrowsException()
         {
             // Arrange
             var email = "invalid@example.com";
@@ -45,7 +44,7 @@ namespace toyiyo.todo.Tests.Subscriptions
         }
 
         [Fact]
-        public async Task GetSubscriptionByEmail_ValidEmail_ReturnsSubscription()
+        public void GetSubscriptionByEmail_ValidEmail_ReturnsSubscription()
         {
             // Arrange
             var email = "jdelgado@toyiyo.com";
@@ -60,7 +59,7 @@ namespace toyiyo.todo.Tests.Subscriptions
         }
 
         [Fact]
-        public async Task GetSubscriptionByEmail_InvalidEmail_ThrowsException()
+        public void GetSubscriptionByEmail_InvalidEmail_ThrowsException()
         {
             // Arrange
             var email = "invalid@example.com";

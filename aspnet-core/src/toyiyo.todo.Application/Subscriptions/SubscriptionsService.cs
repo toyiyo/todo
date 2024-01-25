@@ -27,7 +27,7 @@ namespace toyiyo.todo.application.subscriptions
         /// </summary>
         /// <param name="id">The Id of the subscription.</param>
         /// <returns>The subscription.</returns>
-        public async Task<SubscriptionDto> Get(string id)
+        public SubscriptionDto Get(string id)
         {
             var subscription = _subscriptionManager.GetSubscriptionById(id);
             var Dto = ObjectMapper.Map<SubscriptionDto>(subscription);
@@ -48,7 +48,7 @@ namespace toyiyo.todo.application.subscriptions
         {
             var tenant = await GetCurrentTenantAsync();
             
-            return await Get(tenant.ExternalSubscriptionId);
+            return Get(tenant.ExternalSubscriptionId);
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace toyiyo.todo.application.subscriptions
         /// </summary>
         /// <param name="productId">The ID of the product to retrieve.</param>
         /// <returns>The product DTO.</returns>
-        public async Task<ProductDto> GetProduct(string productId)
+        public ProductDto GetProduct(string productId)
         {
             var product = _subscriptionManager.GetProduct(productId);
             return ObjectMapper.Map<ProductDto>(product);
@@ -68,7 +68,7 @@ namespace toyiyo.todo.application.subscriptions
         /// <param name="stripeCustomerId">The ID of the stripe user.</param>
         /// <param name="returnUrl">The return URL after the portal session is created.</param>
         /// <returns>The portal session DTO.</returns>
-        public async Task<PortalSessionDto> CreatePortalSession(string stripeCustomerId, string returnUrl)
+        public PortalSessionDto CreatePortalSession(string stripeCustomerId, string returnUrl)
         {
             var session = _subscriptionManager.CreateBillingPortalConfiguration(stripeCustomerId, returnUrl);
             return ObjectMapper.Map<PortalSessionDto>(session);

@@ -35,13 +35,13 @@ namespace toyiyo.todo.Web.Controllers
             // Check if subscriptionDto is not null and has a valid ProductId and PlanId
             if (subscriptionDto != null && !string.IsNullOrEmpty(subscriptionDto.ProductId) && !string.IsNullOrEmpty(subscriptionDto.PlanId))
             {
-                var productDto = await _subscriptionsService.GetProduct(subscriptionDto.ProductId);
+                var productDto = _subscriptionsService.GetProduct(subscriptionDto.ProductId);
 
                 Console.WriteLine($"Product: {productDto.Name}");
 
                 string returnUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}{Request.QueryString}";
                 //we have an existing subscription, let's create a management session and set the URL so the user can manage their subscription
-                var portalSession = await _subscriptionsService.CreatePortalSession(subscriptionDto.CustomerId, returnUrl);
+                var portalSession = _subscriptionsService.CreatePortalSession(subscriptionDto.CustomerId, returnUrl);
                 subscriptionDto.PortalSessionUrl = portalSession.Url;
                 subscriptionDto.ProductName = productDto.Name;
             }
