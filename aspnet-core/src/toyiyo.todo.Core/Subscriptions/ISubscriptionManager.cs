@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Stripe;
 
 namespace toyiyo.todo.Core.Subscriptions
@@ -9,6 +10,6 @@ namespace toyiyo.todo.Core.Subscriptions
         Subscription GetSubscriptionById(string subscriptionId);
         Product GetProduct(string productId);
         Stripe.BillingPortal.Session CreateBillingPortalConfiguration(string stripeCustomerId, string returnUrl);
-
+        Task StripeWebhookHandler(string json, string stripeSignatureHeader);
     }
 }

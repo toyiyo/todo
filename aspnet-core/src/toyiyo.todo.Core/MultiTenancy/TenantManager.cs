@@ -1,4 +1,5 @@
-﻿using Abp.Application.Features;
+﻿using System.Threading.Tasks;
+using Abp.Application.Features;
 using Abp.Domain.Repositories;
 using Abp.MultiTenancy;
 using toyiyo.todo.Authorization.Users;
@@ -19,6 +20,12 @@ namespace toyiyo.todo.MultiTenancy
                 editionManager,
                 featureValueStore)
         {
+        }
+
+        public async Task<Tenant> SetExternalSubscriptionId(Tenant tenant, string externalSubscriptionId) {
+            tenant.SetExternalSubscriptionId(externalSubscriptionId);
+            await UpdateAsync(tenant);
+            return tenant;
         }
     }
 }

@@ -30,7 +30,7 @@ namespace toyiyo.todo.Web.Controllers
             var user = await _userManager.FindByIdAsync(AbpSession.GetUserId().ToString());
             //pass email and userid to view
             ViewBag.Email = user.EmailAddress;
-            ViewBag.UserId = AbpSession.GetUserId();
+            ViewBag.TenantId = AbpSession.GetTenantId();
 
             // Check if subscriptionDto is not null and has a valid ProductId and PlanId
             if (subscriptionDto != null && !string.IsNullOrEmpty(subscriptionDto.ProductId) && !string.IsNullOrEmpty(subscriptionDto.PlanId))

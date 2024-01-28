@@ -18,5 +18,16 @@ namespace toyiyo.todo.MultiTenancy
             : base(tenancyName, name)
         {
         }
+
+        public Tenant SetExternalSubscriptionId(string externalSubscriptionId)
+        {
+            ExternalSubscriptionId = externalSubscriptionId;
+            return this;
+        }
+        public Tenant SetSubscriptionSeats(int subscriptionSeats)
+        {
+            SubscriptionSeats = subscriptionSeats;
+            return this;
+        }
     }
 }

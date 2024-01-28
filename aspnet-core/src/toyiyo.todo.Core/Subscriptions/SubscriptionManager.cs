@@ -5,13 +5,25 @@ using Stripe;
 using toyiyo.todo.Debugging;
 using Abp.UI;
 using System;
+using Stripe.Checkout;
+using toyiyo.todo.Authorization.Users;
+using System.Threading.Tasks;
+using toyiyo.todo.MultiTenancy;
+using Abp.Domain.Uow;
 
 namespace toyiyo.todo.Core.Subscriptions
 {
     public class SubscriptionManager : DomainService, ISubscriptionManager
     {
-        public SubscriptionManager()
+        private readonly UserManager _userManager;
+        private readonly TenantManager _tenantManager;
+        private readonly ICurrentUnitOfWorkProvider _currentUnitOfWorkProvider;
+        const string secret = "whsec_...";
+        public SubscriptionManager(UserManager userManager, TenantManager tenantManager, ICurrentUnitOfWorkProvider currentUnitOfWorkProvider)
         {
+            _userManager = userManager;
+            _tenantManager = tenantManager;
+            _currentUnitOfWorkProvider = currentUnitOfWorkProvider;
             LocalizationSourceName = todoConsts.LocalizationSourceName;
 
             if (DebugHelper.IsDebug)
@@ -111,10 +123,56 @@ namespace toyiyo.todo.Core.Subscriptions
             var options = new Stripe.BillingPortal.SessionCreateOptions
             {
                 Customer = stripeCustomerId,
-                ReturnUrl= returnUrl,
+                ReturnUrl = returnUrl,
             };
             var service = new Stripe.BillingPortal.SessionService();
             return service.Create(options);
+        }
+
+        public async Task StripeWebhookHandler(string json, string stripeSignatureHeader)
+        {
+            var stripeEvent = EventUtility.ConstructEvent(
+              json,
+              stripeSignatureHeader,
+              secret
+            );
+
+            // Handle the checkout.session.completed event
+            if (stripeEvent.Type == Events.CheckoutSessionCompleted)
+            {
+                await CheckoutSessionCompletedHandler(stripeEvent);
+            }
+        }
+
+        private async Task CheckoutSessionCompletedHandler(Event stripeEvent)
+        {
+            var session = stripeEvent.Data.Object as Session;
+            var options = new SessionGetOptions();
+            options.AddExpand("line_items");
+
+            var service = new SessionService();
+            // Retrieve the session. If you require line items in the response, you may include them by expanding line_items.
+            Session sessionWithLineItems = service.Get(session.Id, options);
+            StripeList<LineItem> lineItems = sessionWithLineItems.LineItems;
+
+            // Fulfill the purchase...
+            await FulfillOrderAsync(sessionWithLineItems);
+        }
+
+        private async Task FulfillOrderAsync(Session sessionWithLineItems)
+        {
+            //Saving a copy of the order in your own database.
+            var tenant = await _tenantManager.GetByIdAsync(int.Parse(sessionWithLineItems.ClientReferenceId));
+            using (CurrentUnitOfWork.SetTenantId(tenant.Id)){
+                var user = await _userManager.FindByEmailAsync(sessionWithLineItems.CustomerEmail);  
+                await _tenantManager.SetExternalSubscriptionId(tenant, sessionWithLineItems.SubscriptionId);
+            }
+            
+            //update the tenant's seat (users) information
+        
+            //Sending the customer a receipt email.
+            //Reconciling the line items and quantity purchased by the customer if using line_item.adjustable_quantity. 
+            //If the Checkout Session has many line items you can paginate through them with the line_items.
         }
     }
 }
