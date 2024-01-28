@@ -1,4 +1,5 @@
 @model toyiyo.todo.application.subscriptions.SubscriptionDto
+@using toyiyo.todo.Debugging
 @section scripts {
     <script src="https://js.stripe.com/v3/pricing-table.js" integrity="sha384-1GZtzVnx/tj865Wa1BQLy7Ndkt0XpMD1nw68RGZ7fbSr7T3n+LUTvqeE1vllW/XP" crossorigin="anonymous"></script>
 }
@@ -32,11 +33,20 @@
                                     <a href="@Model.PortalSessionUrl" class="btn btn-primary">Manage Subscription</a>
                                 }
                                 else{
-                                    <stripe-pricing-table pricing-table-id="prctbl_1Oa38lDzmhWSJ02SwygMxqIs"
-                                        publishable-key="pk_live_51OVddkDzmhWSJ02SLnLCsejkejutSyvg2ak7ldGLyIZxAxFqmrvC0KZY7MugDKFA9SyzlB1QWXIoMDVrqRPrnvpf00dCrD5QT9"
-                                        customer-email=@ViewBag.Email
-                                        client-reference-id=@ViewBag.UserId>
-                                    </stripe-pricing-table>
+                                    <h2>Choose a plan</h2>
+                                    @if (DebugHelper.IsDebug){
+                                        <stripe-pricing-table pricing-table-id="prctbl_1OYv5hDzmhWSJ02Sx3urtlWG"
+                                            publishable-key="pk_test_51OVddkDzmhWSJ02SHRkxGo1yynnvZxWDKIF6A5sDUxz1iUSlv4ftuIPezOiBxDDe2fW17zjzvptaoHxsKhy5fn1t00DkXsOHpa"
+                                            customer-email=@ViewBag.Email
+                                            client-reference-id=@ViewBag.UserId>
+                                        </stripe-pricing-table>
+                                    } else {
+                                        <stripe-pricing-table pricing-table-id="prctbl_1Oa38lDzmhWSJ02SwygMxqIs"
+                                            publishable-key="pk_live_51OVddkDzmhWSJ02SLnLCsejkejutSyvg2ak7ldGLyIZxAxFqmrvC0KZY7MugDKFA9SyzlB1QWXIoMDVrqRPrnvpf00dCrD5QT9"
+                                            customer-email=@ViewBag.Email
+                                            client-reference-id=@ViewBag.UserId>
+                                        </stripe-pricing-table>
+                                    }
                                 }
 
                             </div>
