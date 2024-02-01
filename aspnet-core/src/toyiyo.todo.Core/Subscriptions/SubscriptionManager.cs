@@ -15,15 +15,12 @@ namespace toyiyo.todo.Core.Subscriptions
 {
     public class SubscriptionManager : DomainService, ISubscriptionManager
     {
-        private readonly UserManager _userManager;
         private readonly TenantManager _tenantManager;
-        private readonly ICurrentUnitOfWorkProvider _currentUnitOfWorkProvider;
-        const string secret = "whsec_...";
-        public SubscriptionManager(UserManager userManager, TenantManager tenantManager, ICurrentUnitOfWorkProvider currentUnitOfWorkProvider)
+        //todo: move to environment variable
+        private readonly string webhookSecret = Environment.GetEnvironmentVariable("StripeWebhookSecret");
+        public SubscriptionManager(TenantManager tenantManager)
         {
-            _userManager = userManager;
             _tenantManager = tenantManager;
-            _currentUnitOfWorkProvider = currentUnitOfWorkProvider;
             LocalizationSourceName = todoConsts.LocalizationSourceName;
 
             if (DebugHelper.IsDebug)
@@ -134,7 +131,7 @@ namespace toyiyo.todo.Core.Subscriptions
             var stripeEvent = EventUtility.ConstructEvent(
               json,
               stripeSignatureHeader,
-              secret
+              webhookSecret
             );
 
             // Handle the checkout.session.completed event
@@ -153,7 +150,6 @@ namespace toyiyo.todo.Core.Subscriptions
             var service = new SessionService();
             // Retrieve the session. If you require line items in the response, you may include them by expanding line_items.
             Session sessionWithLineItems = service.Get(session.Id, options);
-            StripeList<LineItem> lineItems = sessionWithLineItems.LineItems;
 
             // Fulfill the purchase...
             await FulfillOrderAsync(sessionWithLineItems);
@@ -163,8 +159,7 @@ namespace toyiyo.todo.Core.Subscriptions
         {
             //Saving a copy of the order in your own database.
             var tenant = await _tenantManager.GetByIdAsync(int.Parse(sessionWithLineItems.ClientReferenceId));
-            using (CurrentUnitOfWork.SetTenantId(tenant.Id)){
-                var user = await _userManager.FindByEmailAsync(sessionWithLineItems.CustomerEmail);  
+            using (CurrentUnitOfWork.SetTenantId(tenant.Id)){ 
                 await _tenantManager.SetExternalSubscriptionId(tenant, sessionWithLineItems.SubscriptionId);
             }
             
