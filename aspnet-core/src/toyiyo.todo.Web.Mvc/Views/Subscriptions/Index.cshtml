@@ -1,0 +1,59 @@
+@model toyiyo.todo.application.subscriptions.SubscriptionDto
+@using toyiyo.todo.Debugging
+@section scripts {
+    <script src="https://js.stripe.com/v3/pricing-table.js" integrity="sha384-1GZtzVnx/tj865Wa1BQLy7Ndkt0XpMD1nw68RGZ7fbSr7T3n+LUTvqeE1vllW/XP" crossorigin="anonymous"></script>
+}
+@{
+    ViewBag.Title = L("Subscription");
+    ViewBag.CurrentPageName = toyiyo.todo.Web.Startup.PageNames.Subscriptions;
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page">Subscription</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+</section>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card container-fluid m-5 p-2 rounded mx-auto bg-light shadow">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                @if (!string.IsNullOrEmpty(Model?.ProductName) && !string.IsNullOrEmpty(Model?.PortalSessionUrl) ) {
+                                    <h2>Your current plan is @Model.ProductName</h2>
+                                    <a href="@Model.PortalSessionUrl" class="btn btn-primary">Manage Subscription</a>
+                                }
+                                else{
+                                    <h2>Choose a plan</h2>
+                                    @if (DebugHelper.IsDebug){
+                                        <stripe-pricing-table pricing-table-id="prctbl_1OYv5hDzmhWSJ02Sx3urtlWG"
+                                            publishable-key="pk_test_51OVddkDzmhWSJ02SHRkxGo1yynnvZxWDKIF6A5sDUxz1iUSlv4ftuIPezOiBxDDe2fW17zjzvptaoHxsKhy5fn1t00DkXsOHpa"
+                                            customer-email=@ViewBag.Email
+                                            client-reference-id=@ViewBag.TenantId>
+                                        </stripe-pricing-table>
+                                    } else {
+                                        <stripe-pricing-table pricing-table-id="prctbl_1Oa38lDzmhWSJ02SwygMxqIs"
+                                            publishable-key="pk_live_51OVddkDzmhWSJ02SLnLCsejkejutSyvg2ak7ldGLyIZxAxFqmrvC0KZY7MugDKFA9SyzlB1QWXIoMDVrqRPrnvpf00dCrD5QT9"
+                                            customer-email=@ViewBag.Email
+                                            client-reference-id=@ViewBag.UserId>
+                                        </stripe-pricing-table>
+                                    }
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

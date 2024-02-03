@@ -192,7 +192,7 @@ namespace toyiyo.todo.Web.Controllers
                     if (loginResult.Result == AbpLoginResultType.Success)
                     {
                         await _signInManager.SignInAsync(loginResult.Identity, false);
-                        return Redirect(GetAppHomeUrl());
+                        return Redirect(GetSubscriptionUrl());
                     }
 
                     Logger.Warn("New registered user could not be login. login result: " + loginResult.Result);
@@ -590,6 +590,11 @@ namespace toyiyo.todo.Web.Controllers
         public string GetAppHomeUrl()
         {
             return Url.Action("Index", "Home");
+        }
+
+        public string GetSubscriptionUrl()
+        {
+            return Url.Action("Index", "Subscriptions");
         }
 
         #endregion
