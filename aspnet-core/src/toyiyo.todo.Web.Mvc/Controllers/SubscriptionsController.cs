@@ -37,8 +37,6 @@ namespace toyiyo.todo.Web.Controllers
             {
                 var productDto = _subscriptionsService.GetProduct(subscriptionDto.ProductId);
 
-                Console.WriteLine($"Product: {productDto.Name}");
-
                 string returnUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}{Request.QueryString}";
                 //we have an existing subscription, let's create a management session and set the URL so the user can manage their subscription
                 var portalSession = _subscriptionsService.CreatePortalSession(subscriptionDto.CustomerId, returnUrl);

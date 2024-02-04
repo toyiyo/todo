@@ -27,5 +27,11 @@ namespace toyiyo.todo.MultiTenancy
             await UpdateAsync(tenant);
             return tenant;
         }
+
+        public async Task<Tenant> SetSubscriptionSeats(Tenant tenant, int subscriptionSeats) {
+            tenant.SetSubscriptionSeats(subscriptionSeats);
+            await UpdateAsync(tenant);
+            return tenant;
+        }
     }
 }
