@@ -81,5 +81,10 @@ namespace toyiyo.todo.application.subscriptions
         /// Gets or sets the name of the product associated with the subscription.
         /// </summary>
         public string ProductName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of seats for the subscription.
+        /// </summary>
+        public int Seats { get; set; }
     }
 }

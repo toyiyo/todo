@@ -31,11 +31,13 @@ namespace toyiyo.todo.application.subscriptions
         {
             var subscription = _subscriptionManager.GetSubscriptionById(id);
             var Dto = ObjectMapper.Map<SubscriptionDto>(subscription);
+            // Since we are only selling one subscription, we can assume the first item is the one we are selling
             var firstItem = subscription?.Items?.Data?.FirstOrDefault();
             if (firstItem?.Plan != null)
             {
                 Dto.ProductId = firstItem.Plan.ProductId;
                 Dto.PlanId = firstItem.Plan.Id;
+                Dto.Seats = (int)firstItem.Quantity; // Explicitly cast the long value to int
             }
             return Dto;
         }
