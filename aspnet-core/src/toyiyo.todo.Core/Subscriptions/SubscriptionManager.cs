@@ -16,7 +16,7 @@ namespace toyiyo.todo.Core.Subscriptions
     public class SubscriptionManager : DomainService, ISubscriptionManager
     {
         private readonly TenantManager _tenantManager;
-        //todo: move to environment variable
+
         private readonly string webhookSecret = Environment.GetEnvironmentVariable("StripeWebhookSecret");
         public SubscriptionManager(TenantManager tenantManager)
         {
@@ -161,6 +161,7 @@ namespace toyiyo.todo.Core.Subscriptions
             var tenant = await _tenantManager.GetByIdAsync(int.Parse(sessionWithLineItems.ClientReferenceId));
             using (CurrentUnitOfWork.SetTenantId(tenant.Id)){ 
                 await _tenantManager.SetExternalSubscriptionId(tenant, sessionWithLineItems.SubscriptionId);
+                await _tenantManager.SetSubscriptionSeats(tenant, (int)(sessionWithLineItems?.LineItems?.Data?.FirstOrDefault()?.Quantity ?? 1));
             }
             
             //update the tenant's seat (users) information
