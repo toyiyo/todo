@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Abp.Application.Features;
 using Abp.Domain.Repositories;
+using Abp.Domain.Uow;
 using Abp.MultiTenancy;
 using toyiyo.todo.Authorization.Users;
 using toyiyo.todo.Editions;
@@ -32,6 +33,10 @@ namespace toyiyo.todo.MultiTenancy
             tenant.SetSubscriptionSeats(subscriptionSeats);
             await UpdateAsync(tenant);
             return tenant;
+        }
+
+        public async Task<Tenant> GetByExternalSubscriptionIdAsync(string externalSubscriptionId) {
+            return await UnitOfWorkManager.WithUnitOfWork(() => TenantRepository.FirstOrDefaultAsync((Tenant t) => t.ExternalSubscriptionId == externalSubscriptionId));
         }
     }
 }

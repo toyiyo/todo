@@ -139,6 +139,29 @@ namespace toyiyo.todo.Core.Subscriptions
             {
                 await CheckoutSessionCompletedHandler(stripeEvent);
             }
+            if (stripeEvent.Type == Events.CustomerSubscriptionUpdated)
+            {
+                await CustomerSubscriptionUpdatedHandler(stripeEvent);
+            }
+        }
+        /// <summary>
+        /// When a customer's subscription is updated, we find the tenant by the stripe subscription id and update the tenant's seat count
+        /// We default to 0 if the quantity is not set or there is an error retrieving the quantity
+        /// </summary>
+        /// <param name="stripeEvent"></param>
+        /// <returns></returns>
+        private async Task CustomerSubscriptionUpdatedHandler(Event stripeEvent)
+        {
+            var subscription = stripeEvent.Data.Object as Subscription;
+            var tenant = await _tenantManager.GetByExternalSubscriptionIdAsync(subscription.Id);
+            if (tenant != null)
+            {
+                using (CurrentUnitOfWork.SetTenantId(tenant.Id))
+                {
+                    var quantity = subscription.Items.Data?.FirstOrDefault()?.Quantity ?? 0;
+                    await _tenantManager.SetSubscriptionSeats(tenant, (int)quantity);
+                }
+            }
         }
 
         private async Task CheckoutSessionCompletedHandler(Event stripeEvent)
