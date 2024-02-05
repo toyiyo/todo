@@ -46,6 +46,8 @@ namespace toyiyo.todo.Authorization.Users
 
             CheckForSelfRegistration(tenant);
 
+            CheckForAvailableSeats(tenant);
+
             var user = new User
             {
                 TenantId = tenant.Id,
@@ -71,6 +73,20 @@ namespace toyiyo.todo.Authorization.Users
             await CurrentUnitOfWork.SaveChangesAsync();
 
             return user;
+        }
+
+        /// <summary>
+        /// Checks if the tenant has available seats for the user to register
+        /// </summary>
+        /// <param name="tenant"></param>
+        /// <exception cref="UserFriendlyException"></exception>
+        private void CheckForAvailableSeats(Tenant tenant)
+        {
+            var tenantUserCount = _userManager.Users.Count();
+            if (tenant.SubscriptionSeats <= tenantUserCount)
+            {
+                throw new UserFriendlyException(L("TenantMaximumUserCountReached", tenant.SubscriptionSeats));
+            } 
         }
 
         private void CheckForSelfRegistration(Tenant tenant)

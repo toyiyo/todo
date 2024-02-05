@@ -15,6 +15,7 @@ using toyiyo.todo.Authorization.Users;
 using toyiyo.todo.Editions;
 using toyiyo.todo.MultiTenancy.Dto;
 using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
 
 namespace toyiyo.todo.MultiTenancy
 {
@@ -49,6 +50,7 @@ namespace toyiyo.todo.MultiTenancy
 
             // Create tenant
             var tenant = ObjectMapper.Map<Tenant>(input);
+            tenant.AllowsSelfRegistration = true;
             tenant.ConnectionString = input.ConnectionString.IsNullOrEmpty()
                 ? null
                 : SimpleStringCipher.Instance.Encrypt(input.ConnectionString);
@@ -77,6 +79,16 @@ namespace toyiyo.todo.MultiTenancy
                 var adminRole = _roleManager.Roles.Single(r => r.Name == StaticRoleNames.Tenants.Admin);
                 await _roleManager.GrantAllPermissionsAsync(adminRole);
 
+                // Grant permissions to default user role
+                var userRole = _roleManager.Roles.Single(r => r.Name == StaticRoleNames.Tenants.User);
+                userRole.IsDefault = true;
+                await _roleManager.UpdateAsync(userRole);
+                
+                var jobsPermission = PermissionManager.GetPermission(PermissionNames.Pages_Jobs);
+                var projectsPermission = PermissionManager.GetPermission(PermissionNames.Pages_Projects);
+                var passwordChangePermission = PermissionManager.GetPermission(PermissionNames.Pages_Users_PasswordChange); 
+                await _roleManager.SetGrantedPermissionsAsync(userRole, new List<Permission> { jobsPermission, projectsPermission, passwordChangePermission });
+                
                 // Create admin user for the tenant
                 var adminUser = User.CreateTenantAdminUser(tenant.Id, input.AdminEmailAddress);
                 await _userManager.InitializeOptionsAsync(tenant.Id);

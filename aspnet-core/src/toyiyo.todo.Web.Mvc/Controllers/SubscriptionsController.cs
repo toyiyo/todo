@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Abp.AspNetCore.Mvc.Authorization;
 using Abp.Runtime.Session;
@@ -31,6 +32,7 @@ namespace toyiyo.todo.Web.Controllers
             //pass email and userid to view
             ViewBag.Email = user.EmailAddress;
             ViewBag.TenantId = AbpSession.GetTenantId();
+            ViewBag.Seats = _userManager.Users.Count();
 
             // Check if subscriptionDto is not null and has a valid ProductId and PlanId
             if (subscriptionDto != null && !string.IsNullOrEmpty(subscriptionDto.ProductId) && !string.IsNullOrEmpty(subscriptionDto.PlanId))
