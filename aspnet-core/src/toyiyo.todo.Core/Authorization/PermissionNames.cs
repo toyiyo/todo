@@ -10,5 +10,6 @@
         public const string Pages_Projects = "Pages.Projects";
         public const string Pages_Jobs = "Pages.Jobs";
         public const string Pages_Company_Profile = "Pages.Company.Profile";
+        public const string Pages_Subscription = "Pages.Subscription";
     }
 }

@@ -1,14 +1,15 @@
 using toyiyo.todo.Core.Subscriptions;
-using System;
 using System.Threading.Tasks;
-using Stripe;
 using System.Linq;
+using Abp.Authorization;
+using toyiyo.todo.Authorization;
 
 namespace toyiyo.todo.application.subscriptions
 {
     /// <summary>
     /// Represents a service for managing subscriptions.
     /// </summary>
+    [AbpAuthorize(PermissionNames.Pages_Subscription)]
     public class SubscriptionsService : todoAppServiceBase, ISubscriptionsService
     {
         private readonly ISubscriptionManager _subscriptionManager;
