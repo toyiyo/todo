@@ -10,6 +10,7 @@ using toyiyo.todo.Authorization.Users;
 using System.Threading.Tasks;
 using toyiyo.todo.MultiTenancy;
 using Abp.Domain.Uow;
+using System.Configuration;
 
 namespace toyiyo.todo.Core.Subscriptions
 {
@@ -24,8 +25,8 @@ namespace toyiyo.todo.Core.Subscriptions
             _tenantManager = tenantManager;
             _userManager = userManager;
             LocalizationSourceName = todoConsts.LocalizationSourceName;
-            _webhookSecret = Environment.GetEnvironmentVariable("StripeWebhookSecret");
-            StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("StripeAPIKeyProduction");
+            _webhookSecret = Environment.GetEnvironmentVariable("StripeWebhookSecret") ?? throw new ConfigurationErrorsException("StripeWebhookSecret environment variable is not set.");
+            StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("StripeAPIKeyProduction") ?? throw new ConfigurationErrorsException("StripeAPIKeyProduction environment variable is not set.");
         }
 
         public Subscription GetSubscriptionById(string subscriptionId)
@@ -67,6 +68,8 @@ namespace toyiyo.todo.Core.Subscriptions
 
         public async Task StripeWebhookHandler(string json, string stripeSignatureHeader)
         {
+            if (string.IsNullOrEmpty(stripeSignatureHeader)) throw new ArgumentException("stripeSignatureHeader cannot be null or empty", nameof(stripeSignatureHeader));
+
             var stripeEvent = EventUtility.ConstructEvent(
               json,
               stripeSignatureHeader,
@@ -103,6 +106,7 @@ namespace toyiyo.todo.Core.Subscriptions
                     await MatchActiveUsersToSeatsAvailable(tenant, quantity);
                 }
             }
+            LogStripeEventProcessing(stripeEvent.Type);
         }
 
         private async Task MatchActiveUsersToSeatsAvailable(Tenant tenant, long quantity)
@@ -145,6 +149,7 @@ namespace toyiyo.todo.Core.Subscriptions
 
             // Fulfill the purchase...
             await FulfillOrderAsync(sessionWithLineItems);
+            LogStripeEventProcessing(stripeEvent.Type);
         }
 
         private async Task FulfillOrderAsync(Session sessionWithLineItems)
@@ -162,6 +167,11 @@ namespace toyiyo.todo.Core.Subscriptions
             //Sending the customer a receipt email.
             //Reconciling the line items and quantity purchased by the customer if using line_item.adjustable_quantity. 
             //If the Checkout Session has many line items you can paginate through them with the line_items.
+        }
+
+        private void LogStripeEventProcessing(string eventType)
+        {
+            Logger.Info($"Processed Stripe event: {eventType}");
         }
     }
 }
