@@ -24,11 +24,7 @@ namespace toyiyo.todo.Core.Subscriptions
             _tenantManager = tenantManager;
             _userManager = userManager;
             LocalizationSourceName = todoConsts.LocalizationSourceName;
-
-            if (DebugHelper.IsDebug)
-                StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("StripeAPIKeyDebug");
-            else
-                StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("StripeAPIKeyProduction");
+            StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("StripeAPIKeyProduction");
         }
 
         public Subscription GetSubscriptionById(string subscriptionId)
