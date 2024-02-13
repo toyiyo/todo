@@ -24,7 +24,7 @@ namespace toyiyo.todo.Core.Subscriptions
             _tenantManager = tenantManager;
             _userManager = userManager;
             LocalizationSourceName = todoConsts.LocalizationSourceName;
-            _webhookSecret = Environment.GetEnvironmentVariable("StripeWebhookSecret");
+            _webhookSecret = Environment.GetEnvironmentVariable("StripeWebhookSecret") ?? throw new InvalidOperationException("StripeWebhookSecret environment variable is not set.");
             StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("StripeAPIKeyProduction");
         }
 
@@ -67,6 +67,8 @@ namespace toyiyo.todo.Core.Subscriptions
 
         public async Task StripeWebhookHandler(string json, string stripeSignatureHeader)
         {
+            if (string.IsNullOrEmpty(stripeSignatureHeader)) throw new ArgumentException("stripeSignatureHeader cannot be null or empty", nameof(stripeSignatureHeader));
+            
             var stripeEvent = EventUtility.ConstructEvent(
               json,
               stripeSignatureHeader,
@@ -103,6 +105,7 @@ namespace toyiyo.todo.Core.Subscriptions
                     await MatchActiveUsersToSeatsAvailable(tenant, quantity);
                 }
             }
+            Logger.Info($"Processed Stripe event: {stripeEvent.Type}");
         }
 
         private async Task MatchActiveUsersToSeatsAvailable(Tenant tenant, long quantity)
@@ -145,6 +148,7 @@ namespace toyiyo.todo.Core.Subscriptions
 
             // Fulfill the purchase...
             await FulfillOrderAsync(sessionWithLineItems);
+            Logger.Info($"Processed Stripe event: {stripeEvent.Type}");
         }
 
         private async Task FulfillOrderAsync(Session sessionWithLineItems)
