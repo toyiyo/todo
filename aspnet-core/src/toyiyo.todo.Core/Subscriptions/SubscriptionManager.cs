@@ -18,12 +18,13 @@ namespace toyiyo.todo.Core.Subscriptions
         private readonly TenantManager _tenantManager;
         private readonly UserManager _userManager;
 
-        private readonly string webhookSecret = Environment.GetEnvironmentVariable("StripeWebhookSecret");
+        private readonly string _webhookSecret;
         public SubscriptionManager(TenantManager tenantManager, UserManager userManager)
         {
             _tenantManager = tenantManager;
             _userManager = userManager;
             LocalizationSourceName = todoConsts.LocalizationSourceName;
+            _webhookSecret = Environment.GetEnvironmentVariable("StripeWebhookSecret");
             StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("StripeAPIKeyProduction");
         }
 
@@ -69,7 +70,7 @@ namespace toyiyo.todo.Core.Subscriptions
             var stripeEvent = EventUtility.ConstructEvent(
               json,
               stripeSignatureHeader,
-              webhookSecret
+              _webhookSecret
             );
 
             // Handle the checkout.session.completed event
