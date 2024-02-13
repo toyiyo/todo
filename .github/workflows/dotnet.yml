@@ -39,7 +39,6 @@ jobs:
         DefaultPassword: ${{ secrets.DEFAULT_PASSWORD_FOR_TEST }}
         GoogleClientId: ${{ secrets.DEFAULT_PASSWORD_FOR_TEST }}
         GoogleClietSecret: ${{ secrets.DEFAULT_PASSWORD_FOR_TEST }}
-        StripeAPIKeyDebug: ${{ secrets.STRIPE_API_KEY_DEBUG}}
         StripeAPIKeyProduction: ${{ secrets.STRIPE_API_KEY_DEBUG}}
       run: |
         dotnet tool install --global dotnet-coverage
