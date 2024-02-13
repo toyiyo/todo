@@ -16,77 +16,19 @@ namespace toyiyo.todo.Core.Subscriptions
     public class SubscriptionManager : DomainService, ISubscriptionManager
     {
         private readonly TenantManager _tenantManager;
+        private readonly UserManager _userManager;
 
         private readonly string webhookSecret = Environment.GetEnvironmentVariable("StripeWebhookSecret");
-        public SubscriptionManager(TenantManager tenantManager)
+        public SubscriptionManager(TenantManager tenantManager, UserManager userManager)
         {
             _tenantManager = tenantManager;
+            _userManager = userManager;
             LocalizationSourceName = todoConsts.LocalizationSourceName;
 
             if (DebugHelper.IsDebug)
                 StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("StripeAPIKeyDebug");
             else
                 StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("StripeAPIKeyProduction");
-        }
-
-        public Customer GetSubscriptionCustomerByEmail(string email)
-        {
-            try
-            {
-                var options = new CustomerListOptions
-                {
-                    Email = email
-                };
-                var service = new CustomerService();
-                StripeList<Customer> customers = service.List(options);
-
-                if (!customers.Data.Any())
-                {
-                    throw new UserFriendlyException(L("GetSubscriptionCustomerByEmailNotFound", email));
-                }
-
-                return customers.Data.FirstOrDefault();
-            }
-            catch (StripeException e)
-            {
-                throw new UserFriendlyException(L("StripeApiError", e.StripeError.Code));
-            }
-            catch (System.Exception e)
-            {
-                throw new UserFriendlyException(L("GetSubscriptionCustomerByEmailError", e.Message));
-            }
-        }
-        public StripeList<Subscription> GetSubscriptionByEmail(string email)
-        {
-            try
-            {
-                Customer customer = GetSubscriptionCustomerByEmail(email) ?? throw new UserFriendlyException(L("GetSubscriptionCustomerByEmailNotFound", email));
-
-                var options = new SubscriptionListOptions
-                {
-                    Customer = customer.Id,
-                    Status = "active",
-                };
-
-                var service = new SubscriptionService();
-
-                StripeList<Subscription> subscriptions = service.List(options);
-
-                if (!subscriptions.Data.Any())
-                {
-                    throw new UserFriendlyException(L("SubscriptionsNotFoundError", email));
-                }
-
-                return subscriptions;
-            }
-            catch (StripeException e)
-            {
-                throw new UserFriendlyException(L("StripeApiError", e.StripeError.Code));
-            }
-            catch (System.Exception e)
-            {
-                throw new UserFriendlyException(L("GetSubscriptionByEmailError", e.Message));
-            }
         }
 
         public Subscription GetSubscriptionById(string subscriptionId)
@@ -139,6 +81,59 @@ namespace toyiyo.todo.Core.Subscriptions
             {
                 await CheckoutSessionCompletedHandler(stripeEvent);
             }
+            if (stripeEvent.Type == Events.CustomerSubscriptionUpdated)
+            {
+                await CustomerSubscriptionUpdatedHandler(stripeEvent);
+            }
+        }
+        /// <summary>
+        /// When a customer's subscription is updated, we find the tenant by the stripe subscription id and update the tenant's seat count
+        /// We default to 0 if the quantity is not set or there is an error retrieving the quantity
+        /// </summary>
+        /// <param name="stripeEvent"></param>
+        /// <returns></returns>
+        private async Task CustomerSubscriptionUpdatedHandler(Event stripeEvent)
+        {
+            var subscription = stripeEvent.Data.Object as Subscription;
+            var tenant = await _tenantManager.GetByExternalSubscriptionIdAsync(subscription.Id);
+            if (tenant != null)
+            {
+                using (CurrentUnitOfWork.SetTenantId(tenant.Id))
+                {
+                    var quantity = subscription.Items.Data?.FirstOrDefault()?.Quantity ?? 0;
+                    await _tenantManager.SetSubscriptionSeats(tenant, (int)quantity);
+
+                    await MatchActiveUsersToSeatsAvailable(tenant, quantity);
+                }
+            }
+        }
+
+        private async Task MatchActiveUsersToSeatsAvailable(Tenant tenant, long quantity)
+        {
+            var tenantUsers = _userManager.Users.Where(u => u.TenantId == tenant.Id).ToList();
+            var activeUsers = tenantUsers.Where(u => u.IsActive).ToList();
+
+            if (activeUsers.Count > quantity)
+            {
+                // If the number of active users is more than the new quantity, deactivate the recently created users
+                var usersToDeactivate = activeUsers.OrderByDescending(u => u.CreationTime).Take((int)(activeUsers.Count - quantity));
+                foreach (var user in usersToDeactivate)
+                {
+                    user.IsActive = false;
+                    await _userManager.UpdateAsync(user);
+                }
+            }
+            else if (activeUsers.Count < quantity)
+            {
+                // If the number of active users is less than the new quantity, activate the previously inactive users
+                var inactiveUsers = tenantUsers.Except(activeUsers).ToList();
+                var usersToActivate = inactiveUsers.OrderBy(u => u.CreationTime).Take((int)(quantity - activeUsers.Count));
+                foreach (var user in usersToActivate)
+                {
+                    user.IsActive = true;
+                    await _userManager.UpdateAsync(user);
+                }
+            }
         }
 
         private async Task CheckoutSessionCompletedHandler(Event stripeEvent)
@@ -159,13 +154,14 @@ namespace toyiyo.todo.Core.Subscriptions
         {
             //Saving a copy of the order in your own database.
             var tenant = await _tenantManager.GetByIdAsync(int.Parse(sessionWithLineItems.ClientReferenceId));
-            using (CurrentUnitOfWork.SetTenantId(tenant.Id)){ 
+            using (CurrentUnitOfWork.SetTenantId(tenant.Id))
+            {
                 await _tenantManager.SetExternalSubscriptionId(tenant, sessionWithLineItems.SubscriptionId);
                 await _tenantManager.SetSubscriptionSeats(tenant, (int)(sessionWithLineItems?.LineItems?.Data?.FirstOrDefault()?.Quantity ?? 1));
             }
-            
+
             //update the tenant's seat (users) information
-        
+
             //Sending the customer a receipt email.
             //Reconciling the line items and quantity purchased by the customer if using line_item.adjustable_quantity. 
             //If the Checkout Session has many line items you can paginate through them with the line_items.

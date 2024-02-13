@@ -24,6 +24,13 @@ namespace toyiyo.todo.Authorization.Roles
                     MultiTenancySides.Tenant
                 )
             );
+
+            roleManagementConfig.StaticRoles.Add(
+                new StaticRoleDefinition(
+                    StaticRoleNames.Tenants.User,
+                    MultiTenancySides.Tenant
+                )
+            );
         }
     }
 }

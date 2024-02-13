@@ -95,6 +95,7 @@
     <text name="TenantIdIsNotActive{0}">CompanyId {0} is not active</text>
     <text name="UnknownTenantId{0}">Unknown companyId {0}</text>
     <text name="TenantSelfRegistrationIsDisabled{0}">self registration is disabled for {0}</text>
+    <text name="TenantMaximumUserCountReached">Maximum seats reached, contact the administrator to update the subscription</text>
     <text name="ThisFieldIsRequired">This field is required</text>
     <text name="PleaseWait">Please wait...</text>
     <text name="Administration">Administration</text>

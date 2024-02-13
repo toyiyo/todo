@@ -41,7 +41,7 @@ namespace toyiyo.todo.Tests.Tenants
             tenant.ShouldNotBeNull();
             tenant.Name.ShouldBe(createTenantDto.Name);
             tenant.IsActive.ShouldBe(createTenantDto.IsActive);
-            tenant.AllowsSelfRegistration.ShouldBe(false);
+            tenant.AllowsSelfRegistration.ShouldBe(true);
         }
 
         [Fact]

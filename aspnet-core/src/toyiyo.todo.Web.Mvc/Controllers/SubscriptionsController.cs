@@ -1,16 +1,18 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Abp.AspNetCore.Mvc.Authorization;
 using Abp.Runtime.Session;
 using Microsoft.AspNetCore.Mvc;
 using toyiyo.todo.application.subscriptions;
+using toyiyo.todo.Authorization;
 using toyiyo.todo.Authorization.Users;
 using toyiyo.todo.Controllers;
 using toyiyo.todo.Users;
 
 namespace toyiyo.todo.Web.Controllers
 {
-    [AbpMvcAuthorize]
+    [AbpMvcAuthorize(PermissionNames.Pages_Subscription)]
     public class SubscriptionsController : todoControllerBase
     {
         private readonly ISubscriptionsService _subscriptionsService;
@@ -31,6 +33,7 @@ namespace toyiyo.todo.Web.Controllers
             //pass email and userid to view
             ViewBag.Email = user.EmailAddress;
             ViewBag.TenantId = AbpSession.GetTenantId();
+            ViewBag.Seats = _userManager.Users.Count();
 
             // Check if subscriptionDto is not null and has a valid ProductId and PlanId
             if (subscriptionDto != null && !string.IsNullOrEmpty(subscriptionDto.ProductId) && !string.IsNullOrEmpty(subscriptionDto.PlanId))

@@ -200,8 +200,8 @@ namespace toyiyo.todo.Web.Controllers
 
                 return NavigateToRegisterResultsView(tenantDto, user, isEmailConfirmationRequiredForLogin);
             }
-            catch (UserFriendlyException ex) {return SetErrorAndRedirect(model, ex);}
-            catch (Exception ex) {return SetErrorAndRedirect(model, ex);}
+            catch (UserFriendlyException ex) { return SetErrorAndRedirect(model, ex); }
+            catch (Exception ex) { return SetErrorAndRedirect(model, ex); }
 
 
         }
@@ -303,6 +303,7 @@ namespace toyiyo.todo.Web.Controllers
         private async Task<TenantDto> CreateTenantAsync(CreateTenantDto input)
         {
             var tenant = ObjectMapper.Map<Tenant>(input);
+            tenant.AllowsSelfRegistration = true;
             tenant.ConnectionString = input.ConnectionString.IsNullOrEmpty()
                 ? null
                 : SimpleStringCipher.Instance.Encrypt(input.ConnectionString);
@@ -330,6 +331,17 @@ namespace toyiyo.todo.Web.Controllers
                 // Grant all permissions to admin role
                 var adminRole = _roleManager.Roles.Single(r => r.Name == StaticRoleNames.Tenants.Admin);
                 await _roleManager.GrantAllPermissionsAsync(adminRole);
+
+                // Grant permissions to default user role
+                var userRole = _roleManager.Roles.Single(r => r.Name == StaticRoleNames.Tenants.User);
+                userRole.IsDefault = true;
+                await _roleManager.UpdateAsync(userRole);
+                
+                var jobsPermission = PermissionManager.GetPermission(PermissionNames.Pages_Jobs);
+                var projectsPermission = PermissionManager.GetPermission(PermissionNames.Pages_Projects);
+                var passwordChangePermission = PermissionManager.GetPermission(PermissionNames.Pages_Users_PasswordChange);
+                await _roleManager.SetGrantedPermissionsAsync(userRole, new List<Permission> { jobsPermission, projectsPermission, passwordChangePermission });
+
 
                 // Create admin user for the tenant
                 var adminUser = Authorization.Users.User.CreateTenantAdminUser(tenant.Id, input.AdminEmailAddress);
