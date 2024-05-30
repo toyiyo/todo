@@ -27,3 +27,4 @@ We are just getting started, so documentation is on the light side at the moment
 * connecting to heroku looks like `Default": "User ID=[User];Password=[Password];Host=[Host].compute-1.amazonaws.com;Port=5432;Database=[Database];Pooling=true;Pooling=true;SSL Mode=Require;trustservercertificate=true;"`
 * `SSL Mode=Require;trustservercertificate=true;` are a must to connect to Heroku
 * Save the connection string to your local environment under the name `ToyiyoDb` - this would be your local instance
+
