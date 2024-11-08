@@ -172,7 +172,7 @@
         document.getElementById('backlog-icon').innerHTML = backlogFavicon;
         document.getElementById('in-progress-icon').innerHTML = inProgressFavicon;
         document.getElementById('done-icon').innerHTML = doneFavicon;
-        document.getElementById('epic-icon').innerHTML = epicFavicon;
+
     });
 
 
