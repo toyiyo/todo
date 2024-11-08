@@ -95,6 +95,11 @@
             var $advSearch = $(obj);
             setAdvSearchDropdownMenuWidth($advSearch);
             setAdvSearchStopingPropagations($advSearch);
+            $advSearch.find('.btn-clear').on('click', function () {
+                var $input = $(this).closest('.input-group').find('.txt-search');
+                $input.val('');
+                $input.closest('form').submit();
+            });
         });
     }
 
