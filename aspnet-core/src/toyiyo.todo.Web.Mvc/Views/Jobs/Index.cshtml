@@ -92,9 +92,9 @@
                         <div class="row">
                             <div class="col-sm-12 col-md-3">
                                 <div id="epicsPanel" class="epics-panel d-none">
-                                    <div class="list-group" id="epics-list">
+                                    <div class="table" id="epics-list">
                                         @await Html.PartialAsync("~/Views/Shared/Components/_AddJobByTitle.cshtml", new JobCreateInputDto { Level = JobLevel.Epic })
-                                            <div class="card-body">
+                                            <div class="table">
                                                 <div class="list-group" id="list-tab-epics" role="tablist">
                                             </div>
                                         </div>

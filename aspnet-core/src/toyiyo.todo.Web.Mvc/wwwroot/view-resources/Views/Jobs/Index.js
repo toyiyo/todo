@@ -356,18 +356,19 @@
         }
     });
 
-    //handle filtering by selected epic
     $(document).on('click', '.epic-filter', function (_e) {
+        var $parent = $(this).parent(); // Get the parent element
+    
         // If the epic is already active, clear the selection
-        if ($(this).hasClass('selected')) {
-            $(this).removeClass('selected active');
+        if ($parent.hasClass('selected')) {
+            $parent.removeClass('selected active');
             $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
         } else {
             // If the epic is not active, select it
             // First, remove 'selected' and 'active' classes from all items
-            $('.epic-filter').removeClass('selected active');
-            // Then, add 'selected' and 'active' classes to the clicked item
-            $(this).addClass('selected active');
+            $('.epic-filter').parent().removeClass('selected active');
+            // Then, add 'selected' and 'active' classes to the clicked item's parent
+            $parent.addClass('selected active');
             $('#SelectedEpicId').val($(this).attr('data-epic-id-filter'));
         }
         _$jobsTable.ajax.reload();
@@ -378,8 +379,16 @@
         '</svg>';
 
     const createListItem = function (item) {
-        return '<div class="d-flex align-items-center">' +
-            '<a class="list-group-item list-group-item-action epic-filter flex-grow-1 seamless-list-group" id="list-' + item.id + '-list" data-epic-id-filter="' + item.id + '" data-toggle="pill" href="#list-' + item.id + '" role="tab" aria-controls="list-' + item.id + '">' + item.title + '</a>' +
+        return '<div class="epic-filter d-flex align-items-center list-group-item list-group-item-action cursor-pointer" ' +
+            'draggable="true" ' +
+            'id="list-' + item.id + '-list" ' +
+            'data-epic-id-filter="' + item.id + '" ' +
+            'data-toggle="pill" ' +
+            'role="tab" ' +
+            'aria-controls="list-' + item.id + '">' + 
+            '<div class="flex-grow-1">' + 
+                item.title + 
+            '</div>' +
             '<button type="button" class="btn btn-sm bg-default edit-job" data-job-id="' + item.id + '" data-job-status="0" data-toggle="modal" data-target="#JobEditModal">' +
             pencilIconSvg +
             '</button></div>';
@@ -439,6 +448,57 @@
             abp.ui.clearBusy(_$createEpicForm);
         });
     }
+
+        // Function to get order by date for epics
+        const getOrderByDateForEpics = function (updatesArray, reorderedRow) {
+            var rowMoved = updatesArray.filter(item => item.oldData === reorderedRow.triggerRow.data()["orderByDate"])[0];
+    
+            if (rowMoved != null) {
+                var moveDirection = (rowMoved.oldPosition - rowMoved.newPosition) > 0 ? "newer" : "older";
+                var movedIntoOrderDate = rowMoved.newData;
+    
+                if (moveDirection === "newer") {
+                    var newerOrderByDate = new Date(movedIntoOrderDate);
+                    var millisecondsAdded = newerOrderByDate.getMilliseconds() + 1;
+                    newerOrderByDate.setMilliseconds(millisecondsAdded);
+                    return newerOrderByDate;
+                } else {
+                    var olderOrderByDate = new Date(movedIntoOrderDate);
+                    var millisecondsReduced = olderOrderByDate.getMilliseconds() - 1;
+                    olderOrderByDate.setMilliseconds(millisecondsReduced);
+                    return olderOrderByDate;
+                }
+            }
+        };
+    
+        // Handle re-order event by saving the order by date for epics
+        $('#list-tab-epics').on('row-reorder', function (e, diff, edit) {
+            const epicId = edit.triggerRow.data()["id"];
+            const orderByDate = getOrderByDateForEpics(diff, edit);
+    
+            // If no new order by date is found, it means we moved the row in place and no change is necessary
+            if (orderByDate != null) {
+                const epicPatchOrderByDateInputDto = { id: epicId, orderByDate: orderByDate };
+    
+                e.preventDefault();
+    
+                _epicService.patchOrderByDate(epicPatchOrderByDateInputDto)
+                    .done(function () { })
+                    .always(function () {
+                        abp.ui.clearBusy(_$EpicCreateModal);
+                    });
+            }
+        });
+    
+        // Initialize sortable for epics table
+        $('#list-tab-epics tbody').sortable({
+            update: function (event, ui) {
+                var epicId = ui.item.data('id');
+                var newIndex = ui.item.index();
+                reorderEpics(epicId, newIndex);
+            }
+        });
+    
 
     //create a subtask when the button is clicked
     _$createEpicForm.find('.create-by-title-button').on('click', function () {

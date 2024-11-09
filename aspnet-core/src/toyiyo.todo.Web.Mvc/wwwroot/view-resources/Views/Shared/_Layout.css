@@ -25,3 +25,26 @@
     padding: 8px;
     vertical-align: middle;
 }
+
+.epic-filter.list-group-item {
+    color: #212529 !important;
+    background-color: transparent !important;
+}
+
+.epic-filter.list-group-item.selected {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    color: #212529 !important;
+}
+
+.epic-filter.list-group-item:hover {
+    background-color: rgba(0, 0, 0, 0.075) !important;
+    color: #212529 !important;
+}
+
+.epic-filter .btn {
+    color: inherit !important;
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+
