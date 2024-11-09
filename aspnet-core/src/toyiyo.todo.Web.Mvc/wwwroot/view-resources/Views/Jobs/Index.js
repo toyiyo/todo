@@ -158,6 +158,15 @@
         ]
     });
 
+    _$jobsTable.on('draw', function() {
+        // Make table rows draggable
+        $('.title').attr('draggable', true).on('dragstart', function(e) {
+            const jobId = $(this).closest('tr').find('.edit-job').attr('data-job-id');
+            e.originalEvent.dataTransfer.setData('text/plain', jobId);
+        });
+    });
+    
+
     //Initializers
     $(window).on('load', function () {
         const jobId = $('#JobId').val();
@@ -224,6 +233,17 @@
             _$jobsTable.ajax.reload();
             return false;
         }
+    });
+
+    $('.btn-clear').on('click', (e) => {
+        e.preventDefault();
+        const $form = $(e.currentTarget).closest('form');
+        $form.find('input[type=search]').val('');
+        $('#SelectedJobStatus').val('');
+        $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
+        $('.job-status-filter').removeClass('active');
+        $('.epic-filter').parent().removeClass('selected active');
+        _$jobsTable.ajax.reload();
     });
 
     //Job status handler
@@ -507,6 +527,51 @@
                         });
                 }
             });
+            epicsList.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                const target = e.target.closest('.epic-filter');
+                if (target) {
+                    // Remove dragover class from all epics
+                    document.querySelectorAll('.epic-filter').forEach(epic => {
+                        epic.classList.remove('dragover');
+                    });
+                    // Add dragover class to current target
+                    target.classList.add('dragover');
+                }
+            });
+            
+            epicsList.addEventListener('dragleave', function(e) {
+                const target = e.target.closest('.epic-filter');
+                if (target) {
+                    target.classList.remove('dragover');
+                }
+            });
+            
+            epicsList.addEventListener('drop', function(e) {
+                e.preventDefault();
+                // Remove dragover class from all epics
+                document.querySelectorAll('.epic-filter').forEach(epic => {
+                    epic.classList.remove('dragover');
+                });
+                
+                const jobId = e.dataTransfer.getData('text/plain');
+                const targetEpic = e.target.closest('.epic-filter');
+                
+                if (targetEpic) {
+                    const epicId = targetEpic.getAttribute('data-epic-id-filter');
+                    
+                    _jobService.setParent({
+                        id: jobId,
+                        parentId: epicId
+                    }).done(function() {
+                        abp.notify.success(l('SavedSuccessfully'));
+                        _$jobsTable.ajax.reload();
+                    }).fail(function() {
+                        abp.notify.error(l('ErrorWhileSaving'));
+                    });
+                }
+            });
+
         }
     });
    

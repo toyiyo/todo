@@ -48,3 +48,20 @@
     cursor: pointer;
 }
 
+.title[draggable=true] {
+    cursor: move;
+}
+.epic-filter.dragover {
+    background-color: rgba(0, 123, 255, 0.1) !important;
+    border: 2px dashed #007bff !important;
+    position: relative;
+}
+
+.epic-filter.dragover::after {
+    content: 'Add to this epic';
+    position: absolute;
+    right: 10px;
+    color: #007bff;
+    font-style: italic;
+}
+
