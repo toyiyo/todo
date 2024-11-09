@@ -476,99 +476,119 @@
 
     $(document).ready(function () {
         const epicsList = document.getElementById('list-tab-epics');
+        let isInternalDrag = false;
+
         if (epicsList) {
             new Sortable(epicsList, {
                 animation: 150,
                 handle: '.drag-handle',
                 ghostClass: 'sortable-ghost',
-                onEnd: function (evt) {
-                    const items = Array.from(evt.to.children);
-                    const movedItem = evt.item;
-                    const newIndex = evt.newIndex;
-                    const oldIndex = evt.oldIndex;
-                    
-                    // Get adjacent items' dates
-                    const prevItem = items[newIndex - 1];
-                    const nextItem = items[newIndex + 1];
-                    
-                    // Calculate new orderByDate
-                    let newOrderByDate;
-                    if (!prevItem && !nextItem) {
-                        newOrderByDate = new Date();
-                    } else if (!prevItem) {
-                        newOrderByDate = new Date(new Date(nextItem.dataset.orderDatetime).getTime() + 1000);
-                    } else if (!nextItem) {
-                        newOrderByDate = new Date(new Date(prevItem.dataset.orderDatetime).getTime() - 1000);
-                    } else {
-                        const prevDate = new Date(prevItem.dataset.orderDatetime).getTime();
-                        const nextDate = new Date(nextItem.dataset.orderDatetime).getTime();
-                        newOrderByDate = new Date((prevDate + nextDate) / 2);
+                onStart: function() {
+                    isInternalDrag = true;
+                    if (!evt.item.querySelector('.drag-handle').contains(evt.originalEvent.target)) {
+                        evt.preventDefault();
+                        return;
                     }
-    
-                    // Update backend
-                    const epicId = movedItem.getAttribute('data-epic-id-filter');
-                    const epicPatchOrderByDateInputDto = { 
-                        id: epicId, 
-                        orderByDate: newOrderByDate 
-                    };
-    
-                    _jobService.patchOrderByDate(epicPatchOrderByDateInputDto)
-                        .done(function () {
-                            abp.notify.success(l('SavedSuccessfully'));
-                        })
-                        .fail(function () {
-                            abp.notify.error(l('ErrorWhileSaving'));
-                            // Revert the move on failure
-                            if (oldIndex < newIndex) {
-                                evt.to.insertBefore(movedItem, items[oldIndex]);
-                            } else {
-                                evt.to.insertBefore(movedItem, items[oldIndex + 1]);
-                            }
-                        });
+                },
+                onEnd: function(evt) {
+                    isInternalDrag = false;
+                    // Only handle reordering if the epic was actually moved
+                    if (evt.oldIndex !== evt.newIndex) {
+                        const items = Array.from(evt.to.children);
+                        const movedItem = evt.item;
+                        const newIndex = evt.newIndex;
+                        const oldIndex = evt.oldIndex;
+                        
+                        // Get adjacent items' dates
+                        const prevItem = items[newIndex - 1];
+                        const nextItem = items[newIndex + 1];
+                        
+                        // Calculate new orderByDate
+                        let newOrderByDate;
+                        if (!prevItem && !nextItem) {
+                            newOrderByDate = new Date();
+                        } else if (!prevItem) {
+                            newOrderByDate = new Date(new Date(nextItem.getAttribute('data-order-datetime')).getTime() + 1000);
+                        } else if (!nextItem) {
+                            newOrderByDate = new Date(new Date(prevItem.getAttribute('data-order-datetime')).getTime() - 1000);
+                        } else {
+                            const prevDate = new Date(prevItem.getAttribute('data-order-datetime')).getTime();
+                            const nextDate = new Date(nextItem.getAttribute('data-order-datetime')).getTime();
+                            newOrderByDate = new Date((prevDate + nextDate) / 2);
+                        }
+        
+                        // Update backend
+                        const epicId = movedItem.getAttribute('data-epic-id-filter');
+                        const epicPatchOrderByDateInputDto = { 
+                            id: epicId, 
+                            orderByDate: newOrderByDate 
+                        };
+        
+                        _jobService.patchOrderByDate(epicPatchOrderByDateInputDto)
+                            .done(function () {
+                                abp.notify.success(l('SavedSuccessfully'));
+                            })
+                            .fail(function () {
+                                abp.notify.error(l('ErrorWhileSaving'));
+                                // Revert the move on failure
+                                if (oldIndex < newIndex) {
+                                    evt.to.insertBefore(movedItem, items[oldIndex]);
+                                } else {
+                                    evt.to.insertBefore(movedItem, items[oldIndex + 1]);
+                                }
+                            });
+                    }
                 }
             });
+
             epicsList.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                const target = e.target.closest('.epic-filter');
-                if (target) {
+                if (!isInternalDrag) {
+                    e.preventDefault();
+                    const target = e.target.closest('.epic-filter');
+                    if (target) {
+                        // Remove dragover class from all epics
+                        document.querySelectorAll('.epic-filter').forEach(epic => {
+                            epic.classList.remove('dragover');
+                        });
+                        // Add dragover class to current target
+                        target.classList.add('dragover');
+                    }
+                }
+            });
+
+            epicsList.addEventListener('dragleave', function(e) {
+                if (!isInternalDrag) {
+                    const target = e.target.closest('.epic-filter');
+                    if (target) {
+                        target.classList.remove('dragover');
+                    }
+                }
+            });
+
+            epicsList.addEventListener('drop', function(e) {
+                if (!isInternalDrag) {
+                    e.preventDefault();
                     // Remove dragover class from all epics
                     document.querySelectorAll('.epic-filter').forEach(epic => {
                         epic.classList.remove('dragover');
                     });
-                    // Add dragover class to current target
-                    target.classList.add('dragover');
-                }
-            });
-            
-            epicsList.addEventListener('dragleave', function(e) {
-                const target = e.target.closest('.epic-filter');
-                if (target) {
-                    target.classList.remove('dragover');
-                }
-            });
-            
-            epicsList.addEventListener('drop', function(e) {
-                e.preventDefault();
-                // Remove dragover class from all epics
-                document.querySelectorAll('.epic-filter').forEach(epic => {
-                    epic.classList.remove('dragover');
-                });
-                
-                const jobId = e.dataTransfer.getData('text/plain');
-                const targetEpic = e.target.closest('.epic-filter');
-                
-                if (targetEpic) {
-                    const epicId = targetEpic.getAttribute('data-epic-id-filter');
                     
-                    _jobService.setParent({
-                        id: jobId,
-                        parentId: epicId
-                    }).done(function() {
-                        abp.notify.success(l('SavedSuccessfully'));
-                        _$jobsTable.ajax.reload();
-                    }).fail(function() {
-                        abp.notify.error(l('ErrorWhileSaving'));
-                    });
+                    const jobId = e.dataTransfer.getData('text/plain');
+                    const targetEpic = e.target.closest('.epic-filter');
+                    
+                    if (targetEpic) {
+                        const epicId = targetEpic.getAttribute('data-epic-id-filter');
+                        
+                        _jobService.setParent({
+                            id: jobId,
+                            parentId: epicId
+                        }).done(function() {
+                            abp.notify.success(l('SavedSuccessfully'));
+                            _$jobsTable.ajax.reload();
+                        }).fail(function() {
+                            abp.notify.error(l('ErrorWhileSaving'));
+                        });
+                    }
                 }
             });
 
@@ -630,7 +650,3 @@
     };
 
 })(jQuery);
-
-
-
-
