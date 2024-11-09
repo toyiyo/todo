@@ -182,6 +182,14 @@
       "files": [
         "js/dataTables.rowGroup.min.js"
       ]
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "sortablejs@1.15.0",
+      "destination": "wwwroot/libs/sortablejs",
+      "files": [
+        "Sortable.min.js"
+      ]
     }
   ]
 }

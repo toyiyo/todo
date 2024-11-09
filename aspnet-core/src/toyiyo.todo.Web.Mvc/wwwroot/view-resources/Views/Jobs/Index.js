@@ -378,22 +378,27 @@
         '<path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"></path>' +
         '</svg>';
 
-    const createListItem = function (item) {
-        return '<div class="epic-filter d-flex align-items-center list-group-item list-group-item-action cursor-pointer" ' +
-            'draggable="true" ' +
-            'id="list-' + item.id + '-list" ' +
-            'data-epic-id-filter="' + item.id + '" ' +
-            'data-toggle="pill" ' +
-            'role="tab" ' +
-            'aria-controls="list-' + item.id + '">' + 
-            '<div class="flex-grow-1">' + 
-                item.title + 
-            '</div>' +
-            '<button type="button" class="btn btn-sm bg-default edit-job" data-job-id="' + item.id + '" data-job-status="0" data-toggle="modal" data-target="#JobEditModal">' +
-            pencilIconSvg +
-            '</button></div>';
-    };
-
+        const createListItem = function (item) {
+            return '<div class="epic-filter d-flex align-items-center list-group-item list-group-item-action cursor-pointer" ' +
+                'draggable="true" ' +
+                'id="list-' + item.id + '-list" ' +
+                'data-epic-id-filter="' + item.id + '" ' +
+                'data-order-datetime="' + item.orderByDate + '" ' + // Add orderByDate for tracking
+                'data-toggle="pill" ' +
+                'role="tab" ' +
+                'aria-controls="list-' + item.id + '">' + 
+                '<div class="flex-grow-1">' + 
+                    '<span class="drag-handle mr-2">' +
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grip-vertical" viewBox="0 0 16 16">' +
+                    '<path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>' +
+                    '</svg>' +
+                    '</span>' +
+                    item.title + 
+                '</div>' +
+                '<button type="button" class="btn btn-sm bg-default edit-job" data-job-id="' + item.id + '" data-job-status="0" data-toggle="modal" data-target="#JobEditModal">' +
+                pencilIconSvg +
+                '</button></div>';
+        };
     const addEpicRow = function (item) {
         $('#list-tab-epics').append(createListItem(item));
     };
@@ -449,55 +454,62 @@
         });
     }
 
-        // Function to get order by date for epics
-        const getOrderByDateForEpics = function (updatesArray, reorderedRow) {
-            var rowMoved = updatesArray.filter(item => item.oldData === reorderedRow.triggerRow.data()["orderByDate"])[0];
+    $(document).ready(function () {
+        const epicsList = document.getElementById('list-tab-epics');
+        if (epicsList) {
+            new Sortable(epicsList, {
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost',
+                onEnd: function (evt) {
+                    const items = Array.from(evt.to.children);
+                    const movedItem = evt.item;
+                    const newIndex = evt.newIndex;
+                    const oldIndex = evt.oldIndex;
+                    
+                    // Get adjacent items' dates
+                    const prevItem = items[newIndex - 1];
+                    const nextItem = items[newIndex + 1];
+                    
+                    // Calculate new orderByDate
+                    let newOrderByDate;
+                    if (!prevItem && !nextItem) {
+                        newOrderByDate = new Date();
+                    } else if (!prevItem) {
+                        newOrderByDate = new Date(new Date(nextItem.dataset.orderDatetime).getTime() + 1000);
+                    } else if (!nextItem) {
+                        newOrderByDate = new Date(new Date(prevItem.dataset.orderDatetime).getTime() - 1000);
+                    } else {
+                        const prevDate = new Date(prevItem.dataset.orderDatetime).getTime();
+                        const nextDate = new Date(nextItem.dataset.orderDatetime).getTime();
+                        newOrderByDate = new Date((prevDate + nextDate) / 2);
+                    }
     
-            if (rowMoved != null) {
-                var moveDirection = (rowMoved.oldPosition - rowMoved.newPosition) > 0 ? "newer" : "older";
-                var movedIntoOrderDate = rowMoved.newData;
+                    // Update backend
+                    const epicId = movedItem.getAttribute('data-epic-id-filter');
+                    const epicPatchOrderByDateInputDto = { 
+                        id: epicId, 
+                        orderByDate: newOrderByDate 
+                    };
     
-                if (moveDirection === "newer") {
-                    var newerOrderByDate = new Date(movedIntoOrderDate);
-                    var millisecondsAdded = newerOrderByDate.getMilliseconds() + 1;
-                    newerOrderByDate.setMilliseconds(millisecondsAdded);
-                    return newerOrderByDate;
-                } else {
-                    var olderOrderByDate = new Date(movedIntoOrderDate);
-                    var millisecondsReduced = olderOrderByDate.getMilliseconds() - 1;
-                    olderOrderByDate.setMilliseconds(millisecondsReduced);
-                    return olderOrderByDate;
+                    _jobService.patchOrderByDate(epicPatchOrderByDateInputDto)
+                        .done(function () {
+                            abp.notify.success(l('SavedSuccessfully'));
+                        })
+                        .fail(function () {
+                            abp.notify.error(l('ErrorWhileSaving'));
+                            // Revert the move on failure
+                            if (oldIndex < newIndex) {
+                                evt.to.insertBefore(movedItem, items[oldIndex]);
+                            } else {
+                                evt.to.insertBefore(movedItem, items[oldIndex + 1]);
+                            }
+                        });
                 }
-            }
-        };
-    
-        // Handle re-order event by saving the order by date for epics
-        $('#list-tab-epics').on('row-reorder', function (e, diff, edit) {
-            const epicId = edit.triggerRow.data()["id"];
-            const orderByDate = getOrderByDateForEpics(diff, edit);
-    
-            // If no new order by date is found, it means we moved the row in place and no change is necessary
-            if (orderByDate != null) {
-                const epicPatchOrderByDateInputDto = { id: epicId, orderByDate: orderByDate };
-    
-                e.preventDefault();
-    
-                _epicService.patchOrderByDate(epicPatchOrderByDateInputDto)
-                    .done(function () { })
-                    .always(function () {
-                        abp.ui.clearBusy(_$EpicCreateModal);
-                    });
-            }
-        });
-    
-        // Initialize sortable for epics table
-        $('#list-tab-epics tbody').sortable({
-            update: function (event, ui) {
-                var epicId = ui.item.data('id');
-                var newIndex = ui.item.index();
-                reorderEpics(epicId, newIndex);
-            }
-        });
+            });
+        }
+    });
+   
     
 
     //create a subtask when the button is clicked

@@ -65,6 +65,7 @@
       "wwwroot/libs/datatables/js/dataTables.rowGroup.min.js",
       "wwwroot/libs/datatables/js/buttons.bootstrap4.js",
       "wwwroot/libs/admin-lte/dist/js/adminlte.js",
+      "wwwroot/libs/sortablejs/Sortable.min.js",
 
       "wwwroot/libs/block-ui/jquery.blockUI.js",
       "wwwroot/libs/spin/spin.js",
