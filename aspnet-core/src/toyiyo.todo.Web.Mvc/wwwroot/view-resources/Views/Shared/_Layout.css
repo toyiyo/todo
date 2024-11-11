@@ -48,6 +48,10 @@
     cursor: pointer;
 }
 
+.drag-handle {
+    cursor: grab;
+}
+
 .title[draggable=true] {
     cursor: move;
 }
