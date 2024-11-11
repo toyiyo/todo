@@ -544,7 +544,7 @@
         
                         _jobService.patchOrderByDate(epicPatchOrderByDateInputDto)
                             .done(function () {
-                                abp.notify.success(l('SavedSuccessfully'));
+                                
                             })
                             .fail(function () {
                                 abp.notify.error(l('ErrorWhileSaving'));
