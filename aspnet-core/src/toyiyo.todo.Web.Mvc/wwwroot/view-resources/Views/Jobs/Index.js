@@ -383,12 +383,14 @@
     
         // If the epic is already active, clear the selection
         if ($parent.hasClass('selected')) {
-            $parent.removeClass('selected active');
+            $('.epic-filter').parent().removeClass('selected active'); // Remove classes from all items
+            $(this).removeClass('active'); // Remove active from clicked item
             $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
         } else {
             // If the epic is not active, select it
             // First, remove 'selected' and 'active' classes from all items
             $('.epic-filter').parent().removeClass('selected active');
+            $(this).addClass('active'); // Add active to clicked item
             // Then, add 'selected' and 'active' classes to the clicked item's parent
             $parent.addClass('selected active');
             $('#SelectedEpicId').val($(this).attr('data-epic-id-filter'));

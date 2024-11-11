@@ -44,7 +44,7 @@ jobs:
         dotnet tool install --global dotnet-coverage
         dotnet-coverage collect 'dotnet test aspnet-core/toyiyo.todo.sln' -f xml  -o 'coverage.xml'
     - name: Upload coverage results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: coverage
         path: coverage.xml
@@ -73,7 +73,7 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Download coverage results
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
         name: coverage
     - name: Restore dependencies
