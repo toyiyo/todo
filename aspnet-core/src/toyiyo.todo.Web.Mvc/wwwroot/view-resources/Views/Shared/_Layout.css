@@ -25,3 +25,47 @@
     padding: 8px;
     vertical-align: middle;
 }
+
+.epic-filter.list-group-item {
+    color: #212529 !important;
+    background-color: transparent !important;
+}
+
+.epic-filter.list-group-item.selected {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    color: #212529 !important;
+}
+
+.epic-filter.list-group-item:hover {
+    background-color: rgba(0, 0, 0, 0.075) !important;
+    color: #212529 !important;
+}
+
+.epic-filter .btn {
+    color: inherit !important;
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.drag-handle {
+    cursor: grab;
+}
+
+.title[draggable=true] {
+    cursor: move;
+}
+.epic-filter.dragover {
+    background-color: rgba(0, 123, 255, 0.1) !important;
+    border: 2px dashed #007bff !important;
+    position: relative;
+}
+
+.epic-filter.dragover::after {
+    content: 'Add to this epic';
+    position: absolute;
+    right: 10px;
+    color: #007bff;
+    font-style: italic;
+}
+
