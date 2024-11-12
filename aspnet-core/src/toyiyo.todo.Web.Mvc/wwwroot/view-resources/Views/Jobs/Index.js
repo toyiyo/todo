@@ -380,7 +380,7 @@
 
     $(document).on('click', '.epic-filter', function (_e) {
         var $this = $(this);
-        var epicId = $this.attr('data-epic-id-filter');
+        let epicId = $this.attr('data-epic-id-filter');
         
         // Clear all selections first
         $('.epic-filter').parent().removeClass('selected active');
