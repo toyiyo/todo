@@ -389,8 +389,8 @@
         var rowMoved = updatesArray.filter(item => item.oldData === reorderedRow.triggerRow.data()["orderByDate"])[0]
 
         if (rowMoved != null) {
-            var moveDirection = (rowMoved.oldPosition - rowMoved.newPosition) > 0 ? "newer" : "older"
-            var movedIntoOrderDate = rowMoved.newData;
+            let moveDirection = (rowMoved.oldPosition - rowMoved.newPosition) > 0 ? "newer" : "older"
+            let movedIntoOrderDate = rowMoved.newData;
 
             if (moveDirection === "newer") {
                 var newerOrderByDate = new Date(movedIntoOrderDate)
