@@ -322,7 +322,15 @@
         const jobId = $(this).parent().parent().find("div.dropdown-toggle").attr("data-job-id");
         const newJobLevel = $(this).attr("selected-job-level");
         const jobLevelPaneButtonHtml = getLevelButton(+newJobLevel, jobId);
-        $('#JobEditModal button.btn-pane-template').html(jobLevelPaneButtonHtml);
+        
+        // Find the button using find() instead of direct selection
+        const $modal = $('#JobEditModal');
+        const $button = $modal.find('button.btn-pane-template');
+        
+        // Use text() or a safe DOM manipulation method instead of html()
+        // Create and append elements safely
+        $button.empty(); // Clear existing content
+        $(jobLevelPaneButtonHtml).appendTo($button);
 
         const JobSetLevelInputDto = {
             id: jobId,

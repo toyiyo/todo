@@ -43,7 +43,7 @@ namespace toyiyo.todo.Jobs.Dto
         /// <summary>
         /// Gets or sets the importance level of the job.
         /// </summary>
-        /// [required]
+        [Required]
         public JobLevel Level { get; set; }
     }
 }
