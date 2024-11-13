@@ -52,6 +52,31 @@
       </div>`
     }
 
+    const getLevelDropdown = function (jobLevel, id, favicon) {
+        return `<div class="dropdown show">
+        <div class="dropdown-toggle" href="#" role="button" id="dropdownMenuLinkLevel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-job-id="${id}" data-job-level="${jobLevel}">
+            ${favicon} 
+        </div>
+      
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuLinkLevel">
+            <a class="dropdown-item job-level-selector" selected-job-level=0 href="#">${storyFavicon} Task</a>
+            <a class="dropdown-item job-level-selector" selected-job-level=2 href="#">${epicFavicon} Epic</a>
+            <a class="dropdown-item job-level-selector" selected-job-level=3 href="#">${bugFavicon} Bug</a>
+        </div>
+      </div>`
+    }
+
+    const getLevelButton = function (jobLevel, jobId) {
+        switch (jobLevel) {
+            case 3:
+                return getLevelDropdown(jobLevel, jobId, bugFavicon);
+            case 2:
+                return getLevelDropdown(jobLevel, jobId, epicFavicon);
+            default:
+                return getLevelDropdown(jobLevel, jobId, storyFavicon);
+        }
+    }
+
     const getStatusButton = function (jobStatus, jobId) {
         if (jobStatus === 2) {
             return getStatusDropdown(jobStatus, jobId, doneFavicon);
@@ -141,15 +166,24 @@
             },
             {
                 targets: 2,
-                data: 'title',
-                className: 'title',
+                data: null,
                 defaultContent: '',
+                width: '1em',
                 render: (data, type, row, meta) => {
-                    return `${getJobTypeIcon(row.level)} ${data}`;
+                    return getLevelButton(row.level, row.id);
                 }
             },
             {
                 targets: 3,
+                data: 'title',
+                className: 'title',
+                defaultContent: '',
+                render: (data, type, row, meta) => {
+                    return `${data}`;
+                }
+            },
+            {
+                targets: 4,
                 data: 'dueDate',
                 defaultContent: '',
                 width: '8em',
@@ -160,7 +194,7 @@
                 }
             },
             {
-                targets: 4,
+                targets: 5,
                 data: null,
                 autoWidth: false,
                 defaultContent: '',
@@ -294,6 +328,30 @@
             });
     });
 
+    // Job level handler
+    $(document).on('click', '.job-level-selector', function (e) {
+        const jobId = $(this).parent().parent().find("div.dropdown-toggle").attr("data-job-id");
+        const newJobLevel = $(this).attr("selected-job-level");
+        const jobLevelPaneButtonHtml = getLevelButton(+newJobLevel, jobId);
+        $('#JobEditModal button.btn-pane-template').html(jobLevelPaneButtonHtml);
+
+        const JobSetLevelInputDto = {
+            id: jobId,
+            level: newJobLevel
+        };
+
+        e.preventDefault();
+        _jobService
+            .setLevel(JobSetLevelInputDto)
+            .done(function () {
+                abp.notify.info(l('SavedSuccessfully'));
+                abp.event.trigger('job.edited', JobSetLevelInputDto);
+            })
+            .always(function () {
+                abp.ui.clearBusy(_$JobCreateModal);
+            });
+    });
+
     //job edit handler
     $(document).on('click', '.edit-job', function (e) {
         const jobId = $(this).attr("data-job-id");
@@ -346,12 +404,12 @@
             var movedIntoOrderDate = rowMoved.newData;
 
             if (moveDirection === "newer") {
-                var newerOrderByDate = new Date(movedIntoOrderDate)
+                var newerOrderByDate = new Date(movedIntoOrderByDate)
                 var milisecondsAdded = newerOrderByDate.getMilliseconds() + 1;
                 newerOrderByDate.setMilliseconds(milisecondsAdded);
                 return newerOrderByDate
             } else {
-                var olderOrderByDate = new Date(movedIntoOrderDate)
+                var olderOrderByDate = new Date(movedIntoOrderByDate)
                 var milisecondsReduced = olderOrderByDate.getMilliseconds() - 1;
                 olderOrderByDate.setMilliseconds(milisecondsReduced);
                 return olderOrderByDate
