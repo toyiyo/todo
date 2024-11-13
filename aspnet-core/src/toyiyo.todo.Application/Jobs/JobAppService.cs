@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
+using Abp.UI;
 using Microsoft.AspNetCore.Mvc;
 using toyiyo.todo.Authorization;
 using toyiyo.todo.Jobs.Dto;
@@ -148,26 +149,37 @@ namespace toyiyo.todo.Jobs
 
         public async Task<JobDto> SetLevel(JobSetLevelInputDto input)
         {
-            var job = Job.SetLevel(await _jobManager.Get(input.Id), input.Level, await GetCurrentUserAsync());
-            await _jobManager.Update(job);
-            return ObjectMapper.Map<JobDto>(job);
+            try
+            {
+                var job = Job.SetLevel(await _jobManager.Get(input.Id), input.Level, await GetCurrentUserAsync());
+                await _jobManager.Update(job);
+                return ObjectMapper.Map<JobDto>(job);
+            }
+            catch (Exception ex)
+            {                
+                throw new UserFriendlyException(L("JobUpdateFailed"), ex.Message);
+            }
         }
 
         public async Task<JobDto> UpdateAllFields(JobUpdateInputDto input)
         {
-            var job = await _jobManager.Get(input.Id);
-            var user = await GetCurrentUserAsync();
-            
-            // Update all fields using existing domain methods
-            job = Job.SetTitle(job, input.Title, user);
-            job = Job.SetDescription(job, input.Description, user);
-            job = Job.SetDueDate(job, input.DueDate ?? default, user);
-            job = Job.SetLevel(job, input.Level, user);
-            
-            // Save changes once
-            await _jobManager.Update(job);
-            
-            return ObjectMapper.Map<JobDto>(job);
+            try {
+                var job = await _jobManager.Get(input.Id);
+                var user = await GetCurrentUserAsync();
+                
+                // Update all fields using existing domain methods
+                job = Job.SetTitle(job, input.Title, user);
+                job = Job.SetDescription(job, input.Description, user);
+                job = Job.SetDueDate(job, input.DueDate ?? default, user);
+                job = Job.SetLevel(job, input.Level, user);
+                
+                // Save changes once
+                await _jobManager.Update(job);
+                
+                return ObjectMapper.Map<JobDto>(job);
+            }
+            catch (Exception ex) { throw new UserFriendlyException(L("JobUpdateFailed"), ex.Message); }
+
         }
     }
 }
