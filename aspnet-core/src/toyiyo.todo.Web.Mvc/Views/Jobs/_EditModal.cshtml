@@ -37,10 +37,17 @@
         <div class="form-group row">
             <label class="col-md-3 col-form-label" for="jobLevel">@L("JobType")</label>
             <div class="col-md-9">
-                <select id="jobLevel" name="level" class="form-control">
-                    <option value="0" selected="@(Model.Level == Job.JobLevel.Task)">Task</option>
-                    <option value="2" selected="@(Model.Level == JobLevel.Epic)">Epic</option>
-                    <option value="3" selected="@(Model.Level == JobLevel.Bug)">Bug</option>
+                <select id="jobLevel" class="form-control" name="level" required>
+                    @foreach (JobLevel level in Enum.GetValues(typeof(JobLevel)))
+                    {
+                        if (level != JobLevel.SubTask)
+                        {
+                            if (level == Model.Level) {
+                                <option value="@((int)level)" selected>@level</option>}
+                                else {<option value="@((int)level)">@level</option>
+                            }
+                        }
+                    }
                 </select>
             </div>
         </div>
