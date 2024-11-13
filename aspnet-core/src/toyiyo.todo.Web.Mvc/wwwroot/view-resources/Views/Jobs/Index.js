@@ -330,7 +330,9 @@
         // Use text() or a safe DOM manipulation method instead of html()
         // Create and append elements safely
         $button.empty(); // Clear existing content
-        $(jobLevelPaneButtonHtml).appendTo($button);
+        //$(jobLevelPaneButtonHtml).appendTo($button);
+        const $newContent = $(document.createElement('div')).html(jobLevelPaneButtonHtml).contents();
+        $newContent.appendTo($button);
 
         const JobSetLevelInputDto = {
             id: jobId,
