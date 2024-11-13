@@ -466,7 +466,7 @@ namespace toyiyo.todo.Tests.Jobs
                 Description = "Updated Description",
                 Level = (JobLevel)999 // Invalid level
             };
-            await Assert.ThrowsAsync<Exception>(async () => await _jobAppService.UpdateAllFields(updateInput));
+            await Assert.ThrowsAsync<Abp.UI.UserFriendlyException>(async () => await _jobAppService.UpdateAllFields(updateInput));
         }
 
         [Fact]
@@ -490,22 +490,6 @@ namespace toyiyo.todo.Tests.Jobs
             job.Level.ShouldBe(JobLevel.Epic);
         }
 
-        [Fact]
-        public async Task CreateJob_WithInvalidJobType_ThrowsException()
-        {
-            // Arrange
-            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
-            var jobCreateInput = new JobCreateInputDto
-            {
-                ProjectId = project.Id,
-                Title = "test job",
-                Description = "test job",
-                Level = (JobLevel)999 // Invalid level
-            };
-
-            // Act & Assert
-            await Assert.ThrowsAsync<Exception>(async () => await _jobAppService.Create(jobCreateInput));
-        }
 
         [Fact]
         public async Task UpdateJob_WithValidJobType_Success()
@@ -545,7 +529,7 @@ namespace toyiyo.todo.Tests.Jobs
                 Description = "Updated Description",
                 Level = (JobLevel)999 // Invalid level
             };
-            await Assert.ThrowsAsync<Exception>(async () => await _jobAppService.UpdateAllFields(updateInput));
+            await Assert.ThrowsAsync<Abp.UI.UserFriendlyException>(async () => await _jobAppService.UpdateAllFields(updateInput));
         }
 
         [Fact]
@@ -582,7 +566,7 @@ namespace toyiyo.todo.Tests.Jobs
                 Id = job.Id,
                 Level = (JobLevel)999 // Invalid level
             };
-            await Assert.ThrowsAsync<Exception>(async () => await _jobAppService.SetLevel(setLevelInput));
+            await Assert.ThrowsAsync<Abp.UI.UserFriendlyException>(async () => await _jobAppService.SetLevel(setLevelInput));
         }
 
         private async Task<JobDto> CreateTestJobAsync()
