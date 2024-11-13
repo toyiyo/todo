@@ -67,18 +67,13 @@ namespace toyiyo.todo.Jobs
         /// <returns>The newly created job.</returns>
         public static Job Create(Project project, string title, string description, User user, int tenantId, DateTime dueDate = default, Guid parentId = default, JobLevel jobLevel = 0)
         {
-            if (title == null) { throw new ArgumentNullException(nameof(title)); }
             if (user == null) { throw new ArgumentNullException(nameof(user)); }
             if (tenantId <= 0) { throw new ArgumentNullException(nameof(tenantId)); }
             if (project == null) { throw new ArgumentNullException(nameof(project)); }
-            if ((dueDate != default) && (dueDate.Kind != DateTimeKind.Utc ? dueDate.ToUniversalTime().Date : dueDate.Date) < DateTime.UtcNow.Date) {throw new ArgumentOutOfRangeException(nameof(dueDate), "due date must be in the future"); }
-            if (jobLevel == JobLevel.Epic && parentId != default) { throw new ArgumentOutOfRangeException(nameof(parentId), "epics cannot have parents"); }
 
             var job = new Job
             {
                 Project = project,
-                Title = title,
-                Description = description,
                 TenantId = tenantId,
                 Owner = user,
                 Assignee = user,
@@ -87,11 +82,20 @@ namespace toyiyo.todo.Jobs
                 CreationTime = Clock.Now,
                 LastModificationTime = Clock.Now,
                 JobStatus = Status.Open,
-                ParentId = parentId,
-                OrderByDate = Clock.Now,
-                Level = jobLevel
+                OrderByDate = Clock.Now
             };
-            if (dueDate != default) { job.DueDate = dueDate; }
+
+            // Use existing setter methods for validation
+            SetTitle(job, title, user);
+            SetDescription(job, description, user);
+            SetDueDate(job, dueDate, user);
+            SetLevel(job, jobLevel, user);
+            
+            // Set parent last since it depends on the level being set
+            if (parentId != default)
+            {
+                job.ParentId = parentId; // Direct assignment since we don't have the parent Job object here
+            }
 
             return job;
         }

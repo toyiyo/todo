@@ -566,7 +566,7 @@ namespace toyiyo.todo.Tests.Jobs
                 Id = job.Id,
                 Level = (JobLevel)999 // Invalid level
             };
-            await Assert.ThrowsAsync<Abp.UI.UserFriendlyException>(async () => await _jobAppService.SetLevel(setLevelInput));
+            await Assert.ThrowsAsync<Abp.Runtime.Validation.AbpValidationException>(async () => await _jobAppService.SetLevel(setLevelInput));
         }
 
         private async Task<JobDto> CreateTestJobAsync()
