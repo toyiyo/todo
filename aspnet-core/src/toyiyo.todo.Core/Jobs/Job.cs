@@ -201,6 +201,10 @@ namespace toyiyo.todo.Jobs
             { 
                 throw new ArgumentOutOfRangeException(nameof(level), "epics cannot have parents"); 
             }
+            if (!Enum.IsDefined(typeof(JobLevel), level))
+            {
+                throw new ArgumentException("Invalid job level", nameof(level));
+            }
             job.Level = level;
             SetLastModified(job, user);
             return job;
