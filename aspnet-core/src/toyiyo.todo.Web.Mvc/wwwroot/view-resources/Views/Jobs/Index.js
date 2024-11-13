@@ -34,6 +34,10 @@
                             <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2Zm12 1a1 1 0 0 1 1 1v2H1V3a1 1 0 0 1 1-1h12ZM1 13V6h6.5v8H2a1 1 0 0 1-1-1Zm7.5 1V6H15v7a1 1 0 0 1-1 1H8.5Z"/>
                         </svg>`;
 
+    const bugFavicon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bug" viewBox="0 0 16 16">
+        <path d="M4.355.522a.5.5 0 0 1 .623.333l.291.956A4.979 4.979 0 0 1 8 1c1.007 0 1.946.298 2.731.811l.29-.956a.5.5 0 1 1 .957.29l-.41 1.352A4.985 4.985 0 0 1 13 6h.5a.5.5 0 0 0 .5-.5V5a.5.5 0 0 1 1 0v.5A1.5 1.5 0 0 1 13.5 7H13v1h1.5a.5.5 0 0 1 0 1H13v1h.5a1.5 1.5 0 0 1 1.5 1.5v.5a.5.5 0 1 1-1 0v-.5a.5.5 0 0 0-.5-.5H13a5 5 0 0 1-10 0h-.5a.5.5 0 0 0-.5.5v.5a.5.5 0 1 1-1 0v-.5A1.5 1.5 0 0 1 2.5 10H3V9H1.5a.5.5 0 0 1 0-1H3V7h-.5A1.5 1.5 0 0 1 1 5.5V5a.5.5 0 0 1 1 0v.5a.5.5 0 0 0 .5.5H3c0-1.364.547-2.601 1.432-3.503l-.41-1.352a.5.5 0 0 1 .333-.623zM4 7v4a4 4 0 0 0 3.5 3.97V7H4zm4.5 0v7.97A4 4 0 0 0 12 11V7H8.5zM12 6a3.989 3.989 0 0 0-1.334-2.982A3.983 3.983 0 0 0 8 2a3.983 3.983 0 0 0-2.667 1.018A3.989 3.989 0 0 0 4 6h8z"/>
+    </svg>`;
+
     const getStatusDropdown = function (jobStatus, id, favicon) {
         return `<div class="dropdown show">
         <div class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-job-id="${id}" data-job-status="${jobStatus}">
@@ -58,6 +62,19 @@
         }
     }
 
+    const getJobTypeIcon = function(jobLevel) {
+        switch(jobLevel) {
+            case 3: // Bug
+                return bugFavicon;
+            case 2: // Epic
+                return epicFavicon;
+            case 1: // SubTask
+                return subTaskFavicon;
+            default: // Task
+                return storyFavicon;
+        }
+    };
+
     var _$jobsTable = _$table.DataTable({
         rowReorder: {
             dataSrc: 'orderByDate',
@@ -79,7 +96,7 @@
                     keyword: $('#JobsSearchForm input[type=search]').val(),
                     jobStatus: $('#SelectedJobStatus').val(),
                     projectId: $('#ProjectId').val(),
-                    level: 0,
+                    levels: [0, 3],
                     //include parentJobId only if the value of ParentJobId is not null
                     parentJobId: $('#SelectedEpicId').val(),
                     sorting: 'OrderByDate DESC',
@@ -127,6 +144,9 @@
                 data: 'title',
                 className: 'title',
                 defaultContent: '',
+                render: (data, type, row, meta) => {
+                    return `${getJobTypeIcon(row.level)} ${data}`;
+                }
             },
             {
                 targets: 3,
@@ -433,7 +453,7 @@
             keyword: keyword,
             jobStatus: jobStatus, // only showing active epics
             projectId: projectId,
-            level: level, // Set level to 1
+            levels: [level], // Set level to an array containing the level
             sorting: 'OrderByDate DESC',
         }).done(function (data) {
             // Clear the contents of #list-tab-epics

@@ -20,6 +20,7 @@
         _$modal = $('#JobEditModal'),
         _$form = _$modal.find('form');
 
+
     //JOB
     function save() {
         if (!_$form.valid()) {
@@ -33,20 +34,12 @@
         job.dueDate = moment(job.dueDate).endOf('day').utc();
 
         abp.ui.setBusy(_$form);
-        //calling multiple services in parallel will fetch data from the DB in parallel.
-        //once the first update passes through, the second update overwrites the info from the first update.
-        //This is due to the initial load.
-        //to fix it, we must update one field at a time, or create a call to update all fields in bulk
 
-        _jobService.setDueDate(job).done(() =>
-            _jobService.setTitle(job).done(() =>
-                _jobService.setDescription(job).done(
-                    () =>
-                        _$modal.modal('hide'),
-                    abp.notify.info(l('SavedSuccessfully')),
-                    abp.event.trigger('job.edited', job)
-                )).always(
-                    () => abp.ui.clearBusy(_$form)));
+        _jobService.updateAllFields(job).done(() => {
+            _$modal.modal('hide');
+            abp.notify.info(l('SavedSuccessfully'));
+            abp.event.trigger('job.edited', job);
+        }).always(() => abp.ui.clearBusy(_$form));
     }
 
     _$form.closest('div.modal-content').find(".save-button").click(function (e) {

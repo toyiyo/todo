@@ -51,7 +51,7 @@ namespace toyiyo.todo.Jobs
             //getting stats for the account, for the future, we should allow filtering by project.
             //we'll manually remove subtasks from the stats count for now.  
             //todo, once we have a job type defined, we can filter by job type
-            var getAllJobsInput = new GetAllJobsInput(){ MaxResultCount = int.MaxValue, Level = JobLevel.Task};
+            var getAllJobsInput = new GetAllJobsInput(){ MaxResultCount = int.MaxValue, Levels = new List<JobLevel> { JobLevel.Task, JobLevel.Bug }.ToArray() };
             var jobs = await GetAll(getAllJobsInput);
             return new JobStatsDto
             {
@@ -144,6 +144,30 @@ namespace toyiyo.todo.Jobs
             }
             catch (System.ArgumentNullException) { return new NotFoundResult(); }
             catch (Abp.Domain.Entities.EntityNotFoundException) { return new NotFoundResult(); }
+        }
+
+        public async Task<JobDto> SetLevel(JobSetLevelInputDto input)
+        {
+            var job = Job.SetLevel(await _jobManager.Get(input.Id), input.Level, await GetCurrentUserAsync());
+            await _jobManager.Update(job);
+            return ObjectMapper.Map<JobDto>(job);
+        }
+
+        public async Task<JobDto> UpdateAllFields(JobUpdateInputDto input)
+        {
+            var job = await _jobManager.Get(input.Id);
+            var user = await GetCurrentUserAsync();
+            
+            // Update all fields using existing domain methods
+            job = Job.SetTitle(job, input.Title, user);
+            job = Job.SetDescription(job, input.Description, user);
+            job = Job.SetDueDate(job, input.DueDate ?? default, user);
+            job = Job.SetLevel(job, input.Level, user);
+            
+            // Save changes once
+            await _jobManager.Update(job);
+            
+            return ObjectMapper.Map<JobDto>(job);
         }
     }
 }

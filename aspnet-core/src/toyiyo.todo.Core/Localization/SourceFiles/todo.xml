@@ -13,7 +13,8 @@
     <text name="EditJob" value="Edit job" />
     <text name="JobTitle" value="Job title" />
     <text name="Jobs" value="Jobs" />
-    <text name="JobDescription" value="Job Description" />
+    <text name="JobDescription" value="Description" />
+    <text name="JobType" value="Type" />
     <text name="Subtasks" value="Subtasks" />
     <text name="DueDate" value="Due"/>
     <text name="WelcomeMessage" value="Welcome to todo!" />

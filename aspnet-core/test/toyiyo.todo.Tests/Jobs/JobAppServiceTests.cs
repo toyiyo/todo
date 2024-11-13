@@ -8,6 +8,8 @@ using Xunit;
 using static toyiyo.todo.Jobs.Job;
 using System;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using toyiyo.todo.Jobs.Dto;
 
 namespace toyiyo.todo.Tests.Jobs
 {
@@ -124,8 +126,8 @@ namespace toyiyo.todo.Tests.Jobs
             var subtask = await _jobAppService.Create(new JobCreateInputDto(){ ProjectId = project.Id, Title = "subtask", Description = "subtask", ParentId = job.Id, Level =  JobLevel.SubTask});
 
             // Act
-            var jobs = await _jobAppService.GetAll(new GetAllJobsInput(){ ProjectId = project.Id, Level = JobLevel.Task});
-            var subtasks = await _jobAppService.GetAll(new GetAllJobsInput(){ ProjectId = project.Id, Level = JobLevel.SubTask});
+            var jobs = await _jobAppService.GetAll(new GetAllJobsInput() { ProjectId = project.Id, Levels = new List<JobLevel> { JobLevel.Task, JobLevel.Bug }.ToArray() });
+            var subtasks = await _jobAppService.GetAll(new GetAllJobsInput() { ProjectId = project.Id, Levels = new List<JobLevel> { JobLevel.SubTask }.ToArray() });
             var all = await _jobAppService.GetAll(new GetAllJobsInput(){ ProjectId = project.Id});
 
             // Assert
@@ -400,6 +402,45 @@ namespace toyiyo.todo.Tests.Jobs
             //assert
             response.ParentId.ShouldBe(parentJob.Id);
         }
-        
+
+        [Fact]
+        public async Task UpdateAllFields_Should_Update_Job()
+        {
+            // Arrange
+            var job = await CreateTestJobAsync();
+            var updateInput = new JobUpdateInputDto
+            {
+                Id = job.Id,
+                Title = "Updated Title",
+                Description = "Updated Description",
+                DueDate = DateTime.Now.AddDays(10),
+                Level = JobLevel.Epic
+            };
+
+            // Act
+            var updatedJob = await _jobAppService.UpdateAllFields(updateInput);
+
+            // Assert
+            updatedJob.ShouldNotBeNull();
+            updatedJob.Title.ShouldBe(updateInput.Title);
+            updatedJob.Description.ShouldBe(updateInput.Description);
+            updatedJob.DueDate.ShouldBe(updateInput.DueDate.Value);
+            updatedJob.Level.ShouldBe(updateInput.Level);
+        }
+
+        private async Task<JobDto> CreateTestJobAsync()
+        {
+            var project = await _projectAppService.Create(new CreateProjectInputDto { Title = "Test Project" });
+            var jobCreateInput = new JobCreateInputDto
+            {
+                Title = "Test Job",
+                Description = "Test Description",
+                DueDate = DateTime.Now.AddDays(5),
+                ProjectId = project.Id,
+                Level = JobLevel.Task
+            };
+
+            return await _jobAppService.Create(jobCreateInput);
+        }
     }
 }

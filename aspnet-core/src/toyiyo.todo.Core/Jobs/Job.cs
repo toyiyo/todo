@@ -17,7 +17,7 @@ namespace toyiyo.todo.Jobs
     {
         //doing this as an enum means any new status will require a code change, consider using a lookup table in the future
         public enum Status { Open, InProgress, Done };
-        public enum JobLevel { Task, SubTask, Epic };
+        public enum JobLevel { Task, SubTask, Epic, Bug };
         private DateTime _orderByDate;
         public const int MaxTitleLength = 500; //todo: max length should be defined in the configuration
         public const int MaxDescriptionLength = 2000000; // 2MB limit | 307692 - 400000 words | 1230.8 - 1600.0 pages
@@ -190,6 +190,19 @@ namespace toyiyo.todo.Jobs
             job.ParentId = parentId;
             SetLastModified(job, user);
 
+            return job;
+        }
+
+        public static Job SetLevel(Job job, JobLevel level, User user)
+        {
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if (level == JobLevel.Epic && job.ParentId != default) 
+            { 
+                throw new ArgumentOutOfRangeException(nameof(level), "epics cannot have parents"); 
+            }
+            job.Level = level;
+            SetLastModified(job, user);
             return job;
         }
     }
