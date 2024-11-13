@@ -428,6 +428,163 @@ namespace toyiyo.todo.Tests.Jobs
             updatedJob.Level.ShouldBe(updateInput.Level);
         }
 
+        [Fact]
+        public async Task EditJob_UpdatesJobType()
+        {
+            // Arrange
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job", Level = JobLevel.Task });
+
+            // Act
+            var updateInput = new JobUpdateInputDto
+            {
+                Id = job.Id,
+                Title = "Updated Title",
+                Description = "Updated Description",
+                Level = JobLevel.Epic
+            };
+            await _jobAppService.UpdateAllFields(updateInput);
+            var updatedJob = await _jobAppService.Get(job.Id);
+
+            // Assert
+            updatedJob.ShouldNotBeNull();
+            updatedJob.Level.ShouldBe(JobLevel.Epic);
+        }
+
+        [Fact]
+        public async Task EditJob_ValidatesJobType()
+        {
+            // Arrange
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job", Level = JobLevel.Task });
+
+            // Act & Assert
+            var updateInput = new JobUpdateInputDto
+            {
+                Id = job.Id,
+                Title = "Updated Title",
+                Description = "Updated Description",
+                Level = (JobLevel)999 // Invalid level
+            };
+            await Assert.ThrowsAsync<Exception>(async () => await _jobAppService.UpdateAllFields(updateInput));
+        }
+
+        [Fact]
+        public async Task CreateJob_WithValidJobType_Success()
+        {
+            // Arrange
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var jobCreateInput = new JobCreateInputDto
+            {
+                ProjectId = project.Id,
+                Title = "test job",
+                Description = "test job",
+                Level = JobLevel.Epic
+            };
+
+            // Act
+            var job = await _jobAppService.Create(jobCreateInput);
+
+            // Assert
+            job.ShouldNotBeNull();
+            job.Level.ShouldBe(JobLevel.Epic);
+        }
+
+        [Fact]
+        public async Task CreateJob_WithInvalidJobType_ThrowsException()
+        {
+            // Arrange
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var jobCreateInput = new JobCreateInputDto
+            {
+                ProjectId = project.Id,
+                Title = "test job",
+                Description = "test job",
+                Level = (JobLevel)999 // Invalid level
+            };
+
+            // Act & Assert
+            await Assert.ThrowsAsync<Exception>(async () => await _jobAppService.Create(jobCreateInput));
+        }
+
+        [Fact]
+        public async Task UpdateJob_WithValidJobType_Success()
+        {
+            // Arrange
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job", Level = JobLevel.Task });
+
+            // Act
+            var updateInput = new JobUpdateInputDto
+            {
+                Id = job.Id,
+                Title = "Updated Title",
+                Description = "Updated Description",
+                Level = JobLevel.Epic
+            };
+            await _jobAppService.UpdateAllFields(updateInput);
+            var updatedJob = await _jobAppService.Get(job.Id);
+
+            // Assert
+            updatedJob.ShouldNotBeNull();
+            updatedJob.Level.ShouldBe(JobLevel.Epic);
+        }
+
+        [Fact]
+        public async Task UpdateJob_WithInvalidJobType_ThrowsException()
+        {
+            // Arrange
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job", Level = JobLevel.Task });
+
+            // Act & Assert
+            var updateInput = new JobUpdateInputDto
+            {
+                Id = job.Id,
+                Title = "Updated Title",
+                Description = "Updated Description",
+                Level = (JobLevel)999 // Invalid level
+            };
+            await Assert.ThrowsAsync<Exception>(async () => await _jobAppService.UpdateAllFields(updateInput));
+        }
+
+        [Fact]
+        public async Task SetJobLevel_WithValidJobType_Success()
+        {
+            // Arrange
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job", Level = JobLevel.Task });
+
+            // Act
+            var setLevelInput = new JobSetLevelInputDto
+            {
+                Id = job.Id,
+                Level = JobLevel.Epic
+            };
+            await _jobAppService.SetLevel(setLevelInput);
+            var updatedJob = await _jobAppService.Get(job.Id);
+
+            // Assert
+            updatedJob.ShouldNotBeNull();
+            updatedJob.Level.ShouldBe(JobLevel.Epic);
+        }
+
+        [Fact]
+        public async Task SetJobLevel_WithInvalidJobType_ThrowsException()
+        {
+            // Arrange
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job", Level = JobLevel.Task });
+
+            // Act & Assert
+            var setLevelInput = new JobSetLevelInputDto
+            {
+                Id = job.Id,
+                Level = (JobLevel)999 // Invalid level
+            };
+            await Assert.ThrowsAsync<Exception>(async () => await _jobAppService.SetLevel(setLevelInput));
+        }
+
         private async Task<JobDto> CreateTestJobAsync()
         {
             var project = await _projectAppService.Create(new CreateProjectInputDto { Title = "Test Project" });
