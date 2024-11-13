@@ -87,19 +87,6 @@
         }
     }
 
-    const getJobTypeIcon = function(jobLevel) {
-        switch(jobLevel) {
-            case 3: // Bug
-                return bugFavicon;
-            case 2: // Epic
-                return epicFavicon;
-            case 1: // SubTask
-                return subTaskFavicon;
-            default: // Task
-                return storyFavicon;
-        }
-    };
-
     var _$jobsTable = _$table.DataTable({
         rowReorder: {
             dataSrc: 'orderByDate',
@@ -394,7 +381,6 @@
     };
 
     abp.event.on('job.edited', (_data) => {
-        const pageInfo = _$jobsTable.page.info();
         _$jobsTable.ajax.reload(null, false); // false to retain the current paging position
     });
 
@@ -407,12 +393,12 @@
             var movedIntoOrderDate = rowMoved.newData;
 
             if (moveDirection === "newer") {
-                var newerOrderByDate = new Date(movedIntoOrderByDate)
+                var newerOrderByDate = new Date(movedIntoOrderDate)
                 var milisecondsAdded = newerOrderByDate.getMilliseconds() + 1;
                 newerOrderByDate.setMilliseconds(milisecondsAdded);
                 return newerOrderByDate
             } else {
-                var olderOrderByDate = new Date(movedIntoOrderByDate)
+                var olderOrderByDate = new Date(movedIntoOrderDate)
                 var milisecondsReduced = olderOrderByDate.getMilliseconds() - 1;
                 olderOrderByDate.setMilliseconds(milisecondsReduced);
                 return olderOrderByDate
