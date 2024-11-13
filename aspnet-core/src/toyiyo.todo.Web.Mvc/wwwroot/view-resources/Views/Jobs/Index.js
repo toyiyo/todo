@@ -245,6 +245,7 @@
     //handle filtering by job status
     $(document).on('click', '.job-status-filter', function (_e) {
         $('#SelectedJobStatus').val($(this).attr('data-job-status-filter'));
+        //since we are changing the filter, we need to reload the table
         _$jobsTable.ajax.reload();
     });
 
@@ -268,7 +269,7 @@
                 _$JobCreateModal.modal('hide');
                 _$form[0].reset();
                 abp.notify.info(l('SavedSuccessfully'));
-                _$jobsTable.ajax.reload();
+                abp.event.trigger('job.edited');
             })
             .always(function () {
                 abp.ui.clearBusy(_$JobCreateModal);
@@ -282,12 +283,12 @@
     });
 
     $('.btn-search').on('click', (e) => {
-        _$jobsTable.ajax.reload();
+        abp.event.trigger('job.edited');
     });
 
     $('.txt-search').on('keypress', (e) => {
         if (e.which == 13) {
-            _$jobsTable.ajax.reload();
+            abp.event.trigger('job.edited');
             return false;
         }
     });
@@ -300,7 +301,7 @@
         $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
         $('.job-status-filter').removeClass('active');
         $('.epic-filter').parent().removeClass('selected active');
-        _$jobsTable.ajax.reload();
+        abp.event.trigger('job.edited');
     });
 
     //Job status handler
@@ -393,7 +394,8 @@
     };
 
     abp.event.on('job.edited', (_data) => {
-        _$jobsTable.ajax.reload();
+        const pageInfo = _$jobsTable.page.info();
+        _$jobsTable.ajax.reload(null, false); // false to retain the current paging position
     });
 
     //job reordering 
@@ -452,7 +454,7 @@
         } else {
             tableDiv.removeClass('col-md-9').addClass('col-12');
             $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
-            _$jobsTable.ajax.reload();
+            abp.event.trigger('job.edited');
             $toggleIcon.removeClass('fa-chevron-left').addClass('fa-chevron-right'); // change the icon back
         }
     });
@@ -475,7 +477,7 @@
             $('#SelectedEpicId').val(epicId);
         }
         
-        _$jobsTable.ajax.reload();
+        abp.event.trigger('job.edited');
     });
 
     const pencilIconSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">' +
@@ -683,7 +685,7 @@
                             parentId: epicId
                         }).done(function() {
                             abp.notify.success(l('SavedSuccessfully'));
-                            _$jobsTable.ajax.reload();
+                            abp.event.trigger('job.edited');
                         }).fail(function() {
                             abp.notify.error(l('ErrorWhileSaving'));
                         });
@@ -732,7 +734,7 @@
         deleteJob(jobId)
             .done(function () {
                 abp.notify.info(l('Deleted Successfully'));
-                _$jobsTable.ajax.reload();
+                abp.event.trigger('job.edited');
                 loadEpics(null, 0, $('#ProjectId').val(), 2);
             })
             .always(function () {
