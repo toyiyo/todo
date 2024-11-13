@@ -151,5 +151,6 @@
     <text name="GetSubscriptionCustomerByEmailError">We ran into a problem retrieving an admin with an active subscription. Error message {0}.</text>
     <text name="GetSubscriptionByEmailNotFound">We couldn't find an active subscription with the email address {0}.</text>
     <text name="Subscription">Subscription</text>
+    <text name="JobUpdateFailed">Job update failed</text>
   </texts>
 </localizationDictionary>

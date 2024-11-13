@@ -166,7 +166,8 @@
             },
             {
                 targets: 2,
-                data: null,
+                data: 'level',
+                className: 'level',
                 defaultContent: '',
                 width: '1em',
                 render: (data, type, row, meta) => {
