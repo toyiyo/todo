@@ -11,7 +11,7 @@ namespace toyiyo.todo.Jobs
         public Guid ProjectId { get; set; }
         public Status? JobStatus { get; set; }
         public Guid ParentJobId { get; set; }
-        public JobLevel? Level { get; set; }
+        public JobLevel[] Levels { get; set; } 
     }
 
 }

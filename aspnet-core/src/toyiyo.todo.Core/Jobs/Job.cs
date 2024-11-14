@@ -17,7 +17,7 @@ namespace toyiyo.todo.Jobs
     {
         //doing this as an enum means any new status will require a code change, consider using a lookup table in the future
         public enum Status { Open, InProgress, Done };
-        public enum JobLevel { Task, SubTask, Epic };
+        public enum JobLevel { Task, SubTask, Epic, Bug };
         private DateTime _orderByDate;
         public const int MaxTitleLength = 500; //todo: max length should be defined in the configuration
         public const int MaxDescriptionLength = 2000000; // 2MB limit | 307692 - 400000 words | 1230.8 - 1600.0 pages
@@ -67,18 +67,13 @@ namespace toyiyo.todo.Jobs
         /// <returns>The newly created job.</returns>
         public static Job Create(Project project, string title, string description, User user, int tenantId, DateTime dueDate = default, Guid parentId = default, JobLevel jobLevel = 0)
         {
-            if (title == null) { throw new ArgumentNullException(nameof(title)); }
             if (user == null) { throw new ArgumentNullException(nameof(user)); }
             if (tenantId <= 0) { throw new ArgumentNullException(nameof(tenantId)); }
             if (project == null) { throw new ArgumentNullException(nameof(project)); }
-            if ((dueDate != default) && (dueDate.Kind != DateTimeKind.Utc ? dueDate.ToUniversalTime().Date : dueDate.Date) < DateTime.UtcNow.Date) {throw new ArgumentOutOfRangeException(nameof(dueDate), "due date must be in the future"); }
-            if (jobLevel == JobLevel.Epic && parentId != default) { throw new ArgumentOutOfRangeException(nameof(parentId), "epics cannot have parents"); }
 
             var job = new Job
             {
                 Project = project,
-                Title = title,
-                Description = description,
                 TenantId = tenantId,
                 Owner = user,
                 Assignee = user,
@@ -87,11 +82,20 @@ namespace toyiyo.todo.Jobs
                 CreationTime = Clock.Now,
                 LastModificationTime = Clock.Now,
                 JobStatus = Status.Open,
-                ParentId = parentId,
-                OrderByDate = Clock.Now,
-                Level = jobLevel
+                OrderByDate = Clock.Now
             };
-            if (dueDate != default) { job.DueDate = dueDate; }
+
+            // Use existing setter methods for validation
+            SetTitle(job, title, user);
+            SetDescription(job, description, user);
+            SetDueDate(job, dueDate, user);
+            SetLevel(job, jobLevel, user);
+            
+            // Set parent last since it depends on the level being set
+            if (parentId != default)
+            {
+                job.ParentId = parentId; // Direct assignment since we don't have the parent Job object here
+            }
 
             return job;
         }
@@ -190,6 +194,23 @@ namespace toyiyo.todo.Jobs
             job.ParentId = parentId;
             SetLastModified(job, user);
 
+            return job;
+        }
+
+        public static Job SetLevel(Job job, JobLevel level, User user)
+        {
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if (level == JobLevel.Epic && job.ParentId != default) 
+            { 
+                throw new ArgumentOutOfRangeException(nameof(level), "epics cannot have parents"); 
+            }
+            if (!Enum.IsDefined(typeof(JobLevel), level))
+            {
+                throw new ArgumentException("Invalid job level", nameof(level));
+            }
+            job.Level = level;
+            SetLastModified(job, user);
             return job;
         }
     }

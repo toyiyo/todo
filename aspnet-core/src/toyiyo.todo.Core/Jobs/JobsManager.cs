@@ -54,12 +54,12 @@ namespace toyiyo.todo.Jobs
         private IQueryable<Job> GetAllJobsQueryable(GetAllJobsInput input)
         {
             //repository methods already filter by tenant, we can check other attributes by adding "or" "||" to the whereif clause
-            var query =  _jobRepository.GetAll()
-            .WhereIf(!input.ProjectId.Equals(Guid.Empty), x => x.Project.Id == input.ProjectId)
-            .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), p => p.Title.ToUpper().Contains(input.Keyword.ToUpper()))
-            .WhereIf(input.JobStatus != null, p => p.JobStatus == input.JobStatus)
-            .WhereIf(input.Level != null, p => p.Level == input.Level)
-            .WhereIf(!input.ParentJobId.Equals(Guid.Empty), p => p.ParentId == input.ParentJobId);
+            var query = _jobRepository.GetAll()
+                .WhereIf(!input.ProjectId.Equals(Guid.Empty), x => x.Project.Id == input.ProjectId)
+                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), p => p.Title.ToUpper().Contains(input.Keyword.ToUpper()))
+                .WhereIf(input.JobStatus != null, p => p.JobStatus == input.JobStatus)
+                .WhereIf(!input.ParentJobId.Equals(Guid.Empty), p => p.ParentId == input.ParentJobId)
+                .WhereIf(input.Levels != null && input.Levels.Any(), p => input.Levels.Contains(p.Level));
 
             return query;
         }
@@ -70,6 +70,7 @@ namespace toyiyo.todo.Jobs
             return job;
         }
 
+        [UnitOfWork]
         public async Task<Job> Update(Job inputJob)
         {
             var job = await _jobRepository.UpdateAsync(inputJob);

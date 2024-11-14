@@ -11,6 +11,6 @@ namespace toyiyo.todo.Web.Models.Jobs
         }
         //add calculated properties here
 
-        public int JobStatusId { get => (int)this.JobStatus; }
+        public int JobStatusId { get => (int)JobStatus; }
     }
 }

@@ -44,7 +44,7 @@ namespace toyiyo.todo.Web.Controllers
                 var output = await JobAppService.Get(JobId);
                 if (output == null) { return new NotFoundResult(); }
                 
-                var subTasks = await JobAppService.GetAll(new GetAllJobsInput() { ParentJobId = JobId, MaxResultCount = int.MaxValue, Level = JobLevel.SubTask });
+                var subTasks = await JobAppService.GetAll(new GetAllJobsInput() { ParentJobId = JobId, MaxResultCount = int.MaxValue, Levels = new List<JobLevel> { JobLevel.SubTask}.ToArray() });
                 //convert map all subtasks to a list of editjobmodalviewmodel and add to viewbag
                 ViewBag.SubTasks = ObjectMapper.Map<List<EditJobSubTaskModalViewModel>>(subTasks.Items);
 

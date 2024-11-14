@@ -13,7 +13,8 @@
     <text name="EditJob" value="Edit job" />
     <text name="JobTitle" value="Job title" />
     <text name="Jobs" value="Jobs" />
-    <text name="JobDescription" value="Job Description" />
+    <text name="JobDescription" value="Description" />
+    <text name="JobType" value="Type" />
     <text name="Subtasks" value="Subtasks" />
     <text name="DueDate" value="Due"/>
     <text name="WelcomeMessage" value="Welcome to todo!" />
@@ -150,5 +151,6 @@
     <text name="GetSubscriptionCustomerByEmailError">We ran into a problem retrieving an admin with an active subscription. Error message {0}.</text>
     <text name="GetSubscriptionByEmailNotFound">We couldn't find an active subscription with the email address {0}.</text>
     <text name="Subscription">Subscription</text>
+    <text name="JobUpdateFailed">Job update failed</text>
   </texts>
 </localizationDictionary>

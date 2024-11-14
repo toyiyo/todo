@@ -34,6 +34,10 @@
                             <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2Zm12 1a1 1 0 0 1 1 1v2H1V3a1 1 0 0 1 1-1h12ZM1 13V6h6.5v8H2a1 1 0 0 1-1-1Zm7.5 1V6H15v7a1 1 0 0 1-1 1H8.5Z"/>
                         </svg>`;
 
+    const bugFavicon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bug" viewBox="0 0 16 16">
+        <path d="M4.355.522a.5.5 0 0 1 .623.333l.291.956A4.979 4.979 0 0 1 8 1c1.007 0 1.946.298 2.731.811l.29-.956a.5.5 0 1 1 .957.29l-.41 1.352A4.985 4.985 0 0 1 13 6h.5a.5.5 0 0 0 .5-.5V5a.5.5 0 0 1 1 0v.5A1.5 1.5 0 0 1 13.5 7H13v1h1.5a.5.5 0 0 1 0 1H13v1h.5a1.5 1.5 0 0 1 1.5 1.5v.5a.5.5 0 1 1-1 0v-.5a.5.5 0 0 0-.5-.5H13a5 5 0 0 1-10 0h-.5a.5.5 0 0 0-.5.5v.5a.5.5 0 1 1-1 0v-.5A1.5 1.5 0 0 1 2.5 10H3V9H1.5a.5.5 0 0 1 0-1H3V7h-.5A1.5 1.5 0 0 1 1 5.5V5a.5.5 0 0 1 1 0v.5a.5.5 0 0 0 .5.5H3c0-1.364.547-2.601 1.432-3.503l-.41-1.352a.5.5 0 0 1 .333-.623zM4 7v4a4 4 0 0 0 3.5 3.97V7H4zm4.5 0v7.97A4 4 0 0 0 12 11V7H8.5zM12 6a3.989 3.989 0 0 0-1.334-2.982A3.983 3.983 0 0 0 8 2a3.983 3.983 0 0 0-2.667 1.018A3.989 3.989 0 0 0 4 6h8z"/>
+    </svg>`;
+
     const getStatusDropdown = function (jobStatus, id, favicon) {
         return `<div class="dropdown show">
         <div class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-job-id="${id}" data-job-status="${jobStatus}">
@@ -46,6 +50,31 @@
             <a class="dropdown-item job-status-selector" selected-job-status=2 href="#">${doneFavicon} Done</a>
         </div>
       </div>`
+    }
+
+    const getLevelDropdown = function (jobLevel, id, favicon) {
+        return `<div class="dropdown show">
+        <div class="dropdown-toggle" href="#" role="button" id="dropdownMenuLinkLevel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-job-id="${id}" data-job-level="${jobLevel}">
+            ${favicon} 
+        </div>
+      
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuLinkLevel">
+            <a class="dropdown-item job-level-selector" selected-job-level=0 href="#">${storyFavicon} Task</a>
+            <a class="dropdown-item job-level-selector" selected-job-level=2 href="#">${epicFavicon} Epic</a>
+            <a class="dropdown-item job-level-selector" selected-job-level=3 href="#">${bugFavicon} Bug</a>
+        </div>
+      </div>`
+    }
+
+    const getLevelButton = function (jobLevel, jobId) {
+        switch (jobLevel) {
+            case 3:
+                return getLevelDropdown(jobLevel, jobId, bugFavicon);
+            case 2:
+                return getLevelDropdown(jobLevel, jobId, epicFavicon);
+            default:
+                return getLevelDropdown(jobLevel, jobId, storyFavicon);
+        }
     }
 
     const getStatusButton = function (jobStatus, jobId) {
@@ -79,7 +108,7 @@
                     keyword: $('#JobsSearchForm input[type=search]').val(),
                     jobStatus: $('#SelectedJobStatus').val(),
                     projectId: $('#ProjectId').val(),
-                    level: 0,
+                    levels: [0, 3],
                     //include parentJobId only if the value of ParentJobId is not null
                     parentJobId: $('#SelectedEpicId').val(),
                     sorting: 'OrderByDate DESC',
@@ -124,12 +153,25 @@
             },
             {
                 targets: 2,
-                data: 'title',
-                className: 'title',
+                data: 'level',
+                className: 'level',
                 defaultContent: '',
+                width: '1em',
+                render: (data, type, row, meta) => {
+                    return getLevelButton(row.level, row.id);
+                }
             },
             {
                 targets: 3,
+                data: 'title',
+                className: 'title',
+                defaultContent: '',
+                render: (data, type, row, meta) => {
+                    return `${data}`;
+                }
+            },
+            {
+                targets: 4,
                 data: 'dueDate',
                 defaultContent: '',
                 width: '8em',
@@ -140,7 +182,7 @@
                 }
             },
             {
-                targets: 4,
+                targets: 5,
                 data: null,
                 autoWidth: false,
                 defaultContent: '',
@@ -190,6 +232,7 @@
     //handle filtering by job status
     $(document).on('click', '.job-status-filter', function (_e) {
         $('#SelectedJobStatus').val($(this).attr('data-job-status-filter'));
+        //since we are changing the filter, we need to reload the table
         _$jobsTable.ajax.reload();
     });
 
@@ -213,7 +256,7 @@
                 _$JobCreateModal.modal('hide');
                 _$form[0].reset();
                 abp.notify.info(l('SavedSuccessfully'));
-                _$jobsTable.ajax.reload();
+                abp.event.trigger('job.edited');
             })
             .always(function () {
                 abp.ui.clearBusy(_$JobCreateModal);
@@ -227,12 +270,12 @@
     });
 
     $('.btn-search').on('click', (e) => {
-        _$jobsTable.ajax.reload();
+        abp.event.trigger('job.edited');
     });
 
     $('.txt-search').on('keypress', (e) => {
         if (e.which == 13) {
-            _$jobsTable.ajax.reload();
+            abp.event.trigger('job.edited');
             return false;
         }
     });
@@ -245,7 +288,7 @@
         $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
         $('.job-status-filter').removeClass('active');
         $('.epic-filter').parent().removeClass('selected active');
-        _$jobsTable.ajax.reload();
+        abp.event.trigger('job.edited');
     });
 
     //Job status handler
@@ -268,6 +311,40 @@
             .done(function () {
                 abp.notify.info(l('SavedSuccessfully'));
                 abp.event.trigger('job.edited', JobSetStatusInputDto);
+            })
+            .always(function () {
+                abp.ui.clearBusy(_$JobCreateModal);
+            });
+    });
+
+    // Job level handler
+    $(document).on('click', '.job-level-selector', function (e) {
+        const jobId = $(this).parent().parent().find("div.dropdown-toggle").attr("data-job-id");
+        const newJobLevel = $(this).attr("selected-job-level");
+        const jobLevelPaneButtonHtml = getLevelButton(+newJobLevel, jobId);
+        
+        // Find the button using find() instead of direct selection
+        const $modal = $('#JobEditModal');
+        const $button = $modal.find('button.btn-pane-template');
+        
+        // Use text() or a safe DOM manipulation method instead of html()
+        // Create and append elements safely
+        $button.empty(); // Clear existing content
+        //$(jobLevelPaneButtonHtml).appendTo($button);
+        const $newContent = $(document.createElement('div')).html(jobLevelPaneButtonHtml).contents();
+        $newContent.appendTo($button);
+
+        const JobSetLevelInputDto = {
+            id: jobId,
+            level: newJobLevel
+        };
+
+        e.preventDefault();
+        _jobService
+            .setLevel(JobSetLevelInputDto)
+            .done(function () {
+                abp.notify.info(l('SavedSuccessfully'));
+                abp.event.trigger('job.edited', JobSetLevelInputDto);
             })
             .always(function () {
                 abp.ui.clearBusy(_$JobCreateModal);
@@ -314,7 +391,7 @@
     };
 
     abp.event.on('job.edited', (_data) => {
-        _$jobsTable.ajax.reload();
+        _$jobsTable.ajax.reload(null, false); // false to retain the current paging position
     });
 
     //job reordering 
@@ -322,8 +399,8 @@
         var rowMoved = updatesArray.filter(item => item.oldData === reorderedRow.triggerRow.data()["orderByDate"])[0]
 
         if (rowMoved != null) {
-            var moveDirection = (rowMoved.oldPosition - rowMoved.newPosition) > 0 ? "newer" : "older"
-            var movedIntoOrderDate = rowMoved.newData;
+            let moveDirection = (rowMoved.oldPosition - rowMoved.newPosition) > 0 ? "newer" : "older"
+            let movedIntoOrderDate = rowMoved.newData;
 
             if (moveDirection === "newer") {
                 var newerOrderByDate = new Date(movedIntoOrderDate)
@@ -373,7 +450,7 @@
         } else {
             tableDiv.removeClass('col-md-9').addClass('col-12');
             $('#SelectedEpicId').val('00000000-0000-0000-0000-000000000000');
-            _$jobsTable.ajax.reload();
+            abp.event.trigger('job.edited');
             $toggleIcon.removeClass('fa-chevron-left').addClass('fa-chevron-right'); // change the icon back
         }
     });
@@ -396,7 +473,7 @@
             $('#SelectedEpicId').val(epicId);
         }
         
-        _$jobsTable.ajax.reload();
+        abp.event.trigger('job.edited');
     });
 
     const pencilIconSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">' +
@@ -433,7 +510,7 @@
             keyword: keyword,
             jobStatus: jobStatus, // only showing active epics
             projectId: projectId,
-            level: level, // Set level to 1
+            levels: [level], // Set level to an array containing the level
             sorting: 'OrderByDate DESC',
         }).done(function (data) {
             // Clear the contents of #list-tab-epics
@@ -604,7 +681,7 @@
                             parentId: epicId
                         }).done(function() {
                             abp.notify.success(l('SavedSuccessfully'));
-                            _$jobsTable.ajax.reload();
+                            abp.event.trigger('job.edited');
                         }).fail(function() {
                             abp.notify.error(l('ErrorWhileSaving'));
                         });
@@ -653,7 +730,7 @@
         deleteJob(jobId)
             .done(function () {
                 abp.notify.info(l('Deleted Successfully'));
-                _$jobsTable.ajax.reload();
+                abp.event.trigger('job.edited');
                 loadEpics(null, 0, $('#ProjectId').val(), 2);
             })
             .always(function () {

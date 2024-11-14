@@ -1,6 +1,6 @@
 ﻿@using toyiyo.todo.Web.Models.Common.Modals
-@using toyiyo.todo.Jobs;
-@using static toyiyo.todo.Jobs.Job;
+@using toyiyo.todo.Jobs
+@using static toyiyo.todo.Jobs.Job
 @model toyiyo.todo.Web.Models.Jobs.EditJobModalViewModel
 @{
     Layout = null;
@@ -32,6 +32,23 @@
             <label class="col-md-3 col-form-label" for="title">@L("JobTitle")</label>
             <div class="col-md-9">
                 <input id="title" class="form-control" type="text" name="title" value="@Model.Title" required maxlength="500" minlength="2">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-md-3 col-form-label" for="jobLevel">@L("JobType")</label>
+            <div class="col-md-9">
+                <select id="jobLevel" class="form-control" name="level" required>
+                    @foreach (JobLevel level in Enum.GetValues(typeof(JobLevel)))
+                    {
+                        if (level != JobLevel.SubTask)
+                        {
+                            if (level == Model.Level) {
+                                <option value="@((int)level)" selected>@level</option>}
+                                else {<option value="@((int)level)">@level</option>
+                            }
+                        }
+                    }
+                </select>
             </div>
         </div>
         <div class="form-group row">
