@@ -511,6 +511,7 @@
             jobStatus: jobStatus, // only showing active epics
             projectId: projectId,
             levels: [level], // Set level to an array containing the level
+            maxResultCount: "1000", // Set a high max result count to ensure all epics are loaded
             sorting: 'OrderByDate DESC',
         }).done(function (data) {
             // Clear the contents of #list-tab-epics

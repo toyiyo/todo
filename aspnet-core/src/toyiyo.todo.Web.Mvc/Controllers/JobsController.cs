@@ -9,6 +9,8 @@ using toyiyo.todo.Web.Models.Jobs;
 using System.Collections.Generic;
 using static toyiyo.todo.Jobs.Job;
 using toyiyo.todo.Projects;
+using System.Linq;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace toyiyo.todo.Web.Controllers
 {
@@ -44,9 +46,30 @@ namespace toyiyo.todo.Web.Controllers
                 var output = await JobAppService.Get(JobId);
                 if (output == null) { return new NotFoundResult(); }
                 
-                var subTasks = await JobAppService.GetAll(new GetAllJobsInput() { ParentJobId = JobId, MaxResultCount = int.MaxValue, Levels = new List<JobLevel> { JobLevel.SubTask}.ToArray() });
-                //convert map all subtasks to a list of editjobmodalviewmodel and add to viewbag
+                var subTasks = await JobAppService.GetAll(new GetAllJobsInput() { 
+                    ParentJobId = JobId, 
+                    MaxResultCount = int.MaxValue, 
+                    Levels = new List<JobLevel> { JobLevel.SubTask}.ToArray() 
+                });
+
+                // Get all epics for the project
+                var epics = await JobAppService.GetAll(new GetAllJobsInput() {
+                    ProjectId = output.Project.Id,
+                    MaxResultCount = int.MaxValue,
+                    Levels = new List<JobLevel> { JobLevel.Epic }.ToArray(),
+                    JobStatus = Status.Open
+                });
+
                 ViewBag.SubTasks = ObjectMapper.Map<List<EditJobSubTaskModalViewModel>>(subTasks.Items);
+                ViewBag.Epics = epics.Items.Select(e => new SelectListItem { 
+                    Value = e.Id.ToString(),
+                    Text = e.Title,
+                    Selected = e.Id == output.ParentId
+                }).Prepend(new SelectListItem {
+                    Value = Guid.Empty.ToString(),
+                    Text = "No Parent",
+                    Selected = !output.ParentId.HasValue
+                });
 
                 var model = ObjectMapper.Map<EditJobModalViewModel>(output);
                 return PartialView("_EditModal", model);

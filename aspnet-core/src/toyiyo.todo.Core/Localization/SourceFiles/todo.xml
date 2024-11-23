@@ -15,6 +15,7 @@
     <text name="Jobs" value="Jobs" />
     <text name="JobDescription" value="Description" />
     <text name="JobType" value="Type" />
+    <text name="ParentEpic" value="Parent epic" />
     <text name="Subtasks" value="Subtasks" />
     <text name="DueDate" value="Due"/>
     <text name="WelcomeMessage" value="Welcome to todo!" />
