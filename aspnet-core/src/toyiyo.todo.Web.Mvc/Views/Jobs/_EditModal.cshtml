@@ -51,6 +51,21 @@
                 </select>
             </div>
         </div>
+        <div class="form-group row" @(Model.Level == JobLevel.Epic ? "style=display:none" : "")>
+            <label class="col-md-3 col-form-label" for="parentId">@L("ParentEpic")</label>
+            <div class="col-md-9">
+                <select id="parentId" class="form-control" name="parentId">
+                    @foreach (var epic in (IEnumerable<SelectListItem>)ViewBag.Epics)
+                    {
+                        if (epic.Selected) {
+                            <option value="@epic.Value" selected>@epic.Text</option>
+                        } else {
+                            <option value="@epic.Value">@epic.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
         <div class="form-group row">
             <label class="col-md-3 col-form-label" for="dueDate">@L("DueDate")</label>
             <div class="col-md-9">

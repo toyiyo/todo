@@ -25,6 +25,14 @@
                             </select>
                         </div>
                     </div>
+                    <div class="form-group row">
+                        <label class="col-md-3 col-form-label" for="parentId">@L("Parent Epic")</label>
+                        <div class="col-md-9">
+                            <select id="parentId" name="parentId" class="form-control">
+                                <option value="">No Parent</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 @await Html.PartialAsync("~/Views/Shared/Modals/_ModalFooterWithSaveAndCancel.cshtml")
             </form>

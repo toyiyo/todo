@@ -45,5 +45,10 @@ namespace toyiyo.todo.Jobs.Dto
         /// </summary>
         [Required]
         public JobLevel Level { get; set; }
+
+        /// <summary>
+        /// Gets or sets the parent job identifier.
+        /// </summary>
+        public System.Guid ParentId { get; set; }
     }
 }

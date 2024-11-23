@@ -172,6 +172,7 @@ namespace toyiyo.todo.Jobs
                 job = Job.SetDescription(job, input.Description, user);
                 job = Job.SetDueDate(job, input.DueDate ?? default, user);
                 job = Job.SetLevel(job, input.Level, user);
+                job = Job.SetParent(job, input.ParentId == Guid.Empty ? null : await _jobManager.Get(input.ParentId), user);
                 
                 // Save changes once
                 await _jobManager.Update(job);
