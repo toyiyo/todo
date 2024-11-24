@@ -10,7 +10,6 @@ namespace toyiyo.todo.Authorization.Users
 {
     [Index(nameof(Email))]
     [Index(nameof(Token))]
-    [Index(nameof(IsActive))]
     public class UserInvitation : FullAuditedEntity<Guid>, IMustHaveTenant
     {
         private const int TOKEN_LENGTH = 64; // 512 bits
@@ -32,8 +31,6 @@ namespace toyiyo.todo.Authorization.Users
         public DateTime? AcceptedDate { get; protected set; }
         [Required]
         public string Token { get; protected set; }
-        [Required]
-        public bool IsActive { get; protected set; }
         [Required]
         public InvitationStatus Status {get; protected set;}
 
@@ -65,7 +62,7 @@ namespace toyiyo.todo.Authorization.Users
                 InvitedByUserId = invitedByUserId,
                 ExpirationDate = expirationDate,
                 Token = token,
-                IsActive = true,
+                Status = status,
                 CreatorUserId = user.Id,
                 CreationTime = Clock.Now
             };
@@ -74,7 +71,7 @@ namespace toyiyo.todo.Authorization.Users
             return userInvitation;
         }
         public bool IsExpired() => ExpirationDate < Clock.Now;
-        public bool IsValid() => IsActive && !IsExpired() && Status == InvitationStatus.Pending;
+        public bool IsValid() => !IsExpired() && Status == InvitationStatus.Pending;
         public bool ValidateToken(string token) => Token.Equals(token, StringComparison.Ordinal) && IsValid();
         public static DateTime GetDefaultExpirationDate() => Clock.Now.AddDays(DEFAULT_EXPIRATION_DAYS);
 
@@ -123,7 +120,6 @@ namespace toyiyo.todo.Authorization.Users
             throw new InvalidOperationException("Email address does not match invitation");
 
             AcceptedDate = Clock.Now;
-            IsActive = false;
             Status = InvitationStatus.Accepted;
             SetLastModified(this, acceptedBy);
         }
