@@ -32,7 +32,7 @@ namespace toyiyo.todo.Authorization.Users
         [Required]
         public string Token { get; protected set; }
         [Required]
-        public InvitationStatus Status {get; protected set;}
+        public InvitationStatus Status { get; protected set; }
 
         /// <summary>
         /// We don't make constructor public and forcing to create events using <see cref="Create"/> method.
@@ -43,17 +43,14 @@ namespace toyiyo.todo.Authorization.Users
 
         private static UserInvitation Create(int tenantId, string email, long invitedByUserId, DateTime expirationDate, string token, User user, InvitationStatus status = InvitationStatus.Pending)
         {
-            if (string.IsNullOrWhiteSpace(email))
-                throw new ArgumentNullException(nameof(email));
-            if (!IsValidEmail(email)){
+            if (string.IsNullOrWhiteSpace(email)) throw new ArgumentNullException(nameof(email));
+            if (!IsValidEmail(email))
+            {
                 throw new ArgumentException("Email is not valid", nameof(email));
             }
-            if (invitedByUserId <= 0)
-                throw new ArgumentNullException(nameof(invitedByUserId));
-            if (user == null)
-                throw new ArgumentNullException(nameof(user));
-            if (expirationDate <= Clock.Now)
-                throw new ArgumentException("Expiration date must be in the future", nameof(expirationDate));
+            if (invitedByUserId <= 0) throw new ArgumentNullException(nameof(invitedByUserId));
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            if (expirationDate <= Clock.Now) throw new ArgumentException("Expiration date must be in the future", nameof(expirationDate));
 
             var userInvitation = new UserInvitation
             {
@@ -82,11 +79,15 @@ namespace toyiyo.todo.Authorization.Users
             return Convert.ToBase64String(bytes);
         }
 
-        private static bool IsValidEmail(string email) {
-            try {
+        private static bool IsValidEmail(string email)
+        {
+            try
+            {
                 var addr = new System.Net.Mail.MailAddress(email);
                 return addr.Address == email;
-            } catch {
+            }
+            catch
+            {
                 return false;
             }
         }
@@ -110,18 +111,31 @@ namespace toyiyo.todo.Authorization.Users
 
         public void Accept(User acceptedBy)
         {
-        if (acceptedBy == null)
-            throw new ArgumentNullException(nameof(acceptedBy));
-            
-        if (!IsValid())
-            throw new InvalidOperationException("Invitation is not valid");
-            
-        if (!acceptedBy.EmailAddress.Equals(Email, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Email address does not match invitation");
+            if (acceptedBy == null)
+                throw new ArgumentNullException(nameof(acceptedBy));
+
+            if (!IsValid())
+                throw new InvalidOperationException("Invitation is not valid");
+
+            if (!acceptedBy.EmailAddress.Equals(Email, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Email address does not match invitation");
 
             AcceptedDate = Clock.Now;
             Status = InvitationStatus.Accepted;
             SetLastModified(this, acceptedBy);
+        }
+
+        public static UserInvitation Reactivate(UserInvitation invitation, User reactivatedBy)
+        {
+            if (invitation == null)
+                throw new ArgumentNullException(nameof(invitation));
+
+            invitation.Status = InvitationStatus.Pending;
+            invitation.ExpirationDate = GetDefaultExpirationDate();
+            invitation.Token = GenerateToken();
+            SetLastModified(invitation, reactivatedBy);
+
+            return invitation;
         }
 
     }

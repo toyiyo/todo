@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using Abp.AutoMapper;
 using toyiyo.todo.Authorization.Users;
 
 namespace toyiyo.todo.Users
@@ -11,6 +12,7 @@ namespace toyiyo.todo.Users
     /// This DTO is used to transfer user invitation data between layers of the application.
     /// It contains the essential information needed to invite a new user.
     /// </remarks>
+    [AutoMapFrom(typeof(UserInvitation))]
     public class UserInvitationDto
     {
         public virtual int TenantId { get; set; }
@@ -21,8 +23,6 @@ namespace toyiyo.todo.Users
         [Required]
         public long InvitedByUserId { get; protected set; }
 
-        // Add navigation property but make it virtual for lazy loading
-        public virtual User InvitedBy { get; protected set; }
         [Required]
         public DateTime ExpirationDate { get; protected set; }
         public DateTime? AcceptedDate { get; protected set; }
