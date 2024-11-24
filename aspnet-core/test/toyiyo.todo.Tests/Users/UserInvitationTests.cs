@@ -92,5 +92,62 @@ namespace toyiyo.todo.Tests.Users
             // Act & Assert
             Should.Throw<InvalidOperationException>(() => invitation.Accept(acceptedBy));
         }
+        [Fact]
+        public void Accept_Should_Throw_Exception_When_AcceptedBy_Is_Null()
+        {
+            // Arrange
+            var invitation = UserInvitation.CreateDefaultInvitation(1, "test@example.com", new User { Id = 1, EmailAddress = "inviter@example.com" });
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => invitation.Accept(null));
+        }
+
+        [Fact]
+        public void Accept_Should_Throw_Exception_When_Email_Does_Not_Match()
+        {
+            // Arrange
+            var invitation = UserInvitation.CreateDefaultInvitation(1, "test@example.com", new User { Id = 1, EmailAddress = "inviter@example.com" });
+
+            // Act & Assert
+            Assert.Throws<InvalidOperationException>(() => invitation.Accept(new User { Id = 2, EmailAddress = "wrong@example.com" }));
+        }
+
+        [Fact]
+        public void Accept_Should_Set_AcceptedDate_And_Status()
+        {
+            // Arrange
+            var invitation = UserInvitation.CreateDefaultInvitation(1, "test@example.com", new User { Id = 1, EmailAddress = "inviter@example.com" });
+            var user = new User { Id = 2, EmailAddress = "test@example.com" };
+
+            // Act
+            invitation.Accept(user);
+
+            // Assert
+            Assert.Equal(InvitationStatus.Accepted, invitation.Status);
+            Assert.NotNull(invitation.AcceptedDate);
+        }
+
+        [Fact]
+        public void Reactivate_Should_Throw_Exception_When_Invitation_Is_Null()
+        {
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => UserInvitation.Reactivate(null, new User { Id = 1, EmailAddress = "reactivator@example.com" }));
+        }
+
+        [Fact]
+        public void Reactivate_Should_Set_Status_And_ExpirationDate_And_Token()
+        {
+            // Arrange
+            var invitation = UserInvitation.CreateDefaultInvitation(1, "test@example.com", new User { Id = 1, EmailAddress = "inviter@example.com" });
+            var reactivatedBy = new User { Id = 2, EmailAddress = "reactivator@example.com" };
+
+            // Act
+            var reactivatedInvitation = UserInvitation.Reactivate(invitation, reactivatedBy);
+
+            // Assert
+            Assert.Equal(InvitationStatus.Pending, reactivatedInvitation.Status);
+            Assert.True(reactivatedInvitation.ExpirationDate > Clock.Now);
+            Assert.NotNull(reactivatedInvitation.Token);
+        }
     }
 }
