@@ -4,6 +4,6 @@ namespace toyiyo.todo.Users
 {
     internal interface IUserInvitationService
     {
-        public Task<UserInvitationDto> CreateInvitationAsync(CreateUserInvitationDto input)
+        public Task<UserInvitationDto> CreateInvitationAsync(CreateUserInvitationDto input);
     }
 }
