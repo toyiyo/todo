@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
+using toyiyo.todo.MultiTenancy;
 
 namespace toyiyo.todo.Authorization.Users
 {
-    internal interface IUserInvitationManager
+    public interface IUserInvitationManager
     {
-        public Task<UserInvitation> CreateInvitationAsync(int tenantId, string email, long invitedByUserId);
+        public Task<UserInvitation> CreateInvitationAsync(Tenant tenant, string email, User invitedByUser);
 
     }
 }

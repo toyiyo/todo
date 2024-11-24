@@ -9,6 +9,7 @@ using Abp.UI;
 using toyiyo.todo.Core.Subscriptions;
 using System.Linq.Dynamic.Core;
 using Abp.Domain.Uow;
+using toyiyo.todo.MultiTenancy;
 
 namespace toyiyo.todo.Authorization.Users
 {
@@ -17,22 +18,19 @@ namespace toyiyo.todo.Authorization.Users
         private readonly IRepository<UserInvitation, Guid> _userInvitationRepository;
         private readonly UserManager _userManager;
         private readonly IEmailSender _emailSender;
-        private readonly ISubscriptionManager _subscriptionManager;
 
         public UserInvitationManager(
             IRepository<UserInvitation, Guid> userInvitationRepository,
             UserManager userManager,
-            IEmailSender emailSender,
-            ISubscriptionManager subscriptionManager)
+            IEmailSender emailSender)
         {
             _userInvitationRepository = userInvitationRepository;
             _userManager = userManager;
             _emailSender = emailSender;
-            _subscriptionManager = subscriptionManager;
         }
 
         [UnitOfWork]
-        public async Task<UserInvitation> CreateInvitationAsync(int tenantId, string email, long invitedByUserId)
+        public async Task<UserInvitation> CreateInvitationAsync(Tenant tenant, string email, User invitedByUser)
         {
             try
             {
@@ -43,18 +41,16 @@ namespace toyiyo.todo.Authorization.Users
                     throw new UserFriendlyException("User with this email already exists");
                 }
 
-                // Check subscription seat limit
-                var subscription = _subscriptionManager.GetSubscriptionByTenantId(tenantId);
-                var totalSeats = subscription?.Items?.Data?.FirstOrDefault()?.Quantity ?? 0;
-                var activeUserCount = _userManager.Users.Count(u => u.TenantId == tenantId && u.IsActive);
-                var activeInvitesCount = await _userInvitationRepository.CountAsync(i => i.TenantId == tenantId && i.IsValid());
+                var totalSeats = tenant.SubscriptionSeats;
+                var activeUserCount = _userManager.Users.Count(u => u.IsActive);
+                var activeInvitesCount = await _userInvitationRepository.CountAsync(i => i.IsValid());
 
                 if (activeUserCount + activeInvitesCount >= totalSeats)
                 {
                     throw new UserFriendlyException("Subscription seat limit reached");
                 }
 
-                var invitation = UserInvitation.CreateDefaultInvitation(tenantId, email, await _userManager.GetUserByIdAsync(invitedByUserId));
+                var invitation = UserInvitation.CreateDefaultInvitation(tenant.Id, email, invitedByUser);
                 await _userInvitationRepository.InsertAsync(invitation);
                 await SendInvitationEmailAsync(invitation);
 
