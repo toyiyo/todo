@@ -1,14 +1,12 @@
 using System.Threading.Tasks;
-using Abp.Application.Services;
 using Abp.Authorization;
-using Abp.UI;
 using toyiyo.todo.Authorization;
 using toyiyo.todo.Authorization.Users;
 
 namespace toyiyo.todo.Users
 {
      [AbpAuthorize(PermissionNames.Pages_Subscription)]
-    public class UserInvitationAppService : todoAppServiceBase, IUserInvitationService
+    public class UserInvitationAppService : todoAppServiceBase, IUserInvitationAppService
     {
         private readonly IUserInvitationManager _userInvitationManager;
 

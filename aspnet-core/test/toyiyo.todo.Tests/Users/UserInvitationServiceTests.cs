@@ -9,11 +9,12 @@ namespace toyiyo.todo.Tests.Users
 {
     public class UserInvitationServiceTests : todoTestBase
     {
-        private readonly IUserInvitationService _userInvitationService;
+        private readonly IUserInvitationAppService _userInvitationService;
         
         public UserInvitationServiceTests()
         {
-            _userInvitationService = Resolve<IUserInvitationService>();
+            // Register IUserInvitationService
+            _userInvitationService = Resolve<IUserInvitationAppService>();
         }
 
         [Fact]
