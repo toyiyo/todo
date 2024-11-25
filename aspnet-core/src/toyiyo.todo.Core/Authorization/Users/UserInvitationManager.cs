@@ -110,6 +110,7 @@ namespace toyiyo.todo.Authorization.Users
         }
         private async Task SendInvitationEmailAsync(UserInvitation invitation)
         {
+            //todo: setup email sending
             var link = $"https://yourapp.com/Account/Register?token={invitation.Token}";
             var subject = "You are invited!";
             var body = $"Please click the following link to register: {link}";
