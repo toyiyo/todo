@@ -82,5 +82,24 @@ namespace toyiyo.todo.Tests.Users
                 await _userInvitationService.CreateInvitationAsync(input);
             });
         }
+
+        [Fact]
+        public async Task Should_Validate_Subscription_Limit()
+        {
+            // Arrange
+            LoginAsDefaultTenantAdmin();
+            var currentTenant = await GetCurrentTenantAsync();
+            await _tenantManager.SetSubscriptionSeats(currentTenant, 1);
+            var input = new CreateUserInvitationDto
+            {
+                Email = "test@example.com"
+            };
+
+            await Should.ThrowAsync<UserFriendlyException>(async () =>
+            {
+                await _userInvitationService.CreateInvitationAsync(input);
+            });
+        }
+
     }
 }
