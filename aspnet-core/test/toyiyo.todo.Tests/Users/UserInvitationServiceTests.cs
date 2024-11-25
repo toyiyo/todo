@@ -4,23 +4,31 @@ using Xunit;
 using toyiyo.todo.Users;
 using Abp.UI;
 using toyiyo.todo.Authorization.Users;
+using toyiyo.todo.MultiTenancy;
 
 namespace toyiyo.todo.Tests.Users
 {
     public class UserInvitationServiceTests : todoTestBase
     {
         private readonly IUserInvitationAppService _userInvitationService;
-        
+        private readonly TenantManager _tenantManager;
+
         public UserInvitationServiceTests()
         {
             // Register IUserInvitationService
             _userInvitationService = Resolve<IUserInvitationAppService>();
+            _tenantManager = Resolve<TenantManager>();
+            // Call LoginAsDefaultTenantAdmin before each test
+            LoginAsDefaultTenantAdmin();
         }
 
         [Fact]
         public async Task Should_Create_Invitation_Successfully()
         {
-            // Arrange
+            //set tenant's subscription seats
+            LoginAsDefaultTenantAdmin();
+            var currentTenant = await GetCurrentTenantAsync();
+            await _tenantManager.SetSubscriptionSeats(currentTenant, 1000);
             var input = new CreateUserInvitationDto
             {
                 Email = "test@example.com"
@@ -39,6 +47,9 @@ namespace toyiyo.todo.Tests.Users
         public async Task Should_Not_Allow_Duplicate_Invitations()
         {
             // Arrange
+            LoginAsDefaultTenantAdmin();
+            var currentTenant = await GetCurrentTenantAsync();
+            await _tenantManager.SetSubscriptionSeats(currentTenant, 1000);
             var input = new CreateUserInvitationDto
             {
                 Email = "duplicate@example.com"
@@ -46,7 +57,7 @@ namespace toyiyo.todo.Tests.Users
 
             // Act & Assert
             await _userInvitationService.CreateInvitationAsync(input);
-            
+
             await Should.ThrowAsync<UserFriendlyException>(async () =>
             {
                 await _userInvitationService.CreateInvitationAsync(input);
@@ -66,7 +77,7 @@ namespace toyiyo.todo.Tests.Users
             };
 
             // Act & Assert
-            await Should.ThrowAsync<UserFriendlyException>(async () =>
+            await Should.ThrowAsync<Abp.Runtime.Validation.AbpValidationException>(async () =>
             {
                 await _userInvitationService.CreateInvitationAsync(input);
             });
