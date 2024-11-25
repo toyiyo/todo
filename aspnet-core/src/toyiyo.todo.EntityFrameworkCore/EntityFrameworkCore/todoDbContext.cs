@@ -14,6 +14,7 @@ namespace toyiyo.todo.EntityFrameworkCore
         /* Define a DbSet for each entity of the application */
         public DbSet<Project> Projects { get; set; }
         public DbSet<Job> Jobs { get; set; }
+        public DbSet<UserInvitation> UserInvitations { get; set; }
 
         public todoDbContext(DbContextOptions<todoDbContext> options)
             : base(options)
@@ -28,6 +29,11 @@ namespace toyiyo.todo.EntityFrameworkCore
             modelBuilder.Entity<ApplicationLanguageText>()
                 .Property(p => p.Value)
                 .HasMaxLength(100); // any integer that is smaller than 10485760
+
+            modelBuilder.Entity<UserInvitation>()
+                .HasOne(ui => ui.InvitedBy)
+                .WithMany()
+                .HasForeignKey(ui => ui.InvitedByUserId);
         }
     }
 }

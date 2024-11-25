@@ -29,6 +29,12 @@ namespace toyiyo.todo.Core.Subscriptions
             StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("StripeAPIKeyProduction") ?? throw new ConfigurationErrorsException("StripeAPIKeyProduction environment variable is not set.");
         }
 
+        public Subscription GetSubscriptionByTenantId(int tenantId)
+        {
+            var tenant = _tenantManager.GetById(tenantId);
+            return GetSubscriptionById(tenant.ExternalSubscriptionId);
+        }
+
         public Subscription GetSubscriptionById(string subscriptionId)
         {
             try
