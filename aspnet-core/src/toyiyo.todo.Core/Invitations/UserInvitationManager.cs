@@ -57,23 +57,16 @@ namespace toyiyo.todo.Invitations
         [UnitOfWork]
         public async Task<UserInvitation> CreateInvitationAsync(Tenant tenant, string email, User invitedByUser)
         {
-            try
-            {
-                await ValidateInvitationRequest(tenant, email, invitedByUser);
+            await ValidateInvitationRequest(tenant, email, invitedByUser);
 
-                var existingInvitation = await FindExistingInvitation(email);
-                if (existingInvitation != null)
-                {
-                    return await HandleExistingInvitation(existingInvitation, invitedByUser);
-                }
-
-                await ValidateSubscriptionSeats(tenant);
-                return await CreateAndSendNewInvitation(tenant, email, invitedByUser);
-            }
-            catch (Exception ex) when (ex is not UserFriendlyException)
+            var existingInvitation = await FindExistingInvitation(email);
+            if (existingInvitation != null)
             {
-                throw new UserFriendlyException("Failed to create invitation", ex.Message);
+                return await HandleExistingInvitation(existingInvitation, invitedByUser);
             }
+
+            await ValidateSubscriptionSeats(tenant);
+            return await CreateAndSendNewInvitation(tenant, email, invitedByUser);
         }
         private async Task ValidateInvitationRequest(Tenant tenant, string email, User invitedByUser)
         {
@@ -84,7 +77,7 @@ namespace toyiyo.todo.Invitations
             var existingUser = await _userManager.FindByEmailAsync(email);
             if (existingUser != null)
             {
-                throw new UserFriendlyException("User already exists", $"User with email {email} is already registered");
+                throw new ArgumentOutOfRangeException("User already exists", $"User with email {email} is already registered");
             }
         }
 
@@ -101,7 +94,7 @@ namespace toyiyo.todo.Invitations
 
             if (activeUserCount + activeInvitesCount >= tenant.SubscriptionSeats)
             {
-                throw new UserFriendlyException("Subscription limit reached", $"Your subscription limit of {tenant.SubscriptionSeats} users has been reached");
+                throw new ArgumentOutOfRangeException("Subscription limit reached", $"Your subscription limit of {tenant.SubscriptionSeats} users has been reached");
             }
         }
 
