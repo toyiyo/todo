@@ -124,6 +124,27 @@ namespace toyiyo.todo.Tests.Invitations
             result.TotalCount.ShouldBeGreaterThan(0);
             result.Items.ShouldContain(i => i.Email == invitation.Email);
         }
+        [Fact]
+        public async Task Should_Find_Invitations()
+        {
+            // Arrange
+            LoginAsDefaultTenantAdmin();
+            var currentTenant = await GetCurrentTenantAsync();
+            await _tenantManager.SetSubscriptionSeats(currentTenant, 1000);
+            var input = new CreateUserInvitationDto
+            {
+                Email = "test@example.com"
+            };
+            var invitation = await _userInvitationService.CreateInvitationAsync(input);
 
+            // Act
+            var getAllInput = new GetAllUserInvitationsInput() { Keyword = "test"};
+            var result = await _userInvitationService.GetAll(getAllInput);
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.TotalCount.ShouldBeGreaterThan(0);
+            result.Items.ShouldContain(i => i.Email == invitation.Email);
+        }
     }
 }
