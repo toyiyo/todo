@@ -7,7 +7,7 @@ using toyiyo.todo.MultiTenancy;
 using toyiyo.todo.Invitations;
 using toyiyo.todo.Invitations.Dto;
 
-namespace toyiyo.todo.Tests.Users
+namespace toyiyo.todo.Tests.Invitations
 {
     public class UserInvitationServiceTests : todoTestBase
     {

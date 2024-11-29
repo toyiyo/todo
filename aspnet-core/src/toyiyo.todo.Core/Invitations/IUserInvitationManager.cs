@@ -9,6 +9,7 @@ namespace toyiyo.todo.Invitations
     {
         public Task<UserInvitation> CreateInvitationAsync(Tenant tenant, string email, User invitedByUser);
         public Task<List<UserInvitation>> GetAll(GetAllUserInvitationsInput input);
+        public Task<int> GetAllCount(GetAllUserInvitationsInput input)
 
     }
 }

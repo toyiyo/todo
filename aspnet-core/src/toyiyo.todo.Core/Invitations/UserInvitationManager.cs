@@ -45,6 +45,12 @@ namespace toyiyo.todo.Invitations
             .ToListAsync();
         }
 
+        [UnitOfWork]
+        public async Task<int> GetAllCount(GetAllUserInvitationsInput input)
+        {
+            return await GetAllJobsQueryable(input).CountAsync();
+        }
+
         private IQueryable<UserInvitation> GetAllJobsQueryable(GetAllUserInvitationsInput input)
         {
             //repository methods already filter by tenant, we can check other attributes by adding "or" "||" to the whereif clause
