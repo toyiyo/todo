@@ -83,7 +83,7 @@ namespace toyiyo.todo.Invitations
             var existingUser = await _userManager.FindByEmailAsync(email);
             if (existingUser != null)
             {
-                throw new ArgumentOutOfRangeException("User already exists", $"User with email {email} is already registered");
+                throw new InvalidOperationException($"User with email {email} is already registered");
             }
         }
 
@@ -100,7 +100,7 @@ namespace toyiyo.todo.Invitations
 
             if (activeUserCount + activeInvitesCount >= tenant.SubscriptionSeats)
             {
-                throw new ArgumentOutOfRangeException("Subscription limit reached", $"Your subscription limit of {tenant.SubscriptionSeats} users has been reached");
+                throw new InvalidOperationException($"Subscription limit reached: Your subscription limit of {tenant.SubscriptionSeats} users has been reached");
             }
         }
 
@@ -108,10 +108,10 @@ namespace toyiyo.todo.Invitations
         {
             return existingInvitation.Status switch
             {
-                InvitationStatus.Pending when existingInvitation.ExpirationDate > Clock.Now => throw new UserFriendlyException("Active invitation exists", $"An invitation for this email is valid until {existingInvitation.ExpirationDate}"),
-                InvitationStatus.Accepted => throw new UserFriendlyException("Already accepted", "This invitation has already been accepted"),
+                InvitationStatus.Pending when existingInvitation.ExpirationDate > Clock.Now => throw new InvalidOperationException( $"An invitation for this email is valid until {existingInvitation.ExpirationDate}"),
+                InvitationStatus.Accepted => throw new InvalidOperationException("This invitation has already been accepted"),
                 InvitationStatus.Expired or InvitationStatus.Cancelled => await ReactivateInvitation(existingInvitation, invitedByUser),
-                _ => throw new UserFriendlyException("Invalid status", $"Invitation has an invalid status: {existingInvitation.Status}"),
+                _ => throw new InvalidOperationException($"Invitation has an invalid status: {existingInvitation.Status}"),
             };
         }
 
