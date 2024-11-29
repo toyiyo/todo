@@ -1,18 +1,23 @@
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
+using Abp.Collections.Extensions;
 using Abp.Domain.Repositories;
 using Abp.Domain.Services;
-using Abp.Net.Mail;
-using Abp.UI;
-
 using Abp.Domain.Uow;
-using toyiyo.todo.MultiTenancy;
+using Abp.Extensions;
+using Abp.Linq.Extensions;
+using Abp.Net.Mail;
 using Abp.Timing;
+using Abp.UI;
+using Microsoft.EntityFrameworkCore;
+using toyiyo.todo.Authorization.Users;
+using toyiyo.todo.MultiTenancy;
 
-
-namespace toyiyo.todo.Authorization.Users
+namespace toyiyo.todo.Invitations
 {
     public class UserInvitationManager : DomainService, IUserInvitationManager
     {
@@ -28,6 +33,25 @@ namespace toyiyo.todo.Authorization.Users
             _userInvitationRepository = userInvitationRepository;
             _userManager = userManager;
             _emailSender = emailSender;
+        }
+
+        [UnitOfWork]
+        public async Task<List<UserInvitation>> GetAll(GetAllUserInvitationsInput input)
+        {
+            return await GetAllJobsQueryable(input)
+            .OrderBy<UserInvitation>(input?.Sorting ?? "CreationTime DESC")
+            .Skip(input?.SkipCount ?? 0)
+            .Take(input?.MaxResultCount ?? int.MaxValue)
+            .ToListAsync();
+        }
+
+        private IQueryable<UserInvitation> GetAllJobsQueryable(GetAllUserInvitationsInput input)
+        {
+            //repository methods already filter by tenant, we can check other attributes by adding "or" "||" to the whereif clause
+            var query = _userInvitationRepository.GetAll()
+                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), p => p.Email.ToUpper().Contains(input.Keyword.ToUpper()));
+
+            return query;
         }
 
         [UnitOfWork]
@@ -60,7 +84,7 @@ namespace toyiyo.todo.Authorization.Users
             var existingUser = await _userManager.FindByEmailAsync(email);
             if (existingUser != null)
             {
-                throw new UserFriendlyException("User already exists",$"User with email {email} is already registered");
+                throw new UserFriendlyException("User already exists", $"User with email {email} is already registered");
             }
         }
 
@@ -86,7 +110,7 @@ namespace toyiyo.todo.Authorization.Users
             return existingInvitation.Status switch
             {
                 InvitationStatus.Pending when existingInvitation.ExpirationDate > Clock.Now => throw new UserFriendlyException("Active invitation exists", $"An invitation for this email is valid until {existingInvitation.ExpirationDate}"),
-                InvitationStatus.Accepted => throw new UserFriendlyException("Already accepted","This invitation has already been accepted"),
+                InvitationStatus.Accepted => throw new UserFriendlyException("Already accepted", "This invitation has already been accepted"),
                 InvitationStatus.Expired or InvitationStatus.Cancelled => await ReactivateInvitation(existingInvitation, invitedByUser),
                 _ => throw new UserFriendlyException("Invalid status", $"Invitation has an invalid status: {existingInvitation.Status}"),
             };
@@ -100,7 +124,7 @@ namespace toyiyo.todo.Authorization.Users
             return reactivatedInvitation;
         }
 
-        private async Task<UserInvitation> CreateAndSendNewInvitation(Tenant tenant,string email, User invitedByUser)
+        private async Task<UserInvitation> CreateAndSendNewInvitation(Tenant tenant, string email, User invitedByUser)
         {
             var invitation = UserInvitation.CreateDefaultInvitation(tenant.Id, email, invitedByUser);
             await _userInvitationRepository.InsertAsync(invitation);

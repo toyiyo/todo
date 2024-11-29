@@ -1,7 +1,8 @@
 using System.Threading.Tasks;
+using toyiyo.todo.Authorization.Users;
 using toyiyo.todo.MultiTenancy;
 
-namespace toyiyo.todo.Authorization.Users
+namespace toyiyo.todo.Invitations
 {
     public interface IUserInvitationManager
     {

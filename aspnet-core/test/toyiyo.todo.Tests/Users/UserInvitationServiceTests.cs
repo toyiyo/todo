@@ -3,7 +3,6 @@ using Shouldly;
 using Xunit;
 using toyiyo.todo.Users;
 using Abp.UI;
-using toyiyo.todo.Authorization.Users;
 using toyiyo.todo.MultiTenancy;
 using toyiyo.todo.Invitations;
 using toyiyo.todo.Invitations.Dto;

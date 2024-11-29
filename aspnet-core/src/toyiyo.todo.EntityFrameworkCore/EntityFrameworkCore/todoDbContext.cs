@@ -6,6 +6,7 @@ using toyiyo.todo.MultiTenancy;
 using Abp.Localization;
 using toyiyo.todo.Projects;
 using toyiyo.todo.Jobs;
+using toyiyo.todo.Invitations;
 
 namespace toyiyo.todo.EntityFrameworkCore
 {

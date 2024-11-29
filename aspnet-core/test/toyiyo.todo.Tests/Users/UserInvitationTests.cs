@@ -3,6 +3,7 @@ using toyiyo.todo.Authorization.Users;
 using Abp.Timing;
 using Shouldly;
 using Xunit;
+using toyiyo.todo.Invitations;
 
 namespace toyiyo.todo.Tests.Users
 {

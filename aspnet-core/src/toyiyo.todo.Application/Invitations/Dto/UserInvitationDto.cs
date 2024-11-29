@@ -1,7 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using Abp.AutoMapper;
-using toyiyo.todo.Authorization.Users;
 
 namespace toyiyo.todo.Invitations.Dto
 {
