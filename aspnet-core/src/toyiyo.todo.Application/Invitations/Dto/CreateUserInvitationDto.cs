@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace toyiyo.todo.Users
+namespace toyiyo.todo.Invitations.Dto
 {
     /// <summary>
     /// Data transfer object for creating a user invitation.

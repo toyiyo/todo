@@ -2,8 +2,9 @@ using System.Threading.Tasks;
 using Abp.Authorization;
 using toyiyo.todo.Authorization;
 using toyiyo.todo.Authorization.Users;
+using toyiyo.todo.Invitations.Dto;
 
-namespace toyiyo.todo.Users
+namespace toyiyo.todo.Invitations
 {
      [AbpAuthorize(PermissionNames.Pages_Subscription)]
     public class UserInvitationAppService : todoAppServiceBase, IUserInvitationAppService

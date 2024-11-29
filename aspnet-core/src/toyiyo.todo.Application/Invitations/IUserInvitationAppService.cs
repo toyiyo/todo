@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
+using toyiyo.todo.Invitations.Dto;
 
-namespace toyiyo.todo.Users
+namespace toyiyo.todo.Invitations
 {
     public interface IUserInvitationAppService
     {
