@@ -1,0 +1,30 @@
+@using toyiyo.todo.Web.Startup
+@using toyiyo.todo.Invitations;
+@{
+    ViewBag.Title = L("Invitations");
+    ViewBag.CurrentPageName = PageNames.Invitations;
+}
+@section scripts {
+    <environment names="Development">
+        <script src="~/view-resources/Views/Invitations/Index.js" asp-append-version="true"></script>
+    </environment>
+
+    <environment names="Staging,Production">
+        <script src="~/view-resources/Views/Invitations/Index.min.js" asp-append-version="true"></script>
+    </environment>
+}
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <h1>@L("Invitations")</h1>
+            </div>
+            <div class="col-sm-6">
+                <a href="javascript:;" data-toggle="modal" data-target="#InvitationCreateModal" class="btn bg-blue float-sm-right">
+                    <i class="fa fa-plus aria-hidden="true"></i>
+                    @L("Create")
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
