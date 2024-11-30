@@ -54,6 +54,12 @@
     <text name="CreateNewTenant" value="Create new company" />
     <text name="AdminEmailAddress" value="Admin email address" />
     <text name="AdminPassword" value="Admin password" />
+    <text name="TypeEmailsHere" value="Type emails here" />
+    <text name="SendInvitations" value="Send invitation" />
+    <text name="SomeInvitationsFailed" value="Some invitations failed" />
+    <text name="InvitationsSentSuccessfully" value="Invitations sent successfully" />
+    <text name="ErrorOccurred" value="Error occurred" />
+    <text name="PleaseEnterAtLeastOneEmail" value="Please enter at least one email" />
     <text name="Save" value="Save" />
     <text name="Cancel" value="Cancel" />
     <text name="TenantName_Regex_Description" value="Company name must be at least 2 chars, starts with a letter and continue with letter, number, dash or underscore." />
