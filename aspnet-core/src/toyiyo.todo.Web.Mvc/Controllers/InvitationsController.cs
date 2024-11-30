@@ -27,8 +27,8 @@ namespace toyiyo.todo.Web.Controllers
         [HttpPost]
         public async Task<JsonResult> CreateInvitations([FromBody] List<CreateUserInvitationDto> input)
         {
-            var (invitations, errors) = await _userInvitationAppService.CreateInvitationsAsync(input);
-            return Json(new { invitations, errors });
+            var result = await _userInvitationAppService.CreateInvitationsAsync(input);
+            return Json(new { result.Invitations, result.Errors });
         }
     }
 }

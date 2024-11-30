@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
@@ -33,13 +34,16 @@ namespace toyiyo.todo.Invitations
             return ObjectMapper.Map<UserInvitationDto>(invitation);
         }
 
-        public async Task<(List<UserInvitationDto> Invitations, List<string> Errors)> CreateInvitationsAsync(List<CreateUserInvitationDto> input)
+        public async Task<CreateInvitationsResultDto> CreateInvitationsAsync(List<CreateUserInvitationDto> input)
         {
             var currentUser = await GetCurrentUserAsync();
             var tenant = await GetCurrentTenantAsync();
             var emails = input.Select(x => x.Email).ToList();
             var (invitations, errors) = await _userInvitationManager.CreateInvitationsAsync(tenant, emails, currentUser);
-            return (ObjectMapper.Map<List<UserInvitationDto>>(invitations), errors);
+            return new CreateInvitationsResultDto(
+                ObjectMapper.Map<List<UserInvitationDto>>(invitations), 
+                errors
+            );
         }
 
     }
