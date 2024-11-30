@@ -82,7 +82,7 @@
     const pill = document.createElement("div");
     pill.className = "email-pill";
     pill.innerHTML = `
-          <span>${email}</span>
+          <span>${_.escape(email)}</span>
           <span class="email-pill-remove">&times;</span>
       `;
     pill.querySelector(".email-pill-remove").onclick = () => {
@@ -134,7 +134,7 @@
           abp.message.warn(
             l("SomeInvitationsFailed") +
               "\n" +
-              result.errors.join("\n")
+              _.escape(result.errors.join("\n"))
           );
         }
         if (result.invitations && result.invitations.length > 0) {
