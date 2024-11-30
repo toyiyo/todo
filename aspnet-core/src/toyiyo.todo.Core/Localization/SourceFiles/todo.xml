@@ -46,6 +46,11 @@
     <text name="EmailAddress" value="Email address" />
     <text name="Tenants" value="Companies" />
     <text name="SavedSuccessfully" value="Saved successfully" />
+    <text name="Email" value="Email" />
+    <text name="ExpiresOn" value="Expires on" />
+    <text name="AcceptedOn" value="Accepted on" />
+    <text name="Invitations" value="Invitations" />
+    <text name="NotAccepted" value="Not accepted" />
     <text name="CreateNewTenant" value="Create new company" />
     <text name="AdminEmailAddress" value="Admin email address" />
     <text name="AdminPassword" value="Admin password" />

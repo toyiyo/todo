@@ -136,6 +136,12 @@
     ]
   },
   {
+    "outputFileName": "wwwroot/view-resources/Views/Invitations/Index.min.js",
+    "inputFiles": [
+      "wwwroot/view-resources/Views/Invitations/Index.js"
+    ]
+  },
+  {
     "outputFileName": "wwwroot/view-resources/Views/Account/Login.min.js",
     "inputFiles": [
       "wwwroot/view-resources/Views/Account/Login.js"
