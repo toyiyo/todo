@@ -9,5 +9,6 @@
         public const string Projects = "Projects";
         public const string Jobs = "Jobs";
         public const string Subscriptions = "Subscriptions";
+        public const string Invitations = "Invitations";
     }
 }

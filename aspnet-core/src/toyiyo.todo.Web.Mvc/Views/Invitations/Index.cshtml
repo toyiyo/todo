@@ -1,0 +1,62 @@
+@using toyiyo.todo.Web.Startup
+@using toyiyo.todo.Invitations;
+@{
+    ViewBag.Title = L("Invitations");
+    ViewBag.CurrentPageName = PageNames.Invitations;
+}
+@section scripts {
+    <environment names="Development">
+        <script src="~/view-resources/Views/Invitations/Index.js" asp-append-version="true"></script>
+    </environment>
+
+    <environment names="Staging,Production">
+        <script src="~/view-resources/Views/Invitations/Index.min.js" asp-append-version="true"></script>
+    </environment>
+}
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <h1>@L("Invitations")</h1>
+            </div>
+            <div class="col-sm-6">
+                @await Html.PartialAsync("~/Views/Shared/Components/_AdvancedSearch.cshtml")
+            </div>
+        </div>
+    </div>
+</section>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card container-fluid m-5 p-2 rounded mx-auto bg-light shadow">
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                @await Html.PartialAsync("~/Views/Shared/Components/_EmailInputComponent.cshtml")
+                                <button id="sendInvitations" class="btn btn-primary">@L("SendInvitations")</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="table-responsive col-12">
+                                    <table class="table table-hover table-bordered table-striped" id="InvitationsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>@L("Email")</th>
+                                                <th>@L("ExpiresOn")</th>
+                                                <th>@L("AcceptedOn")</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

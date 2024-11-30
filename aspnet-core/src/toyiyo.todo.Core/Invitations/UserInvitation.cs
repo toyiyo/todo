@@ -5,8 +5,9 @@ using Abp.Timing;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using toyiyo.todo.Authorization.Users;
 
-namespace toyiyo.todo.Authorization.Users
+namespace toyiyo.todo.Invitations
 {
     [Index(nameof(Email))]
     [Index(nameof(Token))]
