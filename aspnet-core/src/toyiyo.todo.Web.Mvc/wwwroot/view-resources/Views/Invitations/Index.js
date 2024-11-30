@@ -75,7 +75,8 @@
   });
 
   const validateEmail = (email) => {
-    return email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+    // Using a simpler, non-backtracking regex pattern
+    return email.match(/^[^@\s]+@[^@\s]+\.[^@\s]+$/);
   };
 
   const addEmailPill = (email) => {
