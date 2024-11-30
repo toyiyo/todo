@@ -61,6 +61,64 @@ namespace toyiyo.todo.Invitations
         }
 
         [UnitOfWork]
+        public async Task<(List<UserInvitation>, List<string> Errors)> CreateInvitationsAsync(Tenant tenant, List<string> emails, User invitedByUser)
+        {
+            var invitations = new List<UserInvitation>();
+            var errors = new List<string>();
+
+            // Check subscription seats once
+            try
+            {
+                await ValidateSubscriptionSeats(tenant, emails.Count);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Error validating subscription seats: {ex.Message}");
+                return (invitations, errors); // Return early if subscription validation fails
+            }
+
+            //validate each email
+            foreach (var email in emails)
+            {
+                await ValidateInvitationRequest(tenant, email, invitedByUser);
+            }
+
+            // Create invitations
+            foreach (var email in emails)
+            {
+                try
+                {
+                    var existingInvitation = await FindExistingInvitation(email);
+                    if (existingInvitation != null)
+                    {
+                        var handledInvitation = await HandleExistingInvitation(existingInvitation, invitedByUser);
+                        invitations.Add(handledInvitation);
+                    }
+                    else
+                    {
+                        var newInvitation = UserInvitation.CreateDefaultInvitation(tenant.Id, email, invitedByUser);
+                        invitations.Add(newInvitation);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"Error handling invitation for email {email}: {ex.Message}");
+                }
+            }
+
+            // Insert all new invitations
+            foreach (var invitation in invitations.Where(i => i.Id == default))
+            {
+                await _userInvitationRepository.InsertAsync(invitation);
+            }
+            // Send emails in parallel
+            var emailTasks = invitations.Select(invitation => SendInvitationEmailAsync(invitation));
+            await Task.WhenAll(emailTasks);
+
+            return (invitations, errors);
+        }
+
+        [UnitOfWork]
         public async Task<UserInvitation> CreateInvitationAsync(Tenant tenant, string email, User invitedByUser)
         {
             await ValidateInvitationRequest(tenant, email, invitedByUser);
@@ -92,13 +150,13 @@ namespace toyiyo.todo.Invitations
             return await _userInvitationRepository.FirstOrDefaultAsync(i => i.Email == email);
         }
 
-        private async Task ValidateSubscriptionSeats(Tenant tenant)
+        private async Task ValidateSubscriptionSeats(Tenant tenant, int newInvitationsCount = 1)
         {
             var activeUserCount = _userManager.Users.Count(u => u.IsActive);
 
             var activeInvitesCount = await _userInvitationRepository.CountAsync(i => i.Status == InvitationStatus.Pending && i.ExpirationDate > Clock.Now);
 
-            if (activeUserCount + activeInvitesCount >= tenant.SubscriptionSeats)
+            if (activeUserCount + activeInvitesCount + newInvitationsCount >= tenant.SubscriptionSeats)
             {
                 throw new InvalidOperationException($"Subscription limit reached: Your subscription limit of {tenant.SubscriptionSeats} users has been reached");
             }
@@ -108,7 +166,7 @@ namespace toyiyo.todo.Invitations
         {
             return existingInvitation.Status switch
             {
-                InvitationStatus.Pending when existingInvitation.ExpirationDate > Clock.Now => throw new InvalidOperationException( $"An invitation for this email is valid until {existingInvitation.ExpirationDate}"),
+                InvitationStatus.Pending when existingInvitation.ExpirationDate > Clock.Now => throw new InvalidOperationException($"An invitation for this email is valid until {existingInvitation.ExpirationDate}"),
                 InvitationStatus.Accepted => throw new InvalidOperationException("This invitation has already been accepted"),
                 InvitationStatus.Expired or InvitationStatus.Cancelled => await ReactivateInvitation(existingInvitation, invitedByUser),
                 _ => throw new InvalidOperationException($"Invitation has an invalid status: {existingInvitation.Status}"),
