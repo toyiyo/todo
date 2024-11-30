@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using toyiyo.todo.Authorization;
 using toyiyo.todo.Controllers;
 using toyiyo.todo.Invitations;
+using System.Collections.Generic;
+using toyiyo.todo.Invitations.Dto;
 
 namespace toyiyo.todo.Web.Controllers
 {
@@ -20,6 +22,13 @@ namespace toyiyo.todo.Web.Controllers
         public async Task<IActionResult> Index()
         {
             return View();
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> CreateInvitations([FromBody] List<CreateUserInvitationDto> input)
+        {
+            var (invitations, errors) = await _userInvitationAppService.CreateInvitationsAsync(input);
+            return Json(new { invitations, errors });
         }
     }
 }

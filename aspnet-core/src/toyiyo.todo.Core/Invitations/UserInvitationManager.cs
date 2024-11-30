@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,7 +60,7 @@ namespace toyiyo.todo.Invitations
         }
 
         [UnitOfWork]
-        public async Task<(List<UserInvitation>, List<string> Errors)> CreateInvitationsAsync(Tenant tenant, List<string> emails, User invitedByUser)
+        public async Task<(List<UserInvitation> Invitations, List<string> Errors)> CreateInvitationsAsync(Tenant tenant, List<string> emails, User invitedByUser)
         {
             var invitations = new List<UserInvitation>();
             var errors = new List<string>();
@@ -77,15 +76,19 @@ namespace toyiyo.todo.Invitations
                 return (invitations, errors); // Return early if subscription validation fails
             }
 
-            //validate each email
+            // Validate each email
             foreach (var email in emails)
             {
-                await ValidateInvitationRequest(tenant, email, invitedByUser);
-            }
+                try
+                {
+                    await ValidateInvitationRequest(tenant, email, invitedByUser);
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"Error validating email {email}: {ex.Message}");
+                    continue; // Skip to next email if validation fails
+                }
 
-            // Create invitations
-            foreach (var email in emails)
-            {
                 try
                 {
                     var existingInvitation = await FindExistingInvitation(email);

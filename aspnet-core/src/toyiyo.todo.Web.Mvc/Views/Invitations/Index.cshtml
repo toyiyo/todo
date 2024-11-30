@@ -31,6 +31,12 @@
             <div class="col-12">
                 <div class="card container-fluid m-5 p-2 rounded mx-auto bg-light shadow">
                     <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                @await Html.PartialAsync("~/Views/Shared/Components/_EmailInputComponent.cshtml")
+                                <button id="sendInvitations" class="btn btn-primary">@L("SendInvitations")</button>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="table-responsive col-12">

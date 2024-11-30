@@ -1,0 +1,62 @@
+
+<div class="email-input-container">
+    <div class="email-input-wrapper">
+        <div id="emailPills" class="email-pills"></div>
+        <input type="text" id="emailInput" class="form-control" placeholder="@L("TypeEmailsHere")" />
+    </div>
+    <div id="emailError" class="invalid-feedback d-none"></div>
+</div>
+
+<style>
+.email-input-container {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.email-input-wrapper {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 0.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.email-input-wrapper:focus-within {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.email-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.email-pill {
+    background-color: #e9ecef;
+    border-radius: 16px;
+    padding: 0.25rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.email-pill-remove {
+    cursor: pointer;
+    color: #6c757d;
+}
+
+#emailInput {
+    border: none;
+    outline: none;
+    flex: 1;
+    min-width: 150px;
+    box-shadow: none;
+}
+
+#emailInput:focus {
+    box-shadow: none;
+}
+</style>
