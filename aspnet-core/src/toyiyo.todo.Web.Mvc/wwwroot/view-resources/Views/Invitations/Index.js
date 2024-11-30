@@ -142,7 +142,7 @@
           abp.message.warn(
             l("SomeInvitationsFailed") +
               "\n" +
-              _.escape(result.errors.join("\n"))
+              (result.errors.join("\n"))
           );
         }
         if (result.invitations && result.invitations.length > 0) {
