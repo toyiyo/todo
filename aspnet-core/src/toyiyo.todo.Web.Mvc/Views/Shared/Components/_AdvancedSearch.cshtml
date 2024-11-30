@@ -6,7 +6,10 @@
                     <span class="fas fa-search" aria-hidden="true"></span>
                 </button>
             </div>
-            <input type="search" name="Keyword" id="keyword" class="form-control txt-search" placeholder=@L("Search") />
+            <input type="search" name="Keyword" id="keyword" class="form-control txt-search" 
+                   placeholder=@L("Search") 
+                   aria-label=@L("Search")
+                   aria-describedby="btnAdvancedSearch" />
             <div class="input-group-append">
                 <span class="input-group-text btn-clear" id="btnClearSearch">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
