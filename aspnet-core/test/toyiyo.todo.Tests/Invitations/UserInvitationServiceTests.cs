@@ -7,6 +7,7 @@ using toyiyo.todo.MultiTenancy;
 using toyiyo.todo.Invitations;
 using toyiyo.todo.Invitations.Dto;
 using System;
+using System.Collections.Generic;
 
 namespace toyiyo.todo.Tests.Invitations
 {
@@ -145,6 +146,76 @@ namespace toyiyo.todo.Tests.Invitations
             result.ShouldNotBeNull();
             result.TotalCount.ShouldBeGreaterThan(0);
             result.Items.ShouldContain(i => i.Email == invitation.Email);
+        }
+
+        [Fact]
+        public async Task Should_Create_Multiple_Invitations_Successfully()
+        {
+            // Arrange
+            LoginAsDefaultTenantAdmin();
+            var currentTenant = await GetCurrentTenantAsync();
+            await _tenantManager.SetSubscriptionSeats(currentTenant, 1000);
+            var input = new List<CreateUserInvitationDto>
+            {
+                new CreateUserInvitationDto { Email = "test1@example.com" },
+                new CreateUserInvitationDto { Email = "test2@example.com" }
+            };
+
+            // Act
+            var result = await _userInvitationService.CreateInvitationsAsync(input);
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.Invitations.Count.ShouldBe(2);
+            result.Errors.Count.ShouldBe(0);
+            result.Invitations.ShouldContain(i => i.Email == "test1@example.com");
+            result.Invitations.ShouldContain(i => i.Email == "test2@example.com");
+        }
+
+        [Fact]
+        public async Task Should_Handle_Subscription_Limit_For_Multiple_Invitations()
+        {
+            // Arrange
+            LoginAsDefaultTenantAdmin();
+            var currentTenant = await GetCurrentTenantAsync();
+            await _tenantManager.SetSubscriptionSeats(currentTenant, 1);
+            var input = new List<CreateUserInvitationDto>
+            {
+                new CreateUserInvitationDto { Email = "test1@example.com" },
+                new CreateUserInvitationDto { Email = "test2@example.com" }
+            };
+
+            // Act
+            var result = await _userInvitationService.CreateInvitationsAsync(input);
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.Invitations.Count.ShouldBe(0);
+            result.Errors.Count.ShouldBe(1);
+            result.Errors[0].ShouldContain("Subscription limit reached");
+        }
+
+        [Fact]
+        public async Task Should_Handle_Duplicate_Emails_In_Single_Request()
+        {
+            // Arrange
+            LoginAsDefaultTenantAdmin();
+            var currentTenant = await GetCurrentTenantAsync();
+            await _tenantManager.SetSubscriptionSeats(currentTenant, 1000);
+            var input = new List<CreateUserInvitationDto>
+            {
+                new CreateUserInvitationDto { Email = "duplicate@example.com" },
+                new CreateUserInvitationDto { Email = "duplicate@example.com" }
+            };
+
+            // Act
+            var result = await _userInvitationService.CreateInvitationsAsync(input);
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.Invitations.Count.ShouldBe(1);
+            result.Errors.Count.ShouldBe(0);
+            result.Invitations[0].Email.ShouldBe("duplicate@example.com");
         }
     }
 }

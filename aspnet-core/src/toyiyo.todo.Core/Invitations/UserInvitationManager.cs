@@ -59,13 +59,25 @@ namespace toyiyo.todo.Invitations
             return query;
         }
 
+        private async Task<UserInvitation> ProcessSingleInvitation(Tenant tenant, string email, User invitedByUser)
+        {
+            await ValidateInvitationRequest(tenant, email, invitedByUser);
+            
+            var existingInvitation = await FindExistingInvitation(email);
+            if (existingInvitation != null)
+            {
+                return await HandleExistingInvitation(existingInvitation, invitedByUser);
+            }
+            
+            return UserInvitation.CreateDefaultInvitation(tenant.Id, email, invitedByUser);
+        }
+
         [UnitOfWork]
         public async Task<(List<UserInvitation> Invitations, List<string> Errors)> CreateInvitationsAsync(Tenant tenant, List<string> emails, User invitedByUser)
         {
             var invitations = new List<UserInvitation>();
             var errors = new List<string>();
 
-            // Check subscription seats once
             try
             {
                 await ValidateSubscriptionSeats(tenant, emails.Count);
@@ -73,50 +85,32 @@ namespace toyiyo.todo.Invitations
             catch (Exception ex)
             {
                 errors.Add($"Error validating subscription seats: {ex.Message}");
-                return (invitations, errors); // Return early if subscription validation fails
+                return (invitations, errors);
             }
 
-            // Validate each email
-            foreach (var email in emails)
+            foreach (var email in emails.Distinct())
             {
                 try
                 {
-                    await ValidateInvitationRequest(tenant, email, invitedByUser);
+                    var invitation = await ProcessSingleInvitation(tenant, email, invitedByUser);
+                    invitations.Add(invitation);
                 }
                 catch (Exception ex)
                 {
-                    errors.Add($"Error validating email {email}: {ex.Message}");
-                    continue; // Skip to next email if validation fails
-                }
-
-                try
-                {
-                    var existingInvitation = await FindExistingInvitation(email);
-                    if (existingInvitation != null)
-                    {
-                        var handledInvitation = await HandleExistingInvitation(existingInvitation, invitedByUser);
-                        invitations.Add(handledInvitation);
-                    }
-                    else
-                    {
-                        var newInvitation = UserInvitation.CreateDefaultInvitation(tenant.Id, email, invitedByUser);
-                        invitations.Add(newInvitation);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    errors.Add($"Error handling invitation for email {email}: {ex.Message}");
+                    errors.Add($"Error processing invitation for {email}: {ex.Message}");
                 }
             }
 
-            // Insert all new invitations
-            foreach (var invitation in invitations.Where(i => i.Id == default))
+            var newInvitations = invitations.Where(i => i.Id == default).ToList();
+            if (newInvitations.Any())
             {
-                await _userInvitationRepository.InsertAsync(invitation);
+                foreach (var newInvitation in newInvitations)
+                {
+                    await _userInvitationRepository.InsertAsync(newInvitation);
+                }
             }
-            // Send emails in parallel
-            var emailTasks = invitations.Select(invitation => SendInvitationEmailAsync(invitation));
-            await Task.WhenAll(emailTasks);
+
+            await Task.WhenAll(invitations.Select(invitation => SendInvitationEmailAsync(invitation)));
 
             return (invitations, errors);
         }
