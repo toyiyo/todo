@@ -81,10 +81,18 @@
   const addEmailPill = (email) => {
     const pill = document.createElement("div");
     pill.className = "email-pill";
-    pill.innerHTML = `
-          <span>${_.escape(email)}</span>
-          <span class="email-pill-remove">&times;</span>
-      `;
+    const emailSpan = document.createElement("span");
+    emailSpan.textContent = email;
+    const removeSpan = document.createElement("span");
+    removeSpan.className = "email-pill-remove";
+    removeSpan.textContent = "×";
+    removeSpan.textContent = "×";
+    removeSpan.onclick = () => {
+      emails.delete(email);
+      pill.remove();
+    };
+    pill.appendChild(emailSpan);
+    pill.appendChild(removeSpan);
     pill.querySelector(".email-pill-remove").onclick = () => {
       emails.delete(email);
       pill.remove();
