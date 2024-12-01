@@ -186,14 +186,35 @@ namespace toyiyo.todo.Invitations
 
             return invitation;
         }
+
         private async Task SendInvitationEmailAsync(UserInvitation invitation)
         {
-            //todo: setup email sending
-            var link = $"https://yourapp.com/Account/Register?token={invitation.Token}";
-            var subject = "You are invited!";
-            var body = $"Please click the following link to register: {link}";
-            //todo: setup email sending
-            return;//_emailSender.SendAsync(invitation.Email, subject, body);
+            var subject = "You've been invited to join Todo App";
+            var registerUrl = $"https://toyiyo.io/account/register?token={invitation.Token}";
+            
+            var htmlBody = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+                    <h2>You've been invited!</h2>
+                    <p>You've been invited to join Todo App. Click the button below to get started:</p>
+                    <div style='margin: 25px 0;'>
+                        <a href='{registerUrl}' style='background-color: #4CAF50; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px;'>
+                            Accept Invitation
+                        </a>
+                    </div>
+                    <p>Or copy and paste this URL into your browser:</p>
+                    <p style='color: #666; word-break: break-all;'>{registerUrl}</p>
+                    <p style='color: #666; font-size: 12px;'>This invitation will expire in {invitation.ExpirationDate:dd} days.</p>
+                </div>";
+
+            var message = new System.Net.Mail.MailMessage
+            {
+                Subject = subject,
+                Body = htmlBody,
+                IsBodyHtml = true
+            };
+
+            message.To.Add(invitation.Email);
+            await _emailSender.SendAsync(message);
         }
     }
 }
