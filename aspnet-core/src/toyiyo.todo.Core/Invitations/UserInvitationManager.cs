@@ -189,13 +189,13 @@ namespace toyiyo.todo.Invitations
 
         private async Task SendInvitationEmailAsync(UserInvitation invitation)
         {
-            var subject = "You've been invited to join Todo App";
+            var subject = "You've been invited to join Toyiyo, your simple project management app";
             var registerUrl = $"https://toyiyo.io/account/register?token={invitation.Token}";
             
             var htmlBody = $@"
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
                     <h2>You've been invited!</h2>
-                    <p>You've been invited to join Todo App. Click the button below to get started:</p>
+                    <p>You've been invited to join Toyiyo. Click the button below to get started:</p>
                     <div style='margin: 25px 0;'>
                         <a href='{registerUrl}' style='background-color: #4CAF50; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px;'>
                             Accept Invitation

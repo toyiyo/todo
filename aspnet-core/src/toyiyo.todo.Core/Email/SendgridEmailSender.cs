@@ -14,6 +14,8 @@ namespace toyiyo.todo.Email
     public class SendGridEmailSender : EmailSenderBase, ITransientDependency
     {
         private readonly string _sendGridApiKey;
+        private readonly string _fromEmail;
+        private readonly string _senderDisplayName;
         private readonly ILogger<SendGridEmailSender> _logger;
 
         public SendGridEmailSender(
@@ -23,6 +25,8 @@ namespace toyiyo.todo.Email
             : base(configuration)
         {
             _sendGridApiKey = appConfiguration["SendgridApiKey"];
+            _fromEmail = appConfiguration["FromTransactionalEmail"];
+            _senderDisplayName = appConfiguration["SenderDisplayName"];
             _logger = logger;
 
             if (string.IsNullOrEmpty(_sendGridApiKey))
@@ -41,7 +45,7 @@ namespace toyiyo.todo.Email
             try
             {
                 var client = new SendGridClient(_sendGridApiKey);
-                var from = new EmailAddress(mailMessage.From.Address, mailMessage.From.DisplayName);
+                var from = new EmailAddress(_fromEmail, _senderDisplayName);
                 var to = new EmailAddress(mailMessage.To[0].Address, mailMessage.To[0].DisplayName); // Single recipient example
                 var subject = mailMessage.Subject;
                 var plainTextContent = mailMessage.Body;
