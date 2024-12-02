@@ -11,7 +11,6 @@ using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Abp.Net.Mail;
 using Abp.Timing;
-using Abp.UI;
 using Microsoft.EntityFrameworkCore;
 using toyiyo.todo.Authorization.Users;
 using toyiyo.todo.MultiTenancy;
@@ -22,22 +21,19 @@ namespace toyiyo.todo.Invitations
     {
         private readonly IRepository<UserInvitation, Guid> _userInvitationRepository;
         private readonly UserManager _userManager;
-        private readonly IEmailSender _emailSender;
 
         public UserInvitationManager(
             IRepository<UserInvitation, Guid> userInvitationRepository,
-            UserManager userManager,
-            IEmailSender emailSender)
+            UserManager userManager)
         {
             _userInvitationRepository = userInvitationRepository;
             _userManager = userManager;
-            _emailSender = emailSender;
         }
 
         [UnitOfWork]
         public async Task<List<UserInvitation>> GetAll(GetAllUserInvitationsInput input)
         {
-            return await GetAllJobsQueryable(input)
+            return await GetAllUserInvitationsQueryable(input)
             .OrderBy<UserInvitation>(input?.Sorting ?? "CreationTime DESC")
             .Skip(input?.SkipCount ?? 0)
             .Take(input?.MaxResultCount ?? int.MaxValue)
@@ -47,10 +43,10 @@ namespace toyiyo.todo.Invitations
         [UnitOfWork]
         public async Task<int> GetAllCount(GetAllUserInvitationsInput input)
         {
-            return await GetAllJobsQueryable(input).CountAsync();
+            return await GetAllUserInvitationsQueryable(input).CountAsync();
         }
 
-        private IQueryable<UserInvitation> GetAllJobsQueryable(GetAllUserInvitationsInput input)
+        private IQueryable<UserInvitation> GetAllUserInvitationsQueryable(GetAllUserInvitationsInput input)
         {
             //repository methods already filter by tenant, we can check other attributes by adding "or" "||" to the whereif clause
             var query = _userInvitationRepository.GetAll()
@@ -62,13 +58,13 @@ namespace toyiyo.todo.Invitations
         private async Task<UserInvitation> ProcessSingleInvitation(Tenant tenant, string email, User invitedByUser)
         {
             await ValidateInvitationRequest(tenant, email, invitedByUser);
-            
+
             var existingInvitation = await FindExistingInvitation(email);
             if (existingInvitation != null)
             {
                 return await HandleExistingInvitation(existingInvitation, invitedByUser);
             }
-            
+
             return UserInvitation.CreateDefaultInvitation(tenant.Id, email, invitedByUser);
         }
 
@@ -110,8 +106,6 @@ namespace toyiyo.todo.Invitations
                 }
             }
 
-            await Task.WhenAll(invitations.Select(invitation => SendInvitationEmailAsync(invitation)));
-
             return (invitations, errors);
         }
 
@@ -127,7 +121,7 @@ namespace toyiyo.todo.Invitations
             }
 
             await ValidateSubscriptionSeats(tenant);
-            return await CreateAndSendNewInvitation(tenant, email, invitedByUser);
+            return await CreateUserInvitation(tenant, email, invitedByUser);
         }
         private async Task ValidateInvitationRequest(Tenant tenant, string email, User invitedByUser)
         {
@@ -174,47 +168,16 @@ namespace toyiyo.todo.Invitations
         {
             var reactivatedInvitation = UserInvitation.Reactivate(invitation, reactivatedBy);
             await _userInvitationRepository.UpdateAsync(reactivatedInvitation);
-            await SendInvitationEmailAsync(reactivatedInvitation);
             return reactivatedInvitation;
         }
 
-        private async Task<UserInvitation> CreateAndSendNewInvitation(Tenant tenant, string email, User invitedByUser)
+        private async Task<UserInvitation> CreateUserInvitation(Tenant tenant, string email, User invitedByUser)
         {
             var invitation = UserInvitation.CreateDefaultInvitation(tenant.Id, email, invitedByUser);
             await _userInvitationRepository.InsertAsync(invitation);
-            await SendInvitationEmailAsync(invitation);
 
             return invitation;
         }
 
-        private async Task SendInvitationEmailAsync(UserInvitation invitation)
-        {
-            var subject = "You've been invited to join Toyiyo, your simple project management app";
-            var registerUrl = $"https://toyiyo.io/account/register?token={invitation.Token}";
-            
-            var htmlBody = $@"
-                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-                    <h2>You've been invited!</h2>
-                    <p>You've been invited to join Toyiyo. Click the button below to get started:</p>
-                    <div style='margin: 25px 0;'>
-                        <a href='{registerUrl}' style='background-color: #4CAF50; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px;'>
-                            Accept Invitation
-                        </a>
-                    </div>
-                    <p>Or copy and paste this URL into your browser:</p>
-                    <p style='color: #666; word-break: break-all;'>{registerUrl}</p>
-                    <p style='color: #666; font-size: 12px;'>This invitation will expire in {invitation.ExpirationDate:dd} days.</p>
-                </div>";
-
-            var message = new System.Net.Mail.MailMessage
-            {
-                Subject = subject,
-                Body = htmlBody,
-                IsBodyHtml = true
-            };
-
-            message.To.Add(invitation.Email);
-            await _emailSender.SendAsync(message);
-        }
     }
 }

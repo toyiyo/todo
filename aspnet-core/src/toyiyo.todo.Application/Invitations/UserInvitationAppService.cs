@@ -1,0 +1,88 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Abp.Application.Services.Dto;
+using Abp.Authorization;
+using Abp.Net.Mail;
+using Microsoft.Extensions.Configuration;
+using toyiyo.todo.Authorization;
+using toyiyo.todo.Invitations.Dto;
+
+namespace toyiyo.todo.Invitations
+{
+    [AbpAuthorize(PermissionNames.Pages_Subscription)]
+    public class UserInvitationAppService : todoAppServiceBase, IUserInvitationAppService
+    {
+        private readonly IUserInvitationManager _userInvitationManager;
+        private readonly IEmailSender _emailSender;
+        private readonly string _baseUrl;
+
+        public UserInvitationAppService(IUserInvitationManager userInvitationManager, IEmailSender emailSender, IConfiguration configuration)
+        {
+            _userInvitationManager = userInvitationManager;
+            _emailSender = emailSender;
+            _baseUrl = configuration["ClientRootAdress"] ?? "https://app.toyiyo.com";
+        }
+
+        public async Task<PagedResultDto<UserInvitationDto>> GetAll(GetAllUserInvitationsInput input)
+        {
+            var invitations = await _userInvitationManager.GetAll(input);
+            var invitationsTotalCount = await _userInvitationManager.GetAllCount(input);
+            return new PagedResultDto<UserInvitationDto>(invitationsTotalCount, ObjectMapper.Map<List<UserInvitationDto>>(invitations));
+        }
+
+        public async Task<UserInvitationDto> CreateInvitationAsync(CreateUserInvitationDto input)
+        {
+            var currentUser = await GetCurrentUserAsync();
+            var tenant = await GetCurrentTenantAsync();
+            var invitation = await _userInvitationManager.CreateInvitationAsync(tenant, input.Email, currentUser);
+            return ObjectMapper.Map<UserInvitationDto>(invitation);
+        }
+
+        public async Task<CreateInvitationsResultDto> CreateInvitationsAsync(List<CreateUserInvitationDto> input)
+        {
+            var currentUser = await GetCurrentUserAsync();
+            var tenant = await GetCurrentTenantAsync();
+            var emails = input.Select(x => x.Email).ToList();
+            var (invitations, errors) = await _userInvitationManager.CreateInvitationsAsync(tenant, emails, currentUser);
+
+            await Task.WhenAll(invitations.Select(invitation => SendInvitationEmailAsync(invitation)));
+
+            return new CreateInvitationsResultDto(
+                ObjectMapper.Map<List<UserInvitationDto>>(invitations),
+                errors
+            );
+        }
+        private async Task SendInvitationEmailAsync(UserInvitation invitation)
+        {
+            var subject = "You've been invited to join Toyiyo, your simple project management app";
+            var registerUrl = $"https://app.toyiyo.com/account/register?token={Uri.EscapeDataString(invitation.Token)}";
+
+            var htmlBody = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+                    <h2>You've been invited!</h2>
+                    <p>You've been invited to join Toyiyo. Click the button below to get started:</p>
+                    <div style='margin: 25px 0;'>
+                        <a href='{registerUrl}' style='background-color: #4CAF50; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px;'>
+                            Accept Invitation
+                        </a>
+                    </div>
+                    <p>Or copy and paste this URL into your browser:</p>
+                    <p style='color: #666; word-break: break-all;'>{registerUrl}</p>
+                    <p style='color: #666; font-size: 12px;'>This invitation will expire in {invitation.ExpirationDate:dd} days.</p>
+                </div>";
+
+            var message = new System.Net.Mail.MailMessage
+            {
+                Subject = subject,
+                Body = htmlBody,
+                IsBodyHtml = true
+            };
+
+            message.To.Add(invitation.Email);
+            await _emailSender.SendAsync(message);
+        }
+
+    }
+}
