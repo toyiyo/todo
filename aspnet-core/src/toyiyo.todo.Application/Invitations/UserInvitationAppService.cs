@@ -55,7 +55,6 @@ namespace toyiyo.todo.Invitations
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error($"Failed to send invitation email to {invitation.Email}", ex);
                     errors.Add($"Failed to send invitation email to {invitation.Email}: {ex.Message}");
                 }
             }));
