@@ -122,7 +122,7 @@
   });
 
   emailInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === ",") {
+    if (e.key === "Enter" || e.key === "," || e.key === ";" || e.key === " ") {
       e.preventDefault();
       processInput(emailInput.value);
     }

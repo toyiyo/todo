@@ -11,6 +11,7 @@ using Abp.Zero.Configuration;
 using Abp.Zero.EntityFrameworkCore;
 using toyiyo.todo.EntityFrameworkCore;
 using toyiyo.todo.Tests.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 
 namespace toyiyo.todo.Tests
 {
@@ -41,6 +42,7 @@ namespace toyiyo.todo.Tests
             Configuration.Modules.Zero().LanguageManagement.EnableDbLocalization();
 
             RegisterFakeService<AbpZeroDbMigrator<todoDbContext>>();
+            IocManager.IocContainer.Register(Component.For<IConfiguration>().UsingFactoryMethod(() => Substitute.For<IConfiguration>()).LifestyleSingleton());
 
             Configuration.ReplaceService<IEmailSender, NullEmailSender>(DependencyLifeStyle.Transient);
         }

@@ -11,7 +11,6 @@ using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Abp.Net.Mail;
 using Abp.Timing;
-using Abp.UI;
 using Microsoft.EntityFrameworkCore;
 using toyiyo.todo.Authorization.Users;
 using toyiyo.todo.MultiTenancy;
@@ -22,22 +21,19 @@ namespace toyiyo.todo.Invitations
     {
         private readonly IRepository<UserInvitation, Guid> _userInvitationRepository;
         private readonly UserManager _userManager;
-        private readonly IEmailSender _emailSender;
 
         public UserInvitationManager(
             IRepository<UserInvitation, Guid> userInvitationRepository,
-            UserManager userManager,
-            IEmailSender emailSender)
+            UserManager userManager)
         {
             _userInvitationRepository = userInvitationRepository;
             _userManager = userManager;
-            _emailSender = emailSender;
         }
 
         [UnitOfWork]
         public async Task<List<UserInvitation>> GetAll(GetAllUserInvitationsInput input)
         {
-            return await GetAllJobsQueryable(input)
+            return await GetAllUserInvitationsQueryable(input)
             .OrderBy<UserInvitation>(input?.Sorting ?? "CreationTime DESC")
             .Skip(input?.SkipCount ?? 0)
             .Take(input?.MaxResultCount ?? int.MaxValue)
@@ -47,10 +43,10 @@ namespace toyiyo.todo.Invitations
         [UnitOfWork]
         public async Task<int> GetAllCount(GetAllUserInvitationsInput input)
         {
-            return await GetAllJobsQueryable(input).CountAsync();
+            return await GetAllUserInvitationsQueryable(input).CountAsync();
         }
 
-        private IQueryable<UserInvitation> GetAllJobsQueryable(GetAllUserInvitationsInput input)
+        private IQueryable<UserInvitation> GetAllUserInvitationsQueryable(GetAllUserInvitationsInput input)
         {
             //repository methods already filter by tenant, we can check other attributes by adding "or" "||" to the whereif clause
             var query = _userInvitationRepository.GetAll()
@@ -62,13 +58,13 @@ namespace toyiyo.todo.Invitations
         private async Task<UserInvitation> ProcessSingleInvitation(Tenant tenant, string email, User invitedByUser)
         {
             await ValidateInvitationRequest(tenant, email, invitedByUser);
-            
+
             var existingInvitation = await FindExistingInvitation(email);
             if (existingInvitation != null)
             {
                 return await HandleExistingInvitation(existingInvitation, invitedByUser);
             }
-            
+
             return UserInvitation.CreateDefaultInvitation(tenant.Id, email, invitedByUser);
         }
 
@@ -110,8 +106,6 @@ namespace toyiyo.todo.Invitations
                 }
             }
 
-            await Task.WhenAll(invitations.Select(invitation => SendInvitationEmailAsync(invitation)));
-
             return (invitations, errors);
         }
 
@@ -127,7 +121,7 @@ namespace toyiyo.todo.Invitations
             }
 
             await ValidateSubscriptionSeats(tenant);
-            return await CreateAndSendNewInvitation(tenant, email, invitedByUser);
+            return await CreateUserInvitation(tenant, email, invitedByUser);
         }
         private async Task ValidateInvitationRequest(Tenant tenant, string email, User invitedByUser)
         {
@@ -161,39 +155,38 @@ namespace toyiyo.todo.Invitations
 
         private async Task<UserInvitation> HandleExistingInvitation(UserInvitation existingInvitation, User invitedByUser)
         {
-            return existingInvitation.Status switch
+            if (existingInvitation.Status == InvitationStatus.Pending && existingInvitation.ExpirationDate > Clock.Now)
             {
-                InvitationStatus.Pending when existingInvitation.ExpirationDate > Clock.Now => throw new InvalidOperationException($"An invitation for this email is valid until {existingInvitation.ExpirationDate}"),
-                InvitationStatus.Accepted => throw new InvalidOperationException("This invitation has already been accepted"),
-                InvitationStatus.Expired or InvitationStatus.Cancelled => await ReactivateInvitation(existingInvitation, invitedByUser),
-                _ => throw new InvalidOperationException($"Invitation has an invalid status: {existingInvitation.Status}"),
-            };
+                throw new InvalidOperationException($"An invitation for this email is valid until {existingInvitation.ExpirationDate}");
+            }
+
+            if (existingInvitation.Status == InvitationStatus.Accepted)
+            {
+                throw new InvalidOperationException("This invitation has already been accepted");
+            }
+
+            if (existingInvitation.Status == InvitationStatus.Expired || existingInvitation.Status == InvitationStatus.Cancelled)
+            {
+                return await ReactivateInvitation(existingInvitation, invitedByUser);
+            }
+
+            throw new InvalidOperationException($"Invitation has an invalid status: {existingInvitation.Status}");
         }
 
         private async Task<UserInvitation> ReactivateInvitation(UserInvitation invitation, User reactivatedBy)
         {
             var reactivatedInvitation = UserInvitation.Reactivate(invitation, reactivatedBy);
             await _userInvitationRepository.UpdateAsync(reactivatedInvitation);
-            await SendInvitationEmailAsync(reactivatedInvitation);
             return reactivatedInvitation;
         }
 
-        private async Task<UserInvitation> CreateAndSendNewInvitation(Tenant tenant, string email, User invitedByUser)
+        private async Task<UserInvitation> CreateUserInvitation(Tenant tenant, string email, User invitedByUser)
         {
             var invitation = UserInvitation.CreateDefaultInvitation(tenant.Id, email, invitedByUser);
             await _userInvitationRepository.InsertAsync(invitation);
-            await SendInvitationEmailAsync(invitation);
 
             return invitation;
         }
-        private async Task SendInvitationEmailAsync(UserInvitation invitation)
-        {
-            //todo: setup email sending
-            var link = $"https://yourapp.com/Account/Register?token={invitation.Token}";
-            var subject = "You are invited!";
-            var body = $"Please click the following link to register: {link}";
-            //todo: setup email sending
-            return;//_emailSender.SendAsync(invitation.Email, subject, body);
-        }
+
     }
 }

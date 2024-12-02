@@ -8,6 +8,7 @@ using toyiyo.todo.Invitations;
 using toyiyo.todo.Invitations.Dto;
 using System;
 using System.Collections.Generic;
+using Abp.Net.Mail;
 
 namespace toyiyo.todo.Tests.Invitations
 {
@@ -15,12 +16,16 @@ namespace toyiyo.todo.Tests.Invitations
     {
         private readonly IUserInvitationAppService _userInvitationService;
         private readonly TenantManager _tenantManager;
+        private readonly IEmailSender _emailSender;
+        private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
 
         public UserInvitationServiceTests()
         {
             // Register IUserInvitationService
             _userInvitationService = Resolve<IUserInvitationAppService>();
             _tenantManager = Resolve<TenantManager>();
+            _emailSender = Resolve<IEmailSender>();
+            _configuration = Resolve<Microsoft.Extensions.Configuration.IConfiguration>();
             // Call LoginAsDefaultTenantAdmin before each test
             LoginAsDefaultTenantAdmin();
         }
