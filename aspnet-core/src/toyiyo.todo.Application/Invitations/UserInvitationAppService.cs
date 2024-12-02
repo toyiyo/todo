@@ -22,7 +22,7 @@ namespace toyiyo.todo.Invitations
         {
             _userInvitationManager = userInvitationManager;
             _emailSender = emailSender;
-            _baseUrl = configuration["ClientRootAdress"] ?? "https://app.toyiyo.com";
+            _baseUrl = configuration["ClientRootAddress"] ?? "https://app.toyiyo.com";
         }
 
         public async Task<PagedResultDto<UserInvitationDto>> GetAll(GetAllUserInvitationsInput input)
