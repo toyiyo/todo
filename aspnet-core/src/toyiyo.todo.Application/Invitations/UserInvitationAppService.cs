@@ -57,7 +57,7 @@ namespace toyiyo.todo.Invitations
         private async Task SendInvitationEmailAsync(UserInvitation invitation)
         {
             var subject = "You've been invited to join Toyiyo, your simple project management app";
-            var registerUrl = $"https://app.toyiyo.com/account/register?token={Uri.EscapeDataString(invitation.Token)}";
+            var registerUrl = $"{_baseUrl}/account/register?token={Uri.EscapeDataString(invitation.Token)}";
 
             var htmlBody = $@"
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>

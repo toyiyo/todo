@@ -155,13 +155,22 @@ namespace toyiyo.todo.Invitations
 
         private async Task<UserInvitation> HandleExistingInvitation(UserInvitation existingInvitation, User invitedByUser)
         {
-            return existingInvitation.Status switch
+            if (existingInvitation.Status == InvitationStatus.Pending && existingInvitation.ExpirationDate > Clock.Now)
             {
-                InvitationStatus.Pending when existingInvitation.ExpirationDate > Clock.Now => throw new InvalidOperationException($"An invitation for this email is valid until {existingInvitation.ExpirationDate}"),
-                InvitationStatus.Accepted => throw new InvalidOperationException("This invitation has already been accepted"),
-                InvitationStatus.Expired or InvitationStatus.Cancelled => await ReactivateInvitation(existingInvitation, invitedByUser),
-                _ => throw new InvalidOperationException($"Invitation has an invalid status: {existingInvitation.Status}"),
-            };
+                throw new InvalidOperationException($"An invitation for this email is valid until {existingInvitation.ExpirationDate}");
+            }
+
+            if (existingInvitation.Status == InvitationStatus.Accepted)
+            {
+                throw new InvalidOperationException("This invitation has already been accepted");
+            }
+
+            if (existingInvitation.Status == InvitationStatus.Expired || existingInvitation.Status == InvitationStatus.Cancelled)
+            {
+                return await ReactivateInvitation(existingInvitation, invitedByUser);
+            }
+
+            throw new InvalidOperationException($"Invitation has an invalid status: {existingInvitation.Status}");
         }
 
         private async Task<UserInvitation> ReactivateInvitation(UserInvitation invitation, User reactivatedBy)
