@@ -70,7 +70,7 @@ namespace toyiyo.todo.Invitations
                     </div>
                     <p>Or copy and paste this URL into your browser:</p>
                     <p style='color: #666; word-break: break-all;'>{registerUrl}</p>
-                    <p style='color: #666; font-size: 12px;'>This invitation will expire in {invitation.ExpirationDate:dd} days.</p>
+                    <p style='color: #666; font-size: 12px;'>This invitation will expire on {invitation.ExpirationDate:D}.</p>
                 </div>";
 
             var message = new System.Net.Mail.MailMessage
