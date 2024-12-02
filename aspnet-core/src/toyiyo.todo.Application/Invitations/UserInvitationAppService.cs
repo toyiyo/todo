@@ -47,7 +47,18 @@ namespace toyiyo.todo.Invitations
             var emails = input.Select(x => x.Email).ToList();
             var (invitations, errors) = await _userInvitationManager.CreateInvitationsAsync(tenant, emails, currentUser);
 
-            await Task.WhenAll(invitations.Select(invitation => SendInvitationEmailAsync(invitation)));
+            await Task.WhenAll(invitations.Select(async invitation =>
+            {
+                try
+                {
+                    await SendInvitationEmailAsync(invitation);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Failed to send invitation email to {invitation.Email}", ex);
+                    errors.Add($"Failed to send invitation email to {invitation.Email}: {ex.Message}");
+                }
+            }));
 
             return new CreateInvitationsResultDto(
                 ObjectMapper.Map<List<UserInvitationDto>>(invitations),
