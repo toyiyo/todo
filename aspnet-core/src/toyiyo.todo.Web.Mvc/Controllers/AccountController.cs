@@ -34,6 +34,7 @@ using toyiyo.todo.Authorization.Roles;
 using toyiyo.todo.MultiTenancy.Dto;
 using Abp.Runtime.Security;
 using Microsoft.AspNetCore.Authentication;
+using toyiyo.todo.Invitations;
 
 namespace toyiyo.todo.Web.Controllers
 {
@@ -53,6 +54,7 @@ namespace toyiyo.todo.Web.Controllers
         private readonly EditionManager _editionManager;
         private readonly IAbpZeroDbMigrator _abpZeroDbMigrator;
         private readonly RoleManager _roleManager;
+        private readonly IUserInvitationAppService _userInvitationAppService;
 
         public AccountController(
             UserManager userManager,
@@ -69,7 +71,8 @@ namespace toyiyo.todo.Web.Controllers
             INotificationPublisher notificationPublisher,
             EditionManager editionManager,
             RoleManager roleManager,
-            IAbpZeroDbMigrator abpZeroDbMigrator)
+            IAbpZeroDbMigrator abpZeroDbMigrator,
+            IUserInvitationAppService userInvitationAppService)
         {
             _userManager = userManager;
             _multiTenancyConfig = multiTenancyConfig;
@@ -85,6 +88,7 @@ namespace toyiyo.todo.Web.Controllers
             _editionManager = editionManager;
             _roleManager = roleManager;
             _abpZeroDbMigrator = abpZeroDbMigrator;
+            _userInvitationAppService = userInvitationAppService;
         }
 
         #region Login / Logout
@@ -336,7 +340,7 @@ namespace toyiyo.todo.Web.Controllers
                 var userRole = _roleManager.Roles.Single(r => r.Name == StaticRoleNames.Tenants.User);
                 userRole.IsDefault = true;
                 await _roleManager.UpdateAsync(userRole);
-                
+
                 var jobsPermission = PermissionManager.GetPermission(PermissionNames.Pages_Jobs);
                 var projectsPermission = PermissionManager.GetPermission(PermissionNames.Pages_Projects);
                 var passwordChangePermission = PermissionManager.GetPermission(PermissionNames.Pages_Users_PasswordChange);
@@ -356,9 +360,36 @@ namespace toyiyo.todo.Web.Controllers
 
             return ObjectMapper.Map<TenantDto>(tenant);
         }
-
-        public ActionResult Register()
+        [UnitOfWork]
+        public ActionResult Register(string token = null)
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                try
+                {
+                    var invitationResult = _userInvitationAppService.ValidateInvitationAsync(token).Result;
+                    ViewBag.Token = token;
+                    ViewBag.InvitationEmail = invitationResult.Email;
+                    // Get tenant information
+                    var tenant = _tenantManager.FindByIdAsync(invitationResult.TenantId).Result;
+                    ViewBag.TenantName = tenant.Name;
+                    ViewBag.TenancyName = tenant.TenancyName;
+
+                    // Set the tenant context
+                    using (_unitOfWorkManager.Current.SetTenantId(tenant.Id))
+                    {
+                        return RegisterView(new RegisterViewModel
+                        {
+                            EmailAddress = invitationResult.Email
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ViewBag.ErrorMessage = ex.Message;
+                }
+            }
+
             return RegisterView(new RegisterViewModel());
         }
 
@@ -381,109 +412,141 @@ namespace toyiyo.todo.Web.Controllers
 
         [HttpPost]
         [UnitOfWork]
-        public async Task<ActionResult> Register(RegisterViewModel model)
+        public async Task<ActionResult> Register(RegisterViewModel model, string token = null)
         {
             try
             {
-                ExternalLoginInfo externalLoginInfo = null;
-                if (model.IsExternalLogin)
+                var invitationResult = new ValidateInvitationResultDto();
+                if (!string.IsNullOrEmpty(token))
                 {
-                    externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
-                    if (externalLoginInfo == null)
+                    invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token);
+                    if (!model.EmailAddress.Equals(invitationResult.Email, StringComparison.OrdinalIgnoreCase))
                     {
-                        throw new UserFriendlyException("Can not login externally!");
-                    }
-
-                    model.UserName = model.EmailAddress;
-                    model.Password = Authorization.Users.User.CreateRandomPassword();
-                }
-                else
-                {
-                    if (model.UserName.IsNullOrEmpty() || model.Password.IsNullOrEmpty())
-                    {
-                        throw new UserFriendlyException(L("FormIsNotValidMessage"));
+                        throw new UserFriendlyException("Email address does not match the invitation.");
                     }
                 }
 
-                var user = await _userRegistrationManager.RegisterAsync(
-                    model.Name,
-                    model.Surname,
-                    model.EmailAddress,
-                    model.UserName,
-                    model.Password,
-                    true // Assumed email address is always confirmed. Change this if you want to implement email confirmation.
-                );
-
-                // Getting tenant-specific settings
-                var isEmailConfirmationRequiredForLogin = await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.IsEmailConfirmationRequiredForLogin);
-
-                if (model.IsExternalLogin)
+                async Task<ActionResult> RegisterUserAsync()
                 {
-                    Debug.Assert(externalLoginInfo != null);
-
-                    if (string.Equals(externalLoginInfo?.Principal.FindFirstValue(ClaimTypes.Email), model.EmailAddress, StringComparison.OrdinalIgnoreCase))
+                    ExternalLoginInfo externalLoginInfo = null;
+                    if (model.IsExternalLogin)
                     {
-                        user.IsEmailConfirmed = true;
-                    }
-
-                    user.Logins = new List<UserLogin>
-                    {
-                        new UserLogin
+                        externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
+                        if (externalLoginInfo == null)
                         {
-                            LoginProvider = externalLoginInfo?.LoginProvider,
-                            ProviderKey = externalLoginInfo?.ProviderKey,
-                            TenantId = user.TenantId
+                            throw new UserFriendlyException("Can not login externally!");
                         }
-                    };
-                }
 
-                await _unitOfWorkManager.Current.SaveChangesAsync();
+                        model.UserName = model.EmailAddress;
+                        model.Password = Authorization.Users.User.CreateRandomPassword();
 
-                Debug.Assert(user.TenantId != null);
-
-                var tenant = await _tenantManager.GetByIdAsync(user.TenantId.Value);
-
-                // Directly login if possible
-                if (user.IsActive && (user.IsEmailConfirmed || !isEmailConfirmationRequiredForLogin))
-                {
-                    AbpLoginResult<Tenant, User> loginResult;
-                    if (externalLoginInfo != null)
-                    {
-                        loginResult = await _logInManager.LoginAsync(externalLoginInfo, tenant.TenancyName);
+                        // Validate external login email matches invitation if token exists
+                        if (!string.IsNullOrEmpty(token) &&
+                            !externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Email)
+                                .Equals(model.EmailAddress, StringComparison.OrdinalIgnoreCase))
+                        {
+                            throw new UserFriendlyException("External login email does not match invitation.");
+                        }
                     }
                     else
                     {
-                        loginResult = await GetLoginResultAsync(user.UserName, model.Password, tenant.TenancyName);
+                        if (model.UserName.IsNullOrEmpty() || model.Password.IsNullOrEmpty())
+                        {
+                            throw new UserFriendlyException(L("FormIsNotValidMessage"));
+                        }
                     }
 
-                    if (loginResult.Result == AbpLoginResultType.Success)
+                    var user = await _userRegistrationManager.RegisterAsync(
+                        model.Name,
+                        model.Surname,
+                        model.EmailAddress,
+                        model.UserName,
+                        model.Password,
+                        true // Assumed email address is always confirmed. Change this if you want to implement email confirmation.
+                    );
+
+                    // Getting tenant-specific settings
+                    var isEmailConfirmationRequiredForLogin = await SettingManager.GetSettingValueAsync<bool>(AbpZeroSettingNames.UserManagement.IsEmailConfirmationRequiredForLogin);
+
+                    if (model.IsExternalLogin)
                     {
-                        await _signInManager.SignInAsync(loginResult.Identity, false);
-                        return Redirect(GetAppHomeUrl());
+                        Debug.Assert(externalLoginInfo != null);
+
+                        if (string.Equals(externalLoginInfo?.Principal.FindFirstValue(ClaimTypes.Email), model.EmailAddress, StringComparison.OrdinalIgnoreCase))
+                        {
+                            user.IsEmailConfirmed = true;
+                        }
+
+                        user.Logins = new List<UserLogin>
+                {
+                    new UserLogin
+                    {
+                        LoginProvider = externalLoginInfo?.LoginProvider,
+                        ProviderKey = externalLoginInfo?.ProviderKey,
+                        TenantId = user.TenantId
+                    }
+                };
                     }
 
-                    Logger.Warn("New registered user could not be login. This should not be normally. login result: " + loginResult.Result);
+                    await _unitOfWorkManager.Current.SaveChangesAsync();
+
+                    Debug.Assert(user.TenantId != null);
+
+                    var tenant = await _tenantManager.GetByIdAsync(user.TenantId.Value);
+
+                    // Directly login if possible
+                    if (user.IsActive && (user.IsEmailConfirmed || !isEmailConfirmationRequiredForLogin))
+                    {
+                        AbpLoginResult<Tenant, User> loginResult;
+                        if (externalLoginInfo != null)
+                        {
+                            loginResult = await _logInManager.LoginAsync(externalLoginInfo, tenant.TenancyName);
+                        }
+                        else
+                        {
+                            loginResult = await GetLoginResultAsync(user.UserName, model.Password, tenant.TenancyName);
+                        }
+
+                        if (loginResult.Result == AbpLoginResultType.Success)
+                        {
+                            await _signInManager.SignInAsync(loginResult.Identity, false);
+                            return Redirect(GetAppHomeUrl());
+                        }
+
+                        Logger.Warn("New registered user could not be login. This should not be normally. login result: " + loginResult.Result);
+                    }
+
+                    return View("RegisterResult", new RegisterResultViewModel
+                    {
+                        TenancyName = tenant.TenancyName,
+                        NameAndSurname = user.Name + " " + user.Surname,
+                        UserName = user.UserName,
+                        EmailAddress = user.EmailAddress,
+                        IsEmailConfirmed = user.IsEmailConfirmed,
+                        IsActive = user.IsActive,
+                        IsEmailConfirmationRequiredForLogin = isEmailConfirmationRequiredForLogin
+                    });
                 }
 
-                return View("RegisterResult", new RegisterResultViewModel
+                if (invitationResult.TenantId != 0)
                 {
-                    TenancyName = tenant.TenancyName,
-                    NameAndSurname = user.Name + " " + user.Surname,
-                    UserName = user.UserName,
-                    EmailAddress = user.EmailAddress,
-                    IsEmailConfirmed = user.IsEmailConfirmed,
-                    IsActive = user.IsActive,
-                    IsEmailConfirmationRequiredForLogin = isEmailConfirmationRequiredForLogin
-                });
+                    using (_unitOfWorkManager.Current.SetTenantId(invitationResult.TenantId))
+                    {
+                        return await RegisterUserAsync();
+                    }
+                }
+                else
+                {
+                    return await RegisterUserAsync();
+                }
             }
             catch (UserFriendlyException ex)
             {
                 ViewBag.ErrorMessage = ex.Message;
-
+                ViewBag.Token = token;
                 return View("Register", model);
             }
         }
-
         #endregion
 
         #region External Login
@@ -501,7 +564,6 @@ namespace toyiyo.todo.Web.Controllers
                 });
 
             return Challenge(
-                // TODO: ...?
                 new AuthenticationProperties
                 {
                     Items = { { "LoginProvider", provider } },
@@ -565,11 +627,11 @@ namespace toyiyo.todo.Web.Controllers
                 ExternalLoginAuthSchema = externalLoginInfo.LoginProvider
             };
 
-            if (nameinfo.name != null &&
-                nameinfo.surname != null &&
-                email != null)
+            // Check if this is coming from an invitation
+            var token = Request.Query["token"].ToString();
+            if (!string.IsNullOrEmpty(token))
             {
-                return await Register(viewModel);
+                return await Register(viewModel, token);
             }
 
             return RegisterView(viewModel);

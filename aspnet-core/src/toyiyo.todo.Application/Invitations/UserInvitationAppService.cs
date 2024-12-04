@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Net.Mail;
+using Abp.UI;
 using Microsoft.Extensions.Configuration;
 using toyiyo.todo.Authorization;
 using toyiyo.todo.Invitations.Dto;
@@ -92,6 +93,21 @@ namespace toyiyo.todo.Invitations
 
             message.To.Add(invitation.Email);
             await _emailSender.SendAsync(message);
+        }
+        [AbpAllowAnonymous]
+        public async Task<ValidateInvitationResultDto> ValidateInvitationAsync(string token)
+        {
+            var invitation = await _userInvitationManager.FindByTokenAsync(token);
+            if (invitation == null || !invitation.ValidateToken(token))
+            {
+                throw new UserFriendlyException("Invalid or expired invitation token.");
+            }
+
+            return new ValidateInvitationResultDto
+            {
+                TenantId = invitation.TenantId,
+                Email = invitation.Email
+            };
         }
 
     }
