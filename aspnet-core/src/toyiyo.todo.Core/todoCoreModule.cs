@@ -24,11 +24,13 @@ namespace toyiyo.todo
         public override void PreInitialize()
         {
             // Only replace email sender if not in test environment
-            if (!System.Diagnostics.Debugger.IsAttached && !Configuration.UnitOfWork.IsTransactional)
-            {
+            if (!System.Diagnostics.Debugger.IsAttached) {
                 Configuration.ReplaceService<IEmailSender, SendGridEmailSender>();
             }
-            
+            else {
+                Configuration.ReplaceService<IEmailSender, NullEmailSender>();
+            }
+
             Configuration.Auditing.IsEnabledForAnonymousUsers = true;
 
             // Declare entity types

@@ -361,17 +361,17 @@ namespace toyiyo.todo.Web.Controllers
             return ObjectMapper.Map<TenantDto>(tenant);
         }
         [UnitOfWork]
-        public ActionResult Register(string token = null)
+        public async Task<ActionResult> Register(string token = null)
         {
             if (!string.IsNullOrEmpty(token))
             {
                 try
                 {
-                    var invitationResult = _userInvitationAppService.ValidateInvitationAsync(token).Result;
+                    var invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token);
                     ViewBag.Token = token;
                     ViewBag.InvitationEmail = invitationResult.Email;
                     // Get tenant information
-                    var tenant = _tenantManager.FindByIdAsync(invitationResult.TenantId).Result;
+                    var tenant = await _tenantManager.FindByIdAsync(invitationResult.TenantId);
                     ViewBag.TenantName = tenant.Name;
                     ViewBag.TenancyName = tenant.TenancyName;
 
