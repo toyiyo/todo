@@ -1,4 +1,5 @@
-﻿using Abp.Configuration.Startup;
+﻿using System;
+using Abp.Configuration.Startup;
 using Abp.Localization;
 using Abp.Modules;
 using Abp.Net.Mail;
@@ -22,7 +23,12 @@ namespace toyiyo.todo
     {
         public override void PreInitialize()
         {
-            Configuration.ReplaceService<IEmailSender, SendGridEmailSender>();
+            // Only replace email sender if not in test environment
+            if (!System.Diagnostics.Debugger.IsAttached && !Configuration.UnitOfWork.IsTransactional)
+            {
+                Configuration.ReplaceService<IEmailSender, SendGridEmailSender>();
+            }
+            
             Configuration.Auditing.IsEnabledForAnonymousUsers = true;
 
             // Declare entity types
@@ -55,5 +61,6 @@ namespace toyiyo.todo
         {
             IocManager.Resolve<AppTimes>().StartupTime = Clock.Now;
         }
+
     }
 }
