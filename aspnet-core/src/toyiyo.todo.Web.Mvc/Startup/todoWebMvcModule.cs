@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using toyiyo.todo.Configuration;
+using Abp.AspNetCore.MultiTenancy;
 
 namespace toyiyo.todo.Web.Startup
 {
@@ -22,6 +23,7 @@ namespace toyiyo.todo.Web.Startup
         {
             Configuration.Auditing.IsEnabled = false;
             Configuration.Navigation.Providers.Add<todoNavigationProvider>();
+            Configuration.MultiTenancy.Resolvers.Add<UrlParameterTenantResolveContributor>();
         }
 
         public override void Initialize()

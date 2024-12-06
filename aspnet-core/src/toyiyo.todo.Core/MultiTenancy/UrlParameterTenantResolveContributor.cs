@@ -23,11 +23,7 @@ public class UrlParameterTenantResolveContributor : ITenantResolveContributor, I
         _abpSession = abpSession;
     }
 
-    /// <summary>
-    /// Resolves the tenant ID from the URL parameter.
-    /// </summary>
-    /// <returns>The tenant ID if found; otherwise, null.</returns>
-    public async Task<int?> ResolveTenantIdAsync()
+    public int? ResolveTenantId()
     {
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext == null)
@@ -35,43 +31,18 @@ public class UrlParameterTenantResolveContributor : ITenantResolveContributor, I
             return null;
         }
 
-        var tenantName = await GetTenantNameFromQueryAsync(httpContext);
-        if (string.IsNullOrEmpty(tenantName))
+        var tenantName = httpContext.Request.Query["tenant"];
+
+        if (!string.IsNullOrEmpty(tenantName))
         {
-            return null;
+            var tenant = _tenantStore.Find(tenantName);
+            if (tenant != null)
+            {
+                _abpSession.Use(tenant.Id, null);
+                return tenant.Id;
+            }
         }
 
-        return await ResolveTenantFromNameAsync(tenantName);
-    }
-
-    private static Task<string> GetTenantNameFromQueryAsync(HttpContext httpContext)
-    {
-        return Task.FromResult(httpContext.Request.Query["tenant"].ToString());
-    }
-
-    private async Task<int?> ResolveTenantFromNameAsync(string tenantName)
-    {
-        var tenant = await Task.FromResult(_tenantStore.Find(tenantName));
-        if (tenant == null)
-        {
-            return null;
-        }
-
-        await Task.Run(() => _abpSession.Use(tenant.Id, null));
-        return tenant.Id;
-    }
-
-    public int? ResolveTenantId()
-    {
-        try
-        {
-            // Using GetAwaiter().GetResult() instead of .Result to get better exception handling
-            return ResolveTenantIdAsync().GetAwaiter().GetResult();
-        }
-        catch (Exception)
-        {
-            // In case of any error, return null as per the interface's expected behavior
-            return null;
-        }
+        return null;
     }
 }

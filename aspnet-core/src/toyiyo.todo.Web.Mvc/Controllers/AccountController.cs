@@ -369,29 +369,15 @@ namespace toyiyo.todo.Web.Controllers
             return ObjectMapper.Map<TenantDto>(tenant);
         }
         [UnitOfWork]
-        public async Task<ActionResult> Register(string token = null)
+        public async Task<ActionResult> Register(string token)
         {
-            if (!string.IsNullOrEmpty(token))
+            var invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token, "");
+
+            return RegisterView(new RegisterViewModel
             {
-                try
-                {
-                    var invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token, "");
-                    ViewBag.Token = token;
-                    ViewBag.InvitationEmail = invitationResult.Email;
+                EmailAddress = invitationResult.Email
+            });
 
-                    return RegisterView(new RegisterViewModel
-                    {
-                        EmailAddress = invitationResult.Email
-                    });
-
-                }
-                catch (Exception ex)
-                {
-                    ViewBag.ErrorMessage = ex.Message;
-                }
-            }
-
-            return RegisterView(new RegisterViewModel());
         }
 
         private ActionResult RegisterView(RegisterViewModel model)
@@ -413,17 +399,12 @@ namespace toyiyo.todo.Web.Controllers
 
         [HttpPost]
         [UnitOfWork]
-        public async Task<ActionResult> Register(RegisterViewModel model, string token = null)
+        public async Task<ActionResult> Register(RegisterViewModel model, string token)
         {
             try
             {
-                var invitationResult = new ValidateInvitationResultDto();
-                if (!string.IsNullOrEmpty(token))
-                {
-                    invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token, model.EmailAddress);
-                }
-
-
+                var invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token, model.EmailAddress);
+                
                 ExternalLoginInfo externalLoginInfo = null;
                 if (model.IsExternalLogin)
                 {
@@ -473,7 +454,7 @@ namespace toyiyo.todo.Web.Controllers
 
                 Debug.Assert(user.TenantId != null);
 
-                var tenant = await _tenantManager.GetByIdAsync(user.TenantId.Value);
+                var retrievedTenant = await _tenantManager.GetByIdAsync(user.TenantId.Value);
 
                 // Directly login if possible
                 if (user.IsActive && (user.IsEmailConfirmed || !isEmailConfirmationRequiredForLogin))
@@ -481,11 +462,11 @@ namespace toyiyo.todo.Web.Controllers
                     AbpLoginResult<Tenant, User> loginResult;
                     if (externalLoginInfo != null)
                     {
-                        loginResult = await _logInManager.LoginAsync(externalLoginInfo, tenant.TenancyName);
+                        loginResult = await _logInManager.LoginAsync(externalLoginInfo, retrievedTenant.TenancyName);
                     }
                     else
                     {
-                        loginResult = await GetLoginResultAsync(user.UserName, model.Password, tenant.TenancyName);
+                        loginResult = await GetLoginResultAsync(user.UserName, model.Password, retrievedTenant.TenancyName);
                     }
 
                     if (loginResult.Result == AbpLoginResultType.Success)
@@ -499,7 +480,7 @@ namespace toyiyo.todo.Web.Controllers
 
                 return View("RegisterResult", new RegisterResultViewModel
                 {
-                    TenancyName = tenant.TenancyName,
+                    TenancyName = retrievedTenant.TenancyName,
                     NameAndSurname = user.Name + " " + user.Surname,
                     UserName = user.UserName,
                     EmailAddress = user.EmailAddress,
@@ -539,6 +520,7 @@ namespace toyiyo.todo.Web.Controllers
 
             return externalLoginInfo;
         }
+
         #endregion
 
         #region External Login

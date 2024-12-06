@@ -9,7 +9,6 @@ using Abp.Domain.Services;
 using Abp.Domain.Uow;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
-using Abp.Net.Mail;
 using Abp.Timing;
 using Microsoft.EntityFrameworkCore;
 using toyiyo.todo.Authorization.Users;
@@ -28,6 +27,7 @@ namespace toyiyo.todo.Invitations
         {
             _userInvitationRepository = userInvitationRepository;
             _userManager = userManager;
+            LocalizationSourceName = todoConsts.LocalizationSourceName;
         }
 
         [UnitOfWork]
@@ -149,7 +149,7 @@ namespace toyiyo.todo.Invitations
 
             if (activeUserCount + activeInvitesCount + newInvitationsCount >= tenant.SubscriptionSeats)
             {
-                throw new InvalidOperationException($"Subscription limit reached: Your subscription limit of {tenant.SubscriptionSeats} users has been reached");
+                throw new InvalidOperationException(L("TenantMaximumUserCountReached{0}", tenant.SubscriptionSeats));
             }
         }
 
