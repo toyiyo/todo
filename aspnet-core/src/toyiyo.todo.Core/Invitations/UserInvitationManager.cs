@@ -190,10 +190,7 @@ namespace toyiyo.todo.Invitations
 
         public async Task<UserInvitation> FindByTokenAsync(string token)
         {
-            return await _userInvitationRepository
-                .GetAll()
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(i => i.Token == token);
+            return await _userInvitationRepository.FirstOrDefaultAsync(i => i.Token == token);
         }
     }
 }

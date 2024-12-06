@@ -11,6 +11,6 @@ namespace toyiyo.todo.Invitations
         Task<PagedResultDto<UserInvitationDto>> GetAll(GetAllUserInvitationsInput input);
         Task<UserInvitationDto> CreateInvitationAsync(CreateUserInvitationDto input);
         Task<CreateInvitationsResultDto> CreateInvitationsAsync(List<CreateUserInvitationDto> input);
-        Task<ValidateInvitationResultDto> ValidateInvitationAsync(string token, int tenantId, string email);
+        Task<ValidateInvitationResultDto> ValidateInvitationAsync(string token, string email);
     }
 }

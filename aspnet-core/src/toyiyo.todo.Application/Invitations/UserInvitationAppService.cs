@@ -97,16 +97,12 @@ namespace toyiyo.todo.Invitations
             await _emailSender.SendAsync(message);
         }
         [AbpAllowAnonymous]
-        public async Task<ValidateInvitationResultDto> ValidateInvitationAsync(string token, int tenantId, string email)
+        public async Task<ValidateInvitationResultDto> ValidateInvitationAsync(string token, string email)
         {
             var invitation = await _userInvitationManager.FindByTokenAsync(token);
             if (invitation == null || !invitation.ValidateToken(token))
             {
                 throw new UserFriendlyException("Invalid or expired invitation token.");
-            }
-            if (invitation.TenantId != tenantId)
-            {
-                throw new UserFriendlyException("Invalid invitation token for this tenant.");
             }
             if (!email.IsNullOrEmpty() && !invitation.Email.Equals(email, StringComparison.OrdinalIgnoreCase))
             {
