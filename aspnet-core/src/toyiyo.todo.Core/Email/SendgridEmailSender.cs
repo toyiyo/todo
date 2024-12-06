@@ -35,9 +35,9 @@ namespace toyiyo.todo.Email
             }
         }
 
-        protected override void SendEmail(MailMessage mailMessage)
+        protected override async void SendEmail(MailMessage mailMessage)
         {
-            SendEmailAsync(mailMessage).GetAwaiter().GetResult();
+            await SendEmailAsync(mailMessage);
         }
 
         protected override async Task SendEmailAsync(MailMessage mailMessage)

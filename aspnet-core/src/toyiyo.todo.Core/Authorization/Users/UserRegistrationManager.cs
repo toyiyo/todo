@@ -44,7 +44,7 @@ namespace toyiyo.todo.Authorization.Users
 
             var tenant = await GetActiveTenantAsync();
 
-            CheckForSelfRegistration(tenant);
+            //CheckForSelfRegistration(tenant);
 
             CheckForAvailableSeats(tenant);
 

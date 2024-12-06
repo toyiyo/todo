@@ -24,6 +24,7 @@
     <input type="hidden" name="IsExternalLogin" value="@Model.IsExternalLogin.ToString()" />
     <input type="hidden" name="ExternalLoginAuthSchema" value="@Model.ExternalLoginAuthSchema" />
     <input type="hidden" name="Token" value="@ViewBag.Token" />
+    <input type="hidden" name="TenantId" value="@ViewBag.TenantId" />
     <div class="form-outline input-group mb-3">
         <input type="text" name="Name" class="form-control form-control-lg" placeholder="@L("Name")" value="@Model.Name" required maxlength="@AbpUserBase.MaxNameLength">
         <div class="input-group-append">

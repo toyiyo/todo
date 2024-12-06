@@ -1,4 +1,5 @@
 ﻿using System;
+using Abp.AspNetCore.MultiTenancy;
 using Abp.Configuration.Startup;
 using Abp.Localization;
 using Abp.Modules;
@@ -24,7 +25,6 @@ namespace toyiyo.todo
         public override void PreInitialize()
         {
             Configuration.ReplaceService<IEmailSender, SendGridEmailSender>();
-
             Configuration.Auditing.IsEnabledForAnonymousUsers = true;
 
             // Declare entity types
@@ -36,6 +36,9 @@ namespace toyiyo.todo
 
             // Enable this line to create a multi-tenant application.
             Configuration.MultiTenancy.IsEnabled = todoConsts.MultiTenancyEnabled;
+            // Register custom tenant resolver
+            Configuration.MultiTenancy.Resolvers.Add<UrlParameterTenantResolveContributor>();
+
 
             // Configure roles
             AppRoleConfig.Configure(Configuration.Modules.Zero().RoleManagement);

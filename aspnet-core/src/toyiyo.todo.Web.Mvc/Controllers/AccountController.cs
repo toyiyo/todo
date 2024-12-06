@@ -361,28 +361,27 @@ namespace toyiyo.todo.Web.Controllers
             return ObjectMapper.Map<TenantDto>(tenant);
         }
         [UnitOfWork]
-        public async Task<ActionResult> Register(string token = null)
+        public async Task<ActionResult> Register(string token = null, int tenantId = -1)
         {
-            if (!string.IsNullOrEmpty(token))
+            if (!string.IsNullOrEmpty(token) && tenantId > -1)
             {
                 try
                 {
-                    var invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token);
+                    var invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token, tenantId, "");
                     ViewBag.Token = token;
                     ViewBag.InvitationEmail = invitationResult.Email;
                     // Get tenant information
                     var tenant = await _tenantManager.FindByIdAsync(invitationResult.TenantId);
                     ViewBag.TenantName = tenant.Name;
                     ViewBag.TenancyName = tenant.TenancyName;
+                    ViewBag.TenantId = tenant.Id;
 
-                    // Set the tenant context
-                    using (_unitOfWorkManager.Current.SetTenantId(tenant.Id))
+
+                    return RegisterView(new RegisterViewModel
                     {
-                        return RegisterView(new RegisterViewModel
-                        {
-                            EmailAddress = invitationResult.Email
-                        });
-                    }
+                        EmailAddress = invitationResult.Email
+                    });
+
                 }
                 catch (Exception ex)
                 {
@@ -412,18 +411,14 @@ namespace toyiyo.todo.Web.Controllers
 
         [HttpPost]
         [UnitOfWork]
-        public async Task<ActionResult> Register(RegisterViewModel model, string token = null)
+        public async Task<ActionResult> Register(RegisterViewModel model, string token = null, int tenantId = -1)
         {
             try
             {
                 var invitationResult = new ValidateInvitationResultDto();
                 if (!string.IsNullOrEmpty(token))
                 {
-                    invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token);
-                    if (!model.EmailAddress.Equals(invitationResult.Email, StringComparison.OrdinalIgnoreCase))
-                    {
-                        throw new UserFriendlyException("Email address does not match the invitation.");
-                    }
+                    invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token, tenantId, model.EmailAddress);
                 }
 
                 async Task<ActionResult> RegisterUserAsync()
