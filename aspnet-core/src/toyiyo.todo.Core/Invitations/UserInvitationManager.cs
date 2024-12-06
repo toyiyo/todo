@@ -141,6 +141,12 @@ namespace toyiyo.todo.Invitations
             return await _userInvitationRepository.FirstOrDefaultAsync(i => i.Email == email);
         }
 
+        private async Task<UserInvitation> GetUserInvitationByToken(string token)
+        {
+            return await _userInvitationRepository.FirstOrDefaultAsync(i => i.Token == token);
+        }
+
+
         private async Task ValidateSubscriptionSeats(Tenant tenant, int newInvitationsCount = 1)
         {
             var activeUserCount = _userManager.Users.Count(u => u.IsActive);
@@ -192,5 +198,13 @@ namespace toyiyo.todo.Invitations
         {
             return await _userInvitationRepository.FirstOrDefaultAsync(i => i.Token == token);
         }
+
+        public async Task<UserInvitation> AcceptInvitation(string token, User acceptedBy)
+        {
+            var invitation = await GetUserInvitationByToken(token);
+            invitation.Accept(acceptedBy);
+            return await _userInvitationRepository.UpdateAsync(invitation);
+        }
+
     }
 }

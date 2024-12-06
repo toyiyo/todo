@@ -57,6 +57,7 @@ namespace toyiyo.todo.Web.Controllers
         private readonly IAbpZeroDbMigrator _abpZeroDbMigrator;
         private readonly RoleManager _roleManager;
         private readonly IUserInvitationAppService _userInvitationAppService;
+        private readonly IUserInvitationManager _userInvitationManager;
         private readonly IAbpSession _abpSession;
         private readonly UrlParameterTenantResolveContributor _tenantResolveContributor;
 
@@ -78,7 +79,8 @@ namespace toyiyo.todo.Web.Controllers
             IAbpZeroDbMigrator abpZeroDbMigrator,
             IUserInvitationAppService userInvitationAppService,
             IAbpSession abpSession,
-            UrlParameterTenantResolveContributor tenantResolveContributor)
+            UrlParameterTenantResolveContributor tenantResolveContributor,
+            IUserInvitationManager userInvitationManager)
         {
             _userManager = userManager;
             _multiTenancyConfig = multiTenancyConfig;
@@ -97,6 +99,7 @@ namespace toyiyo.todo.Web.Controllers
             _userInvitationAppService = userInvitationAppService;
             _abpSession = abpSession;
             _tenantResolveContributor = tenantResolveContributor;
+            _userInvitationManager = userInvitationManager;
         }
 
         #region Login / Logout
@@ -404,7 +407,7 @@ namespace toyiyo.todo.Web.Controllers
             try
             {
                 var invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token, model.EmailAddress);
-                
+
                 ExternalLoginInfo externalLoginInfo = null;
                 if (model.IsExternalLogin)
                 {
@@ -449,6 +452,8 @@ namespace toyiyo.todo.Web.Controllers
                     }
                 };
                 }
+                //accept the invitation once the user has been created
+                await _userInvitationManager.AcceptInvitation(token, user);
 
                 await _unitOfWorkManager.Current.SaveChangesAsync();
 
