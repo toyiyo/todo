@@ -34,6 +34,9 @@ using toyiyo.todo.Authorization.Roles;
 using toyiyo.todo.MultiTenancy.Dto;
 using Abp.Runtime.Security;
 using Microsoft.AspNetCore.Authentication;
+using toyiyo.todo.Invitations;
+using Abp.Runtime.Session;
+using Abp.AspNetCore.MultiTenancy;
 
 namespace toyiyo.todo.Web.Controllers
 {
@@ -53,6 +56,10 @@ namespace toyiyo.todo.Web.Controllers
         private readonly EditionManager _editionManager;
         private readonly IAbpZeroDbMigrator _abpZeroDbMigrator;
         private readonly RoleManager _roleManager;
+        private readonly IUserInvitationAppService _userInvitationAppService;
+        private readonly IUserInvitationManager _userInvitationManager;
+        private readonly IAbpSession _abpSession;
+        private readonly UrlParameterTenantResolveContributor _tenantResolveContributor;
 
         public AccountController(
             UserManager userManager,
@@ -69,7 +76,11 @@ namespace toyiyo.todo.Web.Controllers
             INotificationPublisher notificationPublisher,
             EditionManager editionManager,
             RoleManager roleManager,
-            IAbpZeroDbMigrator abpZeroDbMigrator)
+            IAbpZeroDbMigrator abpZeroDbMigrator,
+            IUserInvitationAppService userInvitationAppService,
+            IAbpSession abpSession,
+            UrlParameterTenantResolveContributor tenantResolveContributor,
+            IUserInvitationManager userInvitationManager)
         {
             _userManager = userManager;
             _multiTenancyConfig = multiTenancyConfig;
@@ -85,6 +96,10 @@ namespace toyiyo.todo.Web.Controllers
             _editionManager = editionManager;
             _roleManager = roleManager;
             _abpZeroDbMigrator = abpZeroDbMigrator;
+            _userInvitationAppService = userInvitationAppService;
+            _abpSession = abpSession;
+            _tenantResolveContributor = tenantResolveContributor;
+            _userInvitationManager = userInvitationManager;
         }
 
         #region Login / Logout
@@ -336,7 +351,7 @@ namespace toyiyo.todo.Web.Controllers
                 var userRole = _roleManager.Roles.Single(r => r.Name == StaticRoleNames.Tenants.User);
                 userRole.IsDefault = true;
                 await _roleManager.UpdateAsync(userRole);
-                
+
                 var jobsPermission = PermissionManager.GetPermission(PermissionNames.Pages_Jobs);
                 var projectsPermission = PermissionManager.GetPermission(PermissionNames.Pages_Projects);
                 var passwordChangePermission = PermissionManager.GetPermission(PermissionNames.Pages_Users_PasswordChange);
@@ -356,10 +371,16 @@ namespace toyiyo.todo.Web.Controllers
 
             return ObjectMapper.Map<TenantDto>(tenant);
         }
-
-        public ActionResult Register()
+        [UnitOfWork]
+        public async Task<ActionResult> Register(string token)
         {
-            return RegisterView(new RegisterViewModel());
+            var invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token);
+
+            return RegisterView(new RegisterViewModel
+            {
+                EmailAddress = invitationResult.Email
+            });
+
         }
 
         private ActionResult RegisterView(RegisterViewModel model)
@@ -381,21 +402,16 @@ namespace toyiyo.todo.Web.Controllers
 
         [HttpPost]
         [UnitOfWork]
-        public async Task<ActionResult> Register(RegisterViewModel model)
+        public async Task<ActionResult> Register(RegisterViewModel model, string token)
         {
             try
             {
+                var invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token, model.EmailAddress);
+
                 ExternalLoginInfo externalLoginInfo = null;
                 if (model.IsExternalLogin)
                 {
-                    externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
-                    if (externalLoginInfo == null)
-                    {
-                        throw new UserFriendlyException("Can not login externally!");
-                    }
-
-                    model.UserName = model.EmailAddress;
-                    model.Password = Authorization.Users.User.CreateRandomPassword();
+                    externalLoginInfo = await GetExternalLoginInfoAsync(model, token, externalLoginInfo);
                 }
                 else
                 {
@@ -427,21 +443,23 @@ namespace toyiyo.todo.Web.Controllers
                     }
 
                     user.Logins = new List<UserLogin>
+                {
+                    new UserLogin
                     {
-                        new UserLogin
-                        {
-                            LoginProvider = externalLoginInfo?.LoginProvider,
-                            ProviderKey = externalLoginInfo?.ProviderKey,
-                            TenantId = user.TenantId
-                        }
-                    };
+                        LoginProvider = externalLoginInfo?.LoginProvider,
+                        ProviderKey = externalLoginInfo?.ProviderKey,
+                        TenantId = user.TenantId
+                    }
+                };
                 }
+                //accept the invitation once the user has been created
+                await _userInvitationManager.AcceptInvitation(token, user);
 
                 await _unitOfWorkManager.Current.SaveChangesAsync();
 
                 Debug.Assert(user.TenantId != null);
 
-                var tenant = await _tenantManager.GetByIdAsync(user.TenantId.Value);
+                var retrievedTenant = await _tenantManager.GetByIdAsync(user.TenantId.Value);
 
                 // Directly login if possible
                 if (user.IsActive && (user.IsEmailConfirmed || !isEmailConfirmationRequiredForLogin))
@@ -449,11 +467,11 @@ namespace toyiyo.todo.Web.Controllers
                     AbpLoginResult<Tenant, User> loginResult;
                     if (externalLoginInfo != null)
                     {
-                        loginResult = await _logInManager.LoginAsync(externalLoginInfo, tenant.TenancyName);
+                        loginResult = await _logInManager.LoginAsync(externalLoginInfo, retrievedTenant.TenancyName);
                     }
                     else
                     {
-                        loginResult = await GetLoginResultAsync(user.UserName, model.Password, tenant.TenancyName);
+                        loginResult = await GetLoginResultAsync(user.UserName, model.Password, retrievedTenant.TenancyName);
                     }
 
                     if (loginResult.Result == AbpLoginResultType.Success)
@@ -467,7 +485,7 @@ namespace toyiyo.todo.Web.Controllers
 
                 return View("RegisterResult", new RegisterResultViewModel
                 {
-                    TenancyName = tenant.TenancyName,
+                    TenancyName = retrievedTenant.TenancyName,
                     NameAndSurname = user.Name + " " + user.Surname,
                     UserName = user.UserName,
                     EmailAddress = user.EmailAddress,
@@ -476,12 +494,36 @@ namespace toyiyo.todo.Web.Controllers
                     IsEmailConfirmationRequiredForLogin = isEmailConfirmationRequiredForLogin
                 });
             }
+
+
             catch (UserFriendlyException ex)
             {
                 ViewBag.ErrorMessage = ex.Message;
-
+                ViewBag.Token = token;
                 return View("Register", model);
             }
+        }
+
+        private async Task<ExternalLoginInfo> GetExternalLoginInfoAsync(RegisterViewModel model, string token, ExternalLoginInfo externalLoginInfo)
+        {
+            externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
+            if (externalLoginInfo == null)
+            {
+                throw new UserFriendlyException("Can not login externally!");
+            }
+
+            model.UserName = model.EmailAddress;
+            model.Password = Authorization.Users.User.CreateRandomPassword();
+
+            // Validate external login email matches invitation if token exists
+            if (!string.IsNullOrEmpty(token) &&
+                !externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Email)
+                    .Equals(model.EmailAddress, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new UserFriendlyException("External login email does not match invitation.");
+            }
+
+            return externalLoginInfo;
         }
 
         #endregion
@@ -501,7 +543,6 @@ namespace toyiyo.todo.Web.Controllers
                 });
 
             return Challenge(
-                // TODO: ...?
                 new AuthenticationProperties
                 {
                     Items = { { "LoginProvider", provider } },
@@ -565,11 +606,11 @@ namespace toyiyo.todo.Web.Controllers
                 ExternalLoginAuthSchema = externalLoginInfo.LoginProvider
             };
 
-            if (nameinfo.name != null &&
-                nameinfo.surname != null &&
-                email != null)
+            // Check if this is coming from an invitation
+            var token = Request.Query["token"].ToString();
+            if (!string.IsNullOrEmpty(token))
             {
-                return await Register(viewModel);
+                return await Register(viewModel, token);
             }
 
             return RegisterView(viewModel);

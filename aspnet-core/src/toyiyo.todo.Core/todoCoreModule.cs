@@ -1,4 +1,6 @@
-﻿using Abp.Configuration.Startup;
+﻿using System;
+using Abp.AspNetCore.MultiTenancy;
+using Abp.Configuration.Startup;
 using Abp.Localization;
 using Abp.Modules;
 using Abp.Net.Mail;
@@ -34,6 +36,9 @@ namespace toyiyo.todo
 
             // Enable this line to create a multi-tenant application.
             Configuration.MultiTenancy.IsEnabled = todoConsts.MultiTenancyEnabled;
+            // Register custom tenant resolver
+            Configuration.MultiTenancy.Resolvers.Add<UrlParameterTenantResolveContributor>();
+
 
             // Configure roles
             AppRoleConfig.Configure(Configuration.Modules.Zero().RoleManagement);
@@ -55,5 +60,6 @@ namespace toyiyo.todo
         {
             IocManager.Resolve<AppTimes>().StartupTime = Clock.Now;
         }
+
     }
 }

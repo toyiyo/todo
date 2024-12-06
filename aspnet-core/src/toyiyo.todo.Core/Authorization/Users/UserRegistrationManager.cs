@@ -44,8 +44,6 @@ namespace toyiyo.todo.Authorization.Users
 
             var tenant = await GetActiveTenantAsync();
 
-            CheckForSelfRegistration(tenant);
-
             CheckForAvailableSeats(tenant);
 
             var user = new User
@@ -85,16 +83,8 @@ namespace toyiyo.todo.Authorization.Users
             var tenantUserCount = _userManager.Users.Count();
             if (tenant.SubscriptionSeats <= tenantUserCount)
             {
-                throw new UserFriendlyException(L("TenantMaximumUserCountReached", tenant.SubscriptionSeats));
+                throw new UserFriendlyException(L("TenantMaximumUserCountReached{0}", tenant.SubscriptionSeats));
             } 
-        }
-
-        private void CheckForSelfRegistration(Tenant tenant)
-        {
-            if (!tenant.AllowsSelfRegistration)
-            {
-                throw new UserFriendlyException(L("TenantSelfRegistrationIsDisabled{0}", tenant.Name));
-            }
         }
 
         private void CheckForTenant()

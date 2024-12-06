@@ -4,10 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
+using Abp.Extensions;
 using Abp.Net.Mail;
+using Abp.UI;
 using Microsoft.Extensions.Configuration;
 using toyiyo.todo.Authorization;
 using toyiyo.todo.Invitations.Dto;
+using toyiyo.todo.MultiTenancy;
 
 namespace toyiyo.todo.Invitations
 {
@@ -51,7 +54,7 @@ namespace toyiyo.todo.Invitations
             {
                 try
                 {
-                    await SendInvitationEmailAsync(invitation);
+                    await SendInvitationEmailAsync(invitation, tenant);
                 }
                 catch (Exception ex)
                 {
@@ -64,10 +67,10 @@ namespace toyiyo.todo.Invitations
                 errors
             );
         }
-        private async Task SendInvitationEmailAsync(UserInvitation invitation)
+        private async Task SendInvitationEmailAsync(UserInvitation invitation, Tenant tenant)
         {
             var subject = "You've been invited to join Toyiyo, your simple project management app";
-            var registerUrl = $"{_baseUrl}/account/register?token={Uri.EscapeDataString(invitation.Token)}";
+            var registerUrl = $"{_baseUrl}/account/register?token={Uri.EscapeDataString(invitation.Token)}&tenant={Uri.EscapeDataString(tenant.Name)}";
 
             var htmlBody = $@"
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
@@ -92,6 +95,25 @@ namespace toyiyo.todo.Invitations
 
             message.To.Add(invitation.Email);
             await _emailSender.SendAsync(message);
+        }
+        [AbpAllowAnonymous]
+        public async Task<ValidateInvitationResultDto> ValidateInvitationAsync(string token, string email = "")
+        {
+            var invitation = await _userInvitationManager.FindByTokenAsync(token);
+            if (invitation == null || !invitation.ValidateToken(token))
+            {
+                throw new UserFriendlyException("Invalid or expired invitation token.");
+            }
+            if (!email.IsNullOrEmpty() && !invitation.Email.Equals(email, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new UserFriendlyException("Invalid invitation token for this email.");
+            }
+
+            return new ValidateInvitationResultDto
+            {
+                TenantId = invitation.TenantId,
+                Email = invitation.Email
+            };
         }
 
     }
