@@ -374,7 +374,7 @@ namespace toyiyo.todo.Web.Controllers
         [UnitOfWork]
         public async Task<ActionResult> Register(string token)
         {
-            var invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token, "");
+            var invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token);
 
             return RegisterView(new RegisterViewModel
             {

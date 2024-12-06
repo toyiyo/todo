@@ -83,7 +83,7 @@ namespace toyiyo.todo.Authorization.Users
             var tenantUserCount = _userManager.Users.Count();
             if (tenant.SubscriptionSeats <= tenantUserCount)
             {
-                throw new UserFriendlyException(L("TenantMaximumUserCountReached", tenant.SubscriptionSeats));
+                throw new UserFriendlyException(L("TenantMaximumUserCountReached{0}", tenant.SubscriptionSeats));
             } 
         }
 

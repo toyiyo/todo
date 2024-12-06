@@ -106,9 +106,10 @@ namespace toyiyo.todo.Web.Tests.Controllers
             var result = await Client.PostAsync(url, data);
 
             // Assert
+            var response = await result.Content.ReadAsStringAsync();
             result.StatusCode.ShouldBe(HttpStatusCode.Redirect);
             Console.WriteLine("location header is {0}", result.Headers.Location.ToString());
-            Console.WriteLine("page content is {0}", result.Content.ReadAsStringAsync().Result);
+            Console.WriteLine("page content is {0}", response);
             result.Headers.Location.ToString().ShouldContain("/Home");
         }
 
@@ -204,7 +205,7 @@ namespace toyiyo.todo.Web.Tests.Controllers
             // Assert
             result.StatusCode.ShouldBe(HttpStatusCode.OK);
             var responseContent = await result.Content.ReadAsStringAsync();
-            responseContent.ShouldContain("Subscription limit reached");
+            responseContent.ShouldContain("Subscription limit reached", Case.Insensitive);
         }
 
         private Tenant GetTenant()

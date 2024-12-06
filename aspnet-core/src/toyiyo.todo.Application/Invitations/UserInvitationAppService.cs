@@ -97,7 +97,7 @@ namespace toyiyo.todo.Invitations
             await _emailSender.SendAsync(message);
         }
         [AbpAllowAnonymous]
-        public async Task<ValidateInvitationResultDto> ValidateInvitationAsync(string token, string email)
+        public async Task<ValidateInvitationResultDto> ValidateInvitationAsync(string token, string email = "")
         {
             var invitation = await _userInvitationManager.FindByTokenAsync(token);
             if (invitation == null || !invitation.ValidateToken(token))
