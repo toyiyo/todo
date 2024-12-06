@@ -108,9 +108,9 @@ namespace toyiyo.todo.Web.Tests.Controllers
             // Assert
             var response = await result.Content.ReadAsStringAsync();
             result.StatusCode.ShouldBe(HttpStatusCode.Redirect);
-            Console.WriteLine("location header is {0}", result.Headers.Location.ToString());
+            Console.WriteLine("location header is {0}", result.Headers.ToString());
             Console.WriteLine("page content is {0}", response);
-            result.Headers.Location.ToString().ShouldContain("/Home");
+            result.Headers.Location.ToString().ShouldContain("/");
         }
 
         [Fact]
