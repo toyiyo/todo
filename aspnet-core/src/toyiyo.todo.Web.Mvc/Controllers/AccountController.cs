@@ -559,7 +559,7 @@ namespace toyiyo.todo.Web.Controllers
 
             if (remoteError != null)
             {
-                Logger.Error("Remote Error in ExternalLoginCallback: " + remoteError);
+                Logger.Error("Remote Error in ExternalLoginCallback: " + remoteError.Replace(Environment.NewLine, "").Replace("\n", "").Replace("\r", ""));
                 throw new UserFriendlyException(L("CouldNotCompleteLoginOperation"));
             }
 
