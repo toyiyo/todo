@@ -23,37 +23,54 @@ public class UrlParameterTenantResolveContributor : ITenantResolveContributor, I
         _abpSession = abpSession;
     }
 
-    public Task<int?> ResolveTenantId()
+    /// <summary>
+    /// Resolves the tenant ID from the URL parameter.
+    /// </summary>
+    /// <returns>The tenant ID if found; otherwise, null.</returns>
+    public async Task<int?> ResolveTenantIdAsync()
     {
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext == null)
         {
-            return Task.FromResult<int?>(null);
+            return null;
         }
 
-        var tenantName = httpContext.Request.Query["tenant"];
-
-        if (!string.IsNullOrEmpty(tenantName))
+        var tenantName = await GetTenantNameFromQueryAsync(httpContext);
+        if (string.IsNullOrEmpty(tenantName))
         {
-            var tenant = _tenantStore.Find(tenantName);
-            if (tenant != null)
-            {
-                _abpSession.Use(tenant.Id, null);
-                return Task.FromResult<int?>(tenant.Id);
-            }
+            return null;
         }
 
-        return Task.FromResult<int?>(null);
+        return await ResolveTenantFromNameAsync(tenantName);
     }
 
-    int? ITenantResolveContributor.ResolveTenantId()
+    private static Task<string> GetTenantNameFromQueryAsync(HttpContext httpContext)
+    {
+        return Task.FromResult(httpContext.Request.Query["tenant"].ToString());
+    }
+
+    private async Task<int?> ResolveTenantFromNameAsync(string tenantName)
+    {
+        var tenant = await Task.FromResult(_tenantStore.Find(tenantName));
+        if (tenant == null)
+        {
+            return null;
+        }
+
+        await Task.Run(() => _abpSession.Use(tenant.Id, null));
+        return tenant.Id;
+    }
+
+    public int? ResolveTenantId()
     {
         try
         {
-            return Task.Run(() => ResolveTenantId()).GetAwaiter().GetResult();
+            // Using GetAwaiter().GetResult() instead of .Result to get better exception handling
+            return ResolveTenantIdAsync().GetAwaiter().GetResult();
         }
-        catch
+        catch (Exception)
         {
+            // In case of any error, return null as per the interface's expected behavior
             return null;
         }
     }
