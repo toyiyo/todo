@@ -374,12 +374,21 @@ namespace toyiyo.todo.Web.Controllers
         [UnitOfWork]
         public async Task<ActionResult> Register(string token)
         {
-            var invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token);
-
-            return RegisterView(new RegisterViewModel
+            try
             {
-                EmailAddress = invitationResult.Email
-            });
+                var invitationResult = await _userInvitationAppService.ValidateInvitationAsync(token);
+
+                return RegisterView(new RegisterViewModel
+                {
+                    EmailAddress = invitationResult.Email
+                });
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = ex.Message;
+
+                return View("Register", new RegisterViewModel());
+            }
 
         }
 
@@ -494,9 +503,7 @@ namespace toyiyo.todo.Web.Controllers
                     IsEmailConfirmationRequiredForLogin = isEmailConfirmationRequiredForLogin
                 });
             }
-
-
-            catch (UserFriendlyException ex)
+            catch (Exception ex)
             {
                 ViewBag.ErrorMessage = ex.Message;
                 ViewBag.Token = token;
