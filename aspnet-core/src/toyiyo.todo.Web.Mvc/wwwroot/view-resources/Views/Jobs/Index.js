@@ -102,20 +102,18 @@
         return columnName + ' ' + dir;
     }
 
-    function getColumnName(columnIdx) {
-        switch (columnIdx) {
-            case 0:
-                return 'OrderByDate';
-            case 2:
-                return 'Level';
-            case 3:
-                return 'Title';
-            case 4:
-                return 'DueDate';
-            default:
-                return 'OrderByDate';
-        }
-    }
+    function getColumnName(columnIdx) {  
+        if (typeof columnIdx !== 'number') {  
+            return 'OrderByDate';  
+        }  
+        const columnMap = {  
+            0: 'OrderByDate',  
+            2: 'Level',  
+            3: 'Title',  
+            4: 'DueDate'  
+        };  
+        return columnMap[columnIdx] || 'OrderByDate';  
+    }  
 
     var _$jobsTable = _$table.DataTable({
         ordering: true,
@@ -156,6 +154,13 @@
                 };
                 // Pass the data to DataTables
                 callback(json);
+            }).fail(function (error) {
+                abp.notify.error(error);
+                callback({
+                    recordsTotal: 0,
+                    recordsFiltered: 0,
+                    data: []
+                });
             });
         },
         buttons: [],
