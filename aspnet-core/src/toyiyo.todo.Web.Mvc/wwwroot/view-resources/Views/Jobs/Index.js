@@ -106,6 +106,8 @@
         switch (columnIdx) {
             case 0:
                 return 'OrderByDate';
+            case 2:
+                return 'Level';
             case 3:
                 return 'Title';
             case 4:
@@ -158,8 +160,8 @@
         },
         buttons: [],
         columnDefs: [
-            { orderable: true, targets: [0, 3, 4] }, // Make columns orderable
-            { orderable: false, targets: [1, 2, 5] }, // Disable ordering on specified columns
+            { orderable: true, targets: [0, 2, 3, 4] }, // Make columns orderable
+            { orderable: false, targets: [1, 5] }, // Disable ordering on specified columns
             {
                 targets: 0,
                 data: 'lastModificationTime',
