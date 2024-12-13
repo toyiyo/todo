@@ -86,8 +86,38 @@
             return getStatusDropdown(jobStatus, jobId, backlogFavicon);
         }
     }
+    // Sorting parameter functions
+
+    function getSortingParameter(d) {
+        if (!d.order || d.order.length === 0) {
+            return 'OrderByDate DESC';
+        }
+
+        var order = d.order[0];
+        var columnIdx = order.column;
+        var dir = order.dir.toUpperCase();
+
+        var columnName = getColumnName(columnIdx);
+
+        return columnName + ' ' + dir;
+    }
+
+    function getColumnName(columnIdx) {
+        switch (columnIdx) {
+            case 0:
+                return 'OrderByDate';
+            case 3:
+                return 'Title';
+            case 4:
+                return 'DueDate';
+            default:
+                return 'OrderByDate';
+        }
+    }
 
     var _$jobsTable = _$table.DataTable({
+        ordering: true,
+        order: [[0, 'desc']],
         rowReorder: {
             dataSrc: 'orderByDate',
             update: false
@@ -101,32 +131,35 @@
         paging: true,
         serverSide: true,
         select: true,
-        listAction: {
-            ajaxFunction: _jobService.getAll,
-            inputFilter: function () {
-                return {
-                    keyword: $('#JobsSearchForm input[type=search]').val(),
-                    jobStatus: $('#SelectedJobStatus').val(),
-                    projectId: $('#ProjectId').val(),
-                    levels: [0, 3],
-                    //include parentJobId only if the value of ParentJobId is not null
-                    parentJobId: $('#SelectedEpicId').val(),
-                    sorting: 'OrderByDate DESC',
-                }
-            },
-            dataFilter: function (data) {
-                var json = jQuery.parseJSON(data);
-                json.recordsTotal = json.TotalCount;
-                json.recordsFiltered = json.Items.length;
-                json.data = json.list;
-                return JSON.stringify(json);
-            }
+        ajax: function (data, callback, settings) {
+            // Build request parameters
+            var requestData = {
+                maxResultCount: data.length, // Page size
+                skipCount: data.start,       // Page start index
+                sorting: getSortingParameter(data),
+                keyword: $('#JobsSearchForm input[type=search]').val(),
+                jobStatus: $('#SelectedJobStatus').val(),
+                projectId: $('#ProjectId').val(),
+                levels: [0, 3],
+                parentJobId: $('#SelectedEpicId').val()
+            };
+    
+            // Call your service function
+            _jobService.getAll(requestData).done(function (result) {
+                // Prepare the data for DataTables
+                var json = {
+                    recordsTotal: result.totalCount,
+                    recordsFiltered: result.totalCount,
+                    data: result.items
+                };
+                // Pass the data to DataTables
+                callback(json);
+            });
         },
         buttons: [],
         columnDefs: [
-            // { className: 'dtr-control', orderable: false, targets: 0 },
-            { orderable: true, className: 'reorder', targets: 0 },
-            { orderable: false, targets: '_all' },
+            { orderable: true, targets: [0, 3, 4] }, // Make columns orderable
+            { orderable: false, targets: [1, 2, 5] }, // Disable ordering on specified columns
             {
                 targets: 0,
                 data: 'lastModificationTime',
@@ -165,6 +198,7 @@
                 targets: 3,
                 data: 'title',
                 className: 'title',
+                orderable: true,
                 defaultContent: '',
                 render: (data, type, row, meta) => {
                     return `${data}`;
@@ -173,6 +207,7 @@
             {
                 targets: 4,
                 data: 'dueDate',
+                orderable: true,
                 defaultContent: '',
                 width: '8em',
                 render: (data, type, row, meta) => {
