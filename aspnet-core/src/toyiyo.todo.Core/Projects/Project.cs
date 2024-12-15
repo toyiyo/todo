@@ -8,7 +8,7 @@ using toyiyo.todo.Authorization.Users;
 
 namespace toyiyo.todo.Projects
 {
-    [Index(nameof(TenantId))]
+    [Index(nameof(TenantId), nameof(Id), nameof(IsDeleted))]
     public class Project : FullAuditedEntity<Guid>, IMustHaveTenant
     {
         public const int MaxTitleLength = 500; //todo: max length should be defined in the configuration
