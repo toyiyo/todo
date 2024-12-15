@@ -54,7 +54,8 @@ table.dataTable td.reorder {
   text-align: center;
   cursor: grab;
 }
-.nav-user-menu .user-initials {
+/* User Initials Styling */
+.user-initials {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -69,6 +70,7 @@ table.dataTable td.reorder {
   margin-right: 10px; /* Adjust as needed */
 }
 
+/* Navbar User Menu */
 .nav-user-menu .nav-link {
   display: flex;
   align-items: center;
@@ -76,5 +78,10 @@ table.dataTable td.reorder {
 }
 
 .nav-user-menu .nav-link .user-initials {
+  margin-right: 10px; /* Adjust as needed */
+}
+
+/* Sidebar User Panel */
+.user-panel .image .user-initials {
   margin-right: 10px; /* Adjust as needed */
 }
