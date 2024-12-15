@@ -21,6 +21,12 @@ namespace toyiyo.todo.Web.Views.Shared.Components.RightNavbarUserArea
                 ? ".\\" + userName
                 : LoginInformations.Tenant.TenancyName + "\\" + userName;
         }
+
+        public string GetUserInitials()
+        {
+            var initials = LoginInformations.User.Name.Substring(0, 1).ToUpper() + LoginInformations.User.Surname.Substring(0, 1).ToUpper();
+            return initials;
+        }
     }
 }
 
