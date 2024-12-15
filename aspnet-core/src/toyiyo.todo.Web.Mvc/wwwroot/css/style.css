@@ -55,6 +55,7 @@ table.dataTable td.reorder {
   cursor: grab;
 }
 /* User Initials Styling */
+/* User Initials Styling */
 .user-initials {
   width: 40px;
   height: 40px;
@@ -67,6 +68,14 @@ table.dataTable td.reorder {
   font-size: 16px;
   font-weight: bold;
   text-transform: uppercase;
+  margin-right: 10px; /* Adjust as needed */
+}
+
+/* User Image Styling */
+.user-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   margin-right: 10px; /* Adjust as needed */
 }
 
