@@ -36,7 +36,6 @@
     <text name="ClearAll" >关闭所有</text>
     <text name="ClearOthers" >关闭其他</text>
     <text name="Create" >创建</text>
-    <text name="Add" >添加</text>
     <text name="Edit" >编辑</text>
     <text name="Delete">删除</text>
     <text name="Find" >查找</text>
@@ -98,6 +97,54 @@
     <text name="EditTenant">编辑租户</text>
     <text name="SearchWithThreeDot">搜索...</text>
     
+    <text name="Projects" value="项目" />
+    <text name="CreateNewProject" value="创建新项目" />
+    <text name="ProjectName" value="项目名称" />
+    <text name="ProjectTitle" value="项目标题" />
+    <text name="EditProject" value="编辑项目" />
+    <text name="ProjectList" value="项目列表" />
+    <text name="ProjectDescription" value="项目描述" />
+    <text name="EditJob" value="编辑工作" />
+    <text name="JobTitle" value="工作标题" />
+    <text name="Jobs" value="工作" />
+    <text name="JobDescription" value="工作描述" />
+    <text name="JobType" value="工作类型" />
+    <text name="ParentEpic" value="父级史诗" />
+    <text name="Subtasks" value="子任务" />
+    <text name="DueDate" value="截止日期" />
+    <text name="DomainName" value="子域名" />
+    <text name="CompanyName" value="公司名称" />
+    <text name="NoAccountQuestion" value="还没有账号？" />
+    <text name="Email" value="电子邮箱" />
+    <text name="ExpiresOn" value="到期时间" />
+    <text name="AcceptedOn" value="接受时间" />
+    <text name="Invitations" value="邀请" />
+    <text name="NotAccepted" value="未接受" />
+    <text name="TypeEmailsHere" value="在此输入电子邮箱" />
+    <text name="SendInvitations" value="发送邀请" />
+    <text name="SomeInvitationsFailed" value="部分邀请发送失败" />
+    <text name="InvitationsSentSuccessfully" value="邀请发送成功" />
+    <text name="ErrorOccurred" value="发生错误" />
+    <text name="PleaseEnterAtLeastOneEmail" value="请至少输入一个电子邮箱" />
+    <text name="ResetPasswordMessage" value="请设置一个新密码" />
+    <text name="RegisterNewCompany" value="注册新公司" />
+    <text name="ContinueWith" value="继续使用" />
+    <text name="RegisterSelfToHostNotAllowed" value="不允许注册到主机！" />
+    <text name="AllowsSelfRegistration" value="允许自助注册" />
+    <text name="TenantSelfRegistrationIsDisabled{0}">租户 {0} 的自助注册已被禁用</text>
+    <text name="TenantMaximumUserCountReached{0}">订阅限制已达：已达到 {0} 用户的上限</text>
+    <text name="Privacy" value="隐私政策" />
+    <text name="Terms" value="使用条款" />
+    <text name="Cookie" value="Cookie 政策" />
+    <text name="StripeApiError">连接到 Stripe 时遇到问题。错误代码 {0}。</text>
+    <text name="GetSubscriptionCustomerByEmailNotFound">无法找到使用电子邮箱 {0} 且有活跃订阅的管理员。</text>
+    <text name="GetSubscriptionCustomerByEmailError">检索有活跃订阅的管理员时遇到问题。错误信息 {0}。</text>
+    <text name="GetSubscriptionByEmailNotFound">无法找到电子邮箱为 {0} 的活跃订阅。</text>
+    <text name="Subscription">订阅</text>
+    <text name="JobUpdateFailed">任务更新失败</text>
+    <text name="UsersPasswordChange">用户密码更改</text>
+    <text name="AddNew">添加新项</text>
+    <text name="Add">添加</text>
   </texts>
 </localizationDictionary>
 

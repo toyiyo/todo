@@ -106,5 +106,53 @@
     <text name="RoleDeleteWarningMessage">A função {0} será excluída e desassociada de todos os usuários pertencentes a ela.</text>
     <text name="TenantDeleteWarningMessage">O Tenant {0} será excluído.</text>
     <text name="SearchWithThreeDot">Pesquisar...</text>
+    <text name="Projects" value="Projetos" />
+    <text name="CreateNewProject" value="Criar novo projeto" />
+    <text name="ProjectName" value="Nome do projeto" />
+    <text name="ProjectTitle" value="Título do projeto" />
+    <text name="EditProject" value="Editar projeto" />
+    <text name="ProjectList" value="Lista de projetos" />
+    <text name="ProjectDescription" value="Descrição do projeto" />
+    <text name="EditJob" value="Editar trabalho" />
+    <text name="JobTitle" value="Título do trabalho" />
+    <text name="Jobs" value="Trabalhos" />
+    <text name="JobDescription" value="Descrição do trabalho" />
+    <text name="JobType" value="Tipo de trabalho" />
+    <text name="ParentEpic" value="Épico pai" />
+    <text name="Subtasks" value="Subtarefas" />
+    <text name="DueDate" value="Data de vencimento" />
+    <text name="DomainName" value="Subdomínio" />
+    <text name="CompanyName" value="Nome da Empresa" />
+    <text name="NoAccountQuestion" value="Não tem uma conta?" />
+    <text name="Email" value="E-mail" />
+    <text name="ExpiresOn" value="Expira em" />
+    <text name="AcceptedOn" value="Aceito em" />
+    <text name="Invitations" value="Convites" />
+    <text name="NotAccepted" value="Não aceito" />
+    <text name="TypeEmailsHere" value="Digite os e-mails aqui" />
+    <text name="SendInvitations" value="Enviar convites" />
+    <text name="SomeInvitationsFailed" value="Alguns convites falharam" />
+    <text name="InvitationsSentSuccessfully" value="Convites enviados com sucesso" />
+    <text name="ErrorOccurred" value="Ocorreu um erro" />
+    <text name="PleaseEnterAtLeastOneEmail" value="Por favor, insira pelo menos um e-mail" />
+    <text name="ResetPasswordMessage" value="Por favor, defina uma nova senha" />
+    <text name="RegisterNewCompany" value="Registrar uma nova empresa" />
+    <text name="ContinueWith" value="Continuar com" />
+    <text name="RegisterSelfToHostNotAllowed" value="Auto-registro no host não é permitido!" />
+    <text name="AllowsSelfRegistration" value="Permitir auto-registro" />
+    <text name="TenantSelfRegistrationIsDisabled{0}">Auto-registro está desativado para {0}</text>
+    <text name="TenantMaximumUserCountReached{0}">Limite de assinatura atingido: Limite de {0} usuários alcançado</text>
+    <text name="Privacy" value="Política de Privacidade" />
+    <text name="Terms" value="Termos de Uso" />
+    <text name="Cookie" value="Política de Cookies" />
+    <text name="StripeApiError">Tivemos um problema ao conectar ao Stripe. Código de erro {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailNotFound">Não conseguimos encontrar um administrador com uma assinatura ativa no e-mail {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailError">Tivemos um problema ao recuperar um administrador com uma assinatura ativa. Mensagem de erro {0}.</text>
+    <text name="GetSubscriptionByEmailNotFound">Não conseguimos encontrar uma assinatura ativa no e-mail {0}.</text>
+    <text name="Subscription">Assinatura</text>
+    <text name="JobUpdateFailed">Falha na atualização da tarefa</text>
+    <text name="UsersPasswordChange">Alteração de senha dos usuários</text>
+    <text name="AddNew">Adicionar novo</text>
+    <text name="Add">Adicionar</text>
   </texts>
 </localizationDictionary>

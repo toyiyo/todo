@@ -84,5 +84,53 @@
     <text name="EditUser">Bewerk gebruiker</text>
     <text name="TenantIdIsNotActive{0}">HuurderId {0} is niet actief</text>
     <text name="UnknownTenantId{0}">Onbekend huurderId {0}</text>
+    <text name="Projects" value="Projecten" />
+    <text name="CreateNewProject" value="Nieuw project aanmaken" />
+    <text name="ProjectName" value="Projectnaam" />
+    <text name="ProjectTitle" value="Projecttitel" />
+    <text name="EditProject" value="Project bewerken" />
+    <text name="ProjectList" value="Projectlijst" />
+    <text name="ProjectDescription" value="Projectbeschrijving" />
+    <text name="EditJob" value="Taak bewerken" />
+    <text name="JobTitle" value="Taaktitel" />
+    <text name="Jobs" value="Taken" />
+    <text name="JobDescription" value="Taakbeschrijving" />
+    <text name="JobType" value="Taaktype" />
+    <text name="ParentEpic" value="Overkoepelende epiek" />
+    <text name="Subtasks" value="Subtaken" />
+    <text name="DueDate" value="Vervaldatum" />
+    <text name="DomainName" value="Subdomein" />
+    <text name="CompanyName" value="Bedrijfsnaam" />
+    <text name="NoAccountQuestion" value="Heb je geen account?" />
+    <text name="Email" value="E-mailadres" />
+    <text name="ExpiresOn" value="Verloopt op" />
+    <text name="AcceptedOn" value="Geaccepteerd op" />
+    <text name="Invitations" value="Uitnodigingen" />
+    <text name="NotAccepted" value="Niet geaccepteerd" />
+    <text name="TypeEmailsHere" value="Typ hier e-mails" />
+    <text name="SendInvitations" value="Uitnodigingen versturen" />
+    <text name="SomeInvitationsFailed" value="Sommige uitnodigingen zijn mislukt" />
+    <text name="InvitationsSentSuccessfully" value="Uitnodigingen succesvol verstuurd" />
+    <text name="ErrorOccurred" value="Er is een fout opgetreden" />
+    <text name="PleaseEnterAtLeastOneEmail" value="Voer alstublieft ten minste één e-mailadres in" />
+    <text name="ResetPasswordMessage" value="Stel alstublieft een nieuw wachtwoord in" />
+    <text name="RegisterNewCompany" value="Registreer een nieuw bedrijf" />
+    <text name="ContinueWith" value="Ga verder met" />
+    <text name="RegisterSelfToHostNotAllowed" value="Zelfregistratie bij de host is niet toegestaan!" />
+    <text name="AllowsSelfRegistration" value="Zelfregistratie toestaan" />
+    <text name="TenantSelfRegistrationIsDisabled{0}">Zelfregistratie is uitgeschakeld voor {0}</text>
+    <text name="TenantMaximumUserCountReached{0}">Abonnementslimiet bereikt: Limiet van {0} gebruikers is bereikt</text>
+    <text name="Privacy" value="Privacybeleid" />
+    <text name="Terms" value="Gebruiksvoorwaarden" />
+    <text name="Cookie" value="Cookiebeleid" />
+    <text name="StripeApiError">Er was een probleem met verbinden naar Stripe. Foutcode {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailNotFound">Geen beheerder gevonden met een actief abonnement op het e-mailadres {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailError">Er is een probleem opgetreden bij het ophalen van een beheerder met een actief abonnement. Foutmelding {0}.</text>
+    <text name="GetSubscriptionByEmailNotFound">Geen actief abonnement gevonden voor het e-mailadres {0}.</text>
+    <text name="Subscription">Abonnement</text>
+    <text name="JobUpdateFailed">Taakupdate mislukt</text>
+    <text name="UsersPasswordChange">Gebruikerswachtwoord wijzigen</text>
+    <text name="AddNew">Nieuwe toevoegen</text>
+    <text name="Add">Toevoegen</text>
   </texts>
 </localizationDictionary>

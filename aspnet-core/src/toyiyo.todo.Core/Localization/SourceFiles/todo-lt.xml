@@ -105,5 +105,53 @@
     <text name="StartTyping">Pradėkite rašyti</text>
     <text name="Skins">Apvalkalai</text>
 	<text name="Settings">Nustatymai</text>
+    <text name="Projects" value="Projektai" />
+    <text name="CreateNewProject" value="Sukurti naują projektą" />
+    <text name="ProjectName" value="Projekto pavadinimas" />
+    <text name="ProjectTitle" value="Projekto pavadinimas" />
+    <text name="EditProject" value="Redaguoti projektą" />
+    <text name="ProjectList" value="Projektų sąrašas" />
+    <text name="ProjectDescription" value="Projekto aprašymas" />
+    <text name="EditJob" value="Redaguoti darbą" />
+    <text name="JobTitle" value="Darbo pavadinimas" />
+    <text name="Jobs" value="Darbai" />
+    <text name="JobDescription" value="Darbo aprašymas" />
+    <text name="JobType" value="Darbo tipas" />
+    <text name="ParentEpic" value="Pirminis epas" />
+    <text name="Subtasks" value="Pavaldūs uždaviniai" />
+    <text name="DueDate" value="Atlikimo data" />
+    <text name="DomainName" value="Subdomenas" />
+    <text name="CompanyName" value="Įmonės pavadinimas" />
+    <text name="NoAccountQuestion" value="Neturite paskyros?" />
+    <text name="Email" value="El. paštas" />
+    <text name="ExpiresOn" value="Galioja iki" />
+    <text name="AcceptedOn" value="Priimta" />
+    <text name="Invitations" value="Kvietimai" />
+    <text name="NotAccepted" value="Nepriimta" />
+    <text name="TypeEmailsHere" value="Įveskite el. pašto adresus čia" />
+    <text name="SendInvitations" value="Siųsti kvietimus" />
+    <text name="SomeInvitationsFailed" value="Kai kurie kvietimai nepavyko" />
+    <text name="InvitationsSentSuccessfully" value="Kvietimai sėkmingai išsiųsti" />
+    <text name="ErrorOccurred" value="Įvyko klaida" />
+    <text name="PleaseEnterAtLeastOneEmail" value="Prašome įvesti bent vieną el. pašto adresą" />
+    <text name="ResetPasswordMessage" value="Prašome nustatyti naują slaptažodį" />
+    <text name="RegisterNewCompany" value="Registruoti naują įmonę" />
+    <text name="ContinueWith" value="Tęsti su" />
+    <text name="RegisterSelfToHostNotAllowed" value="Savarankiška registracija į hostą neleidžiama!" />
+    <text name="AllowsSelfRegistration" value="Leisti saviregistraciją" />
+    <text name="TenantSelfRegistrationIsDisabled{0}">Savarankiška registracija išjungta {0}</text>
+    <text name="TenantMaximumUserCountReached{0}">Prenumeratos limitas pasiektas: pasiektas {0} naudotojų limitas</text>
+    <text name="Privacy" value="Privatumo politika" />
+    <text name="Terms" value="Naudojimo sąlygos" />
+    <text name="Cookie" value="Slapukų politika" />
+    <text name="StripeApiError">Turėjome problemų jungiantis prie Stripe. Klaidos kodas {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailNotFound">Nepavyko rasti administratoriaus su aktyvia prenumerata el. pašto adresu {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailError">Turėjome problemų gaunant administratorių su aktyvia prenumerata. Klaidos pranešimas {0}.</text>
+    <text name="GetSubscriptionByEmailNotFound">Nepavyko rasti aktyvios prenumeratos su el. pašto adresu {0}.</text>
+    <text name="Subscription" value="Prenumerata" />
+    <text name="JobUpdateFailed">Darbo atnaujinimas nepavyko</text>
+    <text name="UsersPasswordChange">Vartotojų slaptažodžių keitimas</text>
+    <text name="AddNew">Pridėti naują</text>
+    <text name="Add">Pridėti</text>
   </texts>
 </localizationDictionary>
