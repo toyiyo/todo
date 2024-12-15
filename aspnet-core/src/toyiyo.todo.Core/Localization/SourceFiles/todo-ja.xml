@@ -43,7 +43,7 @@
     <text name="TenantSelection_Detail" value="次のテナントの 1 つを選択してください。" />
     <text name="Logout" value="ログアウト" />
 
-    <text name="RegisterFormUserNameInvalidMessage">ユーザのメールアドレスを入力しないでください。</text>
+    <text name="RegisterFormUserNameInvalidMessage">ユーザのメールアドレスを入力しな���でください。</text>
 
     <text name="DatabaseConnectionString" value="データベース接続文字列" />
     <text name="Users" value="ユーザ" />
@@ -53,5 +53,54 @@
     <text name="Yes" value="はい" />
     <text name="No" value="いいえ" />
     <text name="Optional" value="オプション" />
+
+    <text name="Projects" value="プロジェクト" />
+    <text name="CreateNewProject" value="新しいプロジェクトを作成" />
+    <text name="ProjectName" value="プロジェクト名" />
+    <text name="ProjectTitle" value="プロジェクトタイトル" />
+    <text name="EditProject" value="プロジェクトを編集" />
+    <text name="ProjectList" value="プロジェクト一覧" />
+    <text name="ProjectDescription" value="プロジェクトの説明" />
+    <text name="EditJob" value="ジョブを編集" />
+    <text name="JobTitle" value="ジョブタイトル" />
+    <text name="Jobs" value="ジョブ" />
+    <text name="JobDescription" value="ジョブの説明" />
+    <text name="JobType" value="ジョブタイプ" />
+    <text name="ParentEpic" value="親エピック" />
+    <text name="Subtasks" value="サブタスク" />
+    <text name="DueDate" value="期限" />
+    <text name="DomainName" value="サブドメイン" />
+    <text name="CompanyName" value="会社名" />
+    <text name="NoAccountQuestion" value="アカウントをお持ちではありませんか？" />
+    <text name="Email" value="メールアドレス" />
+    <text name="ExpiresOn" value="有効期限" />
+    <text name="AcceptedOn" value="承認日" />
+    <text name="Invitations" value="招待" />
+    <text name="NotAccepted" value="未承認" />
+    <text name="TypeEmailsHere" value="ここにメールアドレスを入力してください" />
+    <text name="SendInvitations" value="招待を送信" />
+    <text name="SomeInvitationsFailed" value="一部の招待が失敗しました" />
+    <text name="InvitationsSentSuccessfully" value="招待が正常に送信されました" />
+    <text name="ErrorOccurred" value="エラーが発生しました" />
+    <text name="PleaseEnterAtLeastOneEmail" value="少なくとも1つのメールアドレスを入力してください" />
+    <text name="ResetPasswordMessage" value="新しいパスワードを設定してください" />
+    <text name="RegisterNewCompany" value="新しい会社を登録する" />
+    <text name="ContinueWith" value="続行する" />
+    <text name="RegisterSelfToHostNotAllowed" value="ホストへの自己登録は許可されていません！" />
+    <text name="AllowsSelfRegistration" value="自己登録を許可する" />
+    <text name="TenantSelfRegistrationIsDisabled{0}">{0} の自己登録は無効になっています</text>
+    <text name="TenantMaximumUserCountReached{0}">サブスクリプションの上限に達しました：{0} ユーザーの上限に達しました</text>
+    <text name="Privacy" value="プライバシーポリシー" />
+    <text name="Terms" value="利用規約" />
+    <text name="Cookie" value="クッキーポリシー" />
+    <text name="StripeApiError">Stripeへの接続中に問題が発生しました。エラーコード {0}。</text>
+    <text name="GetSubscriptionCustomerByEmailNotFound">メール {0} のアクティブなサブスクリプションを持つ管理者が見つかりませんでした。</text>
+    <text name="GetSubscriptionCustomerByEmailError">アクティブなサブスクリプションを持つ管理者の取得中に問題が発生しました。エラーメッセージ {0}。</text>
+    <text name="GetSubscriptionByEmailNotFound">メール {0} のアクティブなサブスクリプションが見つかりませんでした。</text>
+    <text name="Subscription" value="サブスクリプション" />
+    <text name="JobUpdateFailed">ジョブの更新に失敗しました</text>
+    <text name="UsersPasswordChange">ユーザーのパスワード変更</text>
+    <text name="AddNew">新規追加</text>
+    <text name="Add">追加</text>
   </texts>
 </localizationDictionary>

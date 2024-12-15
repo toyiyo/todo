@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<localizationDictionary culture="es">
+<localizationDictionary culture="es-MX">
   <texts>
     <text name="HomePage" value="Página de inicio" />
     <text name="About" value="Acerca de" />
@@ -116,5 +116,53 @@
     <text name="Clear">Borrar</text>
     <text name="ResetPasswordStepOneInfo">1. Ingrese su contraseña de administrador</text>
     <text name="ResetPasswordStepTwoInfo">2. Copie esta contraseña aleatoria para poder enviársela al usuario</text>
+    <text name="Projects" value="Proyectos" />
+    <text name="CreateNewProject" value="Crear nuevo proyecto" />
+    <text name="ProjectName" value="Nombre del proyecto" />
+    <text name="ProjectTitle" value="Título del proyecto" />
+    <text name="EditProject" value="Editar proyecto" />
+    <text name="ProjectList" value="Lista de proyectos" />
+    <text name="ProjectDescription" value="Descripción del proyecto" />
+    <text name="EditJob" value="Editar trabajo" />
+    <text name="JobTitle" value="Título del trabajo" />
+    <text name="Jobs" value="Trabajos" />
+    <text name="JobDescription" value="Descripción del trabajo" />
+    <text name="JobType" value="Tipo de trabajo" />
+    <text name="ParentEpic" value="Epic padre" />
+    <text name="Subtasks" value="Subtareas" />
+    <text name="DueDate" value="Fecha de vencimiento" />
+    <text name="UsersActivation">Activación de usuarios</text>
+    <text name="DomainName" value="Subdominio" />
+    <text name="CompanyName" value="Nombre de la empresa" />
+    <text name="NoAccountQuestion" value="¿No tienes una cuenta?" />
+    <text name="Email" value="Correo electrónico" />
+    <text name="ExpiresOn" value="Expira el" />
+    <text name="AcceptedOn" value="Aceptado el" />
+    <text name="Invitations" value="Invitaciones" />
+    <text name="NotAccepted" value="No aceptado" />
+    <text name="TypeEmailsHere" value="Escribe correos electrónicos aquí" />
+    <text name="SendInvitations" value="Enviar invitaciones" />
+    <text name="SomeInvitationsFailed" value="Algunas invitaciones fallaron" />
+    <text name="InvitationsSentSuccessfully" value="Invitaciones enviadas exitosamente" />
+    <text name="ErrorOccurred" value="Ocurrió un error" />
+    <text name="PleaseEnterAtLeastOneEmail" value="Por favor ingrese al menos un correo electrónico" />
+    <text name="ResetPasswordMessage" value="Por favor establezca una nueva contraseña" />
+    <text name="RegisterNewCompany" value="Registrar una nueva empresa" />
+    <text name="ContinueWith" value="Continuar con" />
+    <text name="RegisterSelfToHostNotAllowed" value="¡No se permite el autoregistro al host!" />
+    <text name="AllowsSelfRegistration" value="Permitir autorregistro" />
+    <text name="TenantSelfRegistrationIsDisabled{0}">El autorregistro está deshabilitado para {0}</text>
+    <text name="TenantMaximumUserCountReached{0}">Límite de suscripción alcanzado: Se ha alcanzado el límite de {0} usuarios de su suscripción</text>
+    <text name="Privacy" value="Política de privacidad" />
+    <text name="Terms" value="Términos de uso" />
+    <text name="Cookie" value="Política de cookies" />
+    <text name="StripeApiError">Tuvimos un problema al conectar con Stripe. Código de error {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailNotFound">No pudimos encontrar un administrador con una suscripción activa con el correo electrónico {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailError">Tuvimos un problema al recuperar un administrador con una suscripción activa. Mensaje de error {0}.</text>
+    <text name="GetSubscriptionByEmailNotFound">No pudimos encontrar una suscripción activa con el correo electrónico {0}.</text>
+    <text name="Subscription">Suscripción</text>
+    <text name="JobUpdateFailed">La actualización del trabajo falló</text>
+    <text name="AddNew">Adicionar nuevo</text>
+    <text name="Add">Adicionar</text>
   </texts>
 </localizationDictionary>

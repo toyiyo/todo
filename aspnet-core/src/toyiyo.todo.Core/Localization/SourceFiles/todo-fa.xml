@@ -114,8 +114,56 @@
     <text name="TotalRecordsCount">مجموعا {0}</text>
     <text name="Search">جستجو</text>
     <text name="Clear">پاک کردن</text>
-    <text name="ResetPasswordStepOneInfo">1. رمز عبور ادمین را وارد کنید</text>
-    <text name="ResetPasswordStepTwoInfo">2. رمز تصادفی را کپی کنید تا آن را برای کاربر ارسال نمایید</text>
-    <text name="UsersActivation">فعالسازی کاربران</text>
+    <text name="ResetPasswordStepOneInfo">1. رمز عبور مدیر خود را وارد کنید</text>
+    <text name="ResetPasswordStepTwoInfo">2. این رمز عبور تصادفی را کپی کنید تا بتوانید آن را به کاربر ارسال کنید</text>
+    <text name="UsersActivation">فعال‌سازی کاربران</text>
+    <text name="Projects" value="پروژه‌ها" />
+    <text name="CreateNewProject" value="ایجاد پروژه جدید" />
+    <text name="ProjectName" value="نام پروژه" />
+    <text name="ProjectTitle" value="عنوان پروژه" />
+    <text name="EditProject" value="ویرایش پروژه" />
+    <text name="ProjectList" value="فهرست پروژه‌ها" />
+    <text name="ProjectDescription" value="توضیحات پروژه" />
+    <text name="EditJob" value="ویرایش کار" />
+    <text name="JobTitle" value="عنوان کار" />
+    <text name="Jobs" value="کارها" />
+    <text name="JobDescription" value="توضیحات کار" />
+    <text name="JobType" value="نوع کار" />
+    <text name="ParentEpic" value="حماسه والد" />
+    <text name="Subtasks" value="زیرکارها" />
+    <text name="DueDate" value="تاریخ موعد" />
+    <text name="DomainName" value="دامنه فرعی" />
+    <text name="CompanyName" value="نام شرکت" />
+    <text name="NoAccountQuestion" value="حساب کاربری ندارید؟" />
+    <text name="Email" value="ایمیل" />
+    <text name="ExpiresOn" value="منقضی در" />
+    <text name="AcceptedOn" value="پذیرفته شده در" />
+    <text name="Invitations" value="دعوت‌نامه‌ها" />
+    <text name="NotAccepted" value="پذیرفته نشده" />
+    <text name="TypeEmailsHere" value="ایمیل‌ها را اینجا وارد کنید" />
+    <text name="SendInvitations" value="ارسال دعوت‌نامه" />
+    <text name="SomeInvitationsFailed" value="برخی دعوت‌نامه‌ها ناموفق بودند" />
+    <text name="InvitationsSentSuccessfully" value="دعوت‌نامه‌ها با موفقیت ارسال شدند" />
+    <text name="ErrorOccurred" value="خطایی رخ داده است" />
+    <text name="PleaseEnterAtLeastOneEmail" value="لطفاً حداقل یک ایمیل وارد کنید" />
+    <text name="ResetPasswordMessage" value="لطفاً رمز عبور جدید تنظیم کنید" />
+    <text name="RegisterNewCompany" value="ثبت شرکت جدید" />
+    <text name="ContinueWith" value="ادامه با" />
+    <text name="RegisterSelfToHostNotAllowed" value="ثبت‌نام خودکار در میزبان مجاز نیست!" />
+    <text name="AllowsSelfRegistration" value="اجازه ثبت‌نام خودکار" />
+    <text name="TenantSelfRegistrationIsDisabled{0}">ثبت‌نام خودکار برای {0} غیرفعال است</text>
+    <text name="TenantMaximumUserCountReached{0}">حد مجاز اشتراک رسید: حد کاربران اشتراک شما {0} رسیده است</text>
+    <text name="Privacy" value="سیاست حفظ حریم خصوصی" />
+    <text name="Terms" value="شرایط استفاده" />
+    <text name="Cookie" value="سیاست کوکی‌ها" />
+    <text name="StripeApiError">ما در اتصال به Stripe با مشکل مواجه شدیم. کد خطا {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailNotFound">ما نتوانستیم یک مدیر با اشتراک فعال با ایمیل {0} پیدا کنیم.</text>
+    <text name="GetSubscriptionCustomerByEmailError">ما در بازیابی مدیر با اشتراک فعال با مشکل مواجه شدیم. پیام خطا {0}.</text>
+    <text name="GetSubscriptionByEmailNotFound">ما نتوانستیم یک اشتراک فعال با ایمیل {0} پیدا کنیم.</text>
+    <text name="Subscription">اشتراک</text>
+    <text name="JobUpdateFailed">به‌روزرسانی کار ناموفق بود</text>
+    <text name="UsersPasswordChange">تغییر رمز عبور کاربران</text>
+    <text name="AddNew">جدید اضافه کنید</text>
+    <text name="Add">اضافه کردن</text>
   </texts>
 </localizationDictionary>

@@ -117,5 +117,54 @@
     <text name="ResetPasswordStepOneInfo">1. Yönetici şifresini girin</text>
     <text name="ResetPasswordStepTwoInfo">2. Bu şifreyi kaydettikten sonra ilgili kullanıcıya gönderin</text>
     <text name="UsersActivation">Kullanıcıları aktifleştirme</text>
+    <text name="Projects" value="Projeler" />
+    <text name="CreateNewProject" value="Yeni proje oluştur" />
+    <text name="ProjectName" value="Proje adı" />
+    <text name="ProjectTitle" value="Proje başlığı" />
+    <text name="EditProject" value="Projeyi düzenle" />
+    <text name="ProjectList" value="Proje listesi" />
+    <text name="ProjectDescription" value="Proje açıklaması" />
+    <text name="EditJob" value="İşi düzenle" />
+    <text name="JobTitle" value="İş başlığı" />
+    <text name="Jobs" value="İşler" />
+    <text name="JobDescription" value="İş açıklaması" />
+    <text name="JobType" value="İş türü" />
+    <text name="ParentEpic" value="Üst epik" />
+    <text name="Subtasks" value="Alt görevler" />
+    <text name="DueDate" value="Bitiş tarihi" />
+    <text name="Subscription limit reached: Your subscription limit of {0} users has been reached">Abonelik sınırına ulaşıldı: {0} kullanıcı sınırına ulaştınız</text>
+    <text name="DomainName" value="Alt Alan Adı" />
+    <text name="CompanyName" value="Şirket Adı" />
+    <text name="NoAccountQuestion" value="Hesabınız yok mu?" />
+    <text name="Email" value="E-posta" />
+    <text name="ExpiresOn" value="Son Kullanma Tarihi" />
+    <text name="AcceptedOn" value="Kabul Edildiği Tarih" />
+    <text name="Invitations" value="Davetler" />
+    <text name="NotAccepted" value="Kabul Edilmedi" />
+    <text name="TypeEmailsHere" value="E-postaları buraya yazın" />
+    <text name="SendInvitations" value="Davetleri Gönder" />
+    <text name="SomeInvitationsFailed" value="Bazı davetler başarısız oldu" />
+    <text name="InvitationsSentSuccessfully" value="Davetler başarıyla gönderildi" />
+    <text name="ErrorOccurred" value="Bir hata oluştu" />
+    <text name="PleaseEnterAtLeastOneEmail" value="Lütfen en az bir e-posta girin" />
+    <text name="ResetPasswordMessage" value="Lütfen yeni bir şifre belirleyin" />
+    <text name="RegisterNewCompany" value="Yeni bir şirket kaydet" />
+    <text name="ContinueWith" value="İle devam et" />
+    <text name="RegisterSelfToHostNotAllowed" value="Ana bilgisayara kendi kaydına izin verilmiyor!" />
+    <text name="AllowsSelfRegistration" value="Kendi kaydına izin ver" />
+    <text name="TenantSelfRegistrationIsDisabled{0}">Kendi kaydı {0} için devre dışı</text>
+    <text name="TenantMaximumUserCountReached{0}">Abonelik limiti aşıldı: {0} kullanıcı sınırına ulaşıldı</text>
+    <text name="Privacy" value="Gizlilik Politikası" />
+    <text name="Terms" value="Kullanım Şartları" />
+    <text name="Cookie" value="Çerez Politikası" />
+    <text name="StripeApiError">Stripe ile bağlantıda bir sorun yaşandı. Hata kodu {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailNotFound">E-posta {0} ile aktif aboneliği olan bir yönetici bulunamadı.</text>
+    <text name="GetSubscriptionCustomerByEmailError">Aktif aboneliği olan bir yönetici alınırken bir sorun yaşandı. Hata mesajı {0}.</text>
+    <text name="GetSubscriptionByEmailNotFound">E-posta {0} ile aktif bir abonelik bulunamadı.</text>
+    <text name="Subscription">Abonelik</text>
+    <text name="JobUpdateFailed">Görev güncellemesi başarısız oldu</text>
+    <text name="UsersPasswordChange">Kullanıcıların Şifre Değişikliği</text>
+    <text name="AddNew">Yeni Ekle</text>
+    <text name="Add">Ekle</text>
   </texts>
 </localizationDictionary>

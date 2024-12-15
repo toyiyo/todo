@@ -54,5 +54,53 @@
     <text name="No" value="No" />
     <text name="Optional" value="Opzionale" />
     <text name="SearchWithThreeDot">Cerca...</text>
+    <text name="Projects" value="Progetti" />
+    <text name="CreateNewProject" value="Crea nuovo progetto" />
+    <text name="ProjectName" value="Nome del progetto" />
+    <text name="ProjectTitle" value="Titolo del progetto" />
+    <text name="EditProject" value="Modifica progetto" />
+    <text name="ProjectList" value="Lista dei progetti" />
+    <text name="ProjectDescription" value="Descrizione del progetto" />
+    <text name="EditJob" value="Modifica lavoro" />
+    <text name="JobTitle" value="Titolo del lavoro" />
+    <text name="Jobs" value="Lavori" />
+    <text name="JobDescription" value="Descrizione del lavoro" />
+    <text name="JobType" value="Tipo di lavoro" />
+    <text name="ParentEpic" value="Epic genitore" />
+    <text name="Subtasks" value="Sottoattività" />
+    <text name="DueDate" value="Data di scadenza" />
+    <text name="DomainName" value="Sottodominio" />
+    <text name="CompanyName" value="Nome dell'azienda" />
+    <text name="NoAccountQuestion" value="Non hai un account?" />
+    <text name="Email" value="Email" />
+    <text name="ExpiresOn" value="Scade il" />
+    <text name="AcceptedOn" value="Accettato il" />
+    <text name="Invitations" value="Inviti" />
+    <text name="NotAccepted" value="Non accettato" />
+    <text name="TypeEmailsHere" value="Digita le email qui" />
+    <text name="SendInvitations" value="Invia inviti" />
+    <text name="SomeInvitationsFailed" value="Alcuni inviti non sono riusciti" />
+    <text name="InvitationsSentSuccessfully" value="Inviti inviati con successo" />
+    <text name="ErrorOccurred" value="Si è verificato un errore" />
+    <text name="PleaseEnterAtLeastOneEmail" value="Per favore inserisci almeno un'email" />
+    <text name="ResetPasswordMessage" value="Si prega di impostare una nuova password" />
+    <text name="RegisterNewCompany" value="Registra una nuova azienda" />
+    <text name="ContinueWith" value="Continua con" />
+    <text name="RegisterSelfToHostNotAllowed" value="La registrazione autonoma all'host non è consentita!" />
+    <text name="AllowsSelfRegistration" value="Consenti auto-registrazione" />
+    <text name="TenantSelfRegistrationIsDisabled{0}">L'auto-registrazione è disabilitata per {0}</text>
+    <text name="TenantMaximumUserCountReached{0}">Limite di abbonamento raggiunto: Il limite di {0} utenti è stato raggiunto</text>
+    <text name="Privacy" value="Informativa sulla privacy" />
+    <text name="Terms" value="Termini di utilizzo" />
+    <text name="Cookie" value="Politica sui cookie" />
+    <text name="StripeApiError">Si è verificato un problema durante la connessione a Stripe. Codice errore {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailNotFound">Non abbiamo trovato un amministratore con un abbonamento attivo all'email {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailError">Abbiamo riscontrato un problema nel recuperare un amministratore con un abbonamento attivo. Messaggio di errore {0}.</text>
+    <text name="GetSubscriptionByEmailNotFound">Non abbiamo trovato un abbonamento attivo con l'email {0}.</text>
+    <text name="Subscription" value="Abbonamento" />
+    <text name="JobUpdateFailed">Aggiornamento del lavoro non riuscito</text>
+    <text name="UsersPasswordChange">Cambio password utenti</text>
+    <text name="AddNew">Aggiungi nuovo</text>
+    <text name="Add">Aggiungi</text>
   </texts>
 </localizationDictionary>

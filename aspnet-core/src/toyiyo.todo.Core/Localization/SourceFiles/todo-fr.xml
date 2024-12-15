@@ -43,5 +43,34 @@
     <text name="TenantSelection_Detail" value="Veuillez choisir l'un de ces clients (tenants) suivants." />
     <text name="Logout" value="Déconnexion" />
     <text name="SearchWithThreeDot">Rechercher...</text>
+    <text name="Projects" value="Projets" />
+    <text name="CreateNewProject" value="Créer un nouveau projet" />
+    <text name="ProjectName" value="Nom du projet" />
+    <text name="ProjectTitle" value="Titre du projet" />
+    <text name="EditProject" value="Modifier le projet" />
+    <text name="ProjectList" value="Liste des projets" />
+    <text name="ProjectDescription" value="Description du projet" />
+    <text name="EditJob" value="Modifier la tâche" />
+    <text name="JobTitle" value="Titre de la tâche" />
+    <text name="Jobs" value="Tâches" />
+    <text name="JobDescription" value="Description de la tâche" />
+    <text name="JobType" value="Type de tâche" />
+    <text name="ParentEpic" value="Épopée parente" />
+    <text name="Subtasks" value="Sous-tâches" />
+    <text name="DueDate" value="Date d'échéance" />
+    <text name="ResetPasswordStepOneInfo">1. Entrez votre mot de passe administrateur</text>
+    <text name="ResetPasswordStepTwoInfo">2. Copiez ce mot de passe aléatoire pour pouvoir l'envoyer à l'utilisateur</text>
+    <text name="UsersActivation">Activation des utilisateurs</text>
+    <text name="TenantSelfRegistrationIsDisabled{0}">L'auto-inscription est désactivée pour {0}</text>
+    <text name="TenantMaximumUserCountReached{0}">Limite d'abonnement atteinte : Votre limite de {0} utilisateurs a été atteinte</text>
+    <text name="StripeApiError">Nous avons rencontré un problème de connexion à Stripe. Code d'erreur {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailNotFound">Nous n'avons pas pu trouver un administrateur avec un abonnement actif pour l'email {0}.</text>
+    <text name="GetSubscriptionCustomerByEmailError">Nous avons eu un problème en récupérant un administrateur avec un abonnement actif. Message d'erreur {0}.</text>
+    <text name="GetSubscriptionByEmailNotFound">Nous n'avons pas pu trouver un abonnement actif avec l'email {0}.</text>
+    <text name="Subscription">Abonnement</text>
+    <text name="JobUpdateFailed">La mise à jour de la tâche a échoué</text>
+    <text name="UsersPasswordChange">Changement de mot de passe des utilisateurs</text>
+    <text name="AddNew">Ajouter nouveau</text>
+    <text name="Add">Ajouter</text>
   </texts>
 </localizationDictionary>
