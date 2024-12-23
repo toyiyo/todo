@@ -44,7 +44,13 @@ namespace toyiyo.todo.Tests
                 NormalizeDbContext(context);
                 new TenantRoleAndUserBuilder(context, 1).Create();
             });
-
+            //seed initial data for test tenant
+            AbpSession.TenantId = 2;
+            UsingDbContext(context =>
+            {
+                NormalizeDbContext(context);
+                new TenantRoleAndUserBuilder(context, 2).Create();
+            });
             LoginAsDefaultTenantAdmin();
         }
 
@@ -145,6 +151,11 @@ namespace toyiyo.todo.Tests
         protected void LoginAsDefaultTenantAdmin()
         {
             LoginAsTenant(AbpTenantBase.DefaultTenantName, AbpUserBase.AdminUserName);
+        }
+
+        protected void LoginAsTestTenantAdmin()
+        {
+            LoginAsTenant("Test", AbpUserBase.AdminUserName);
         }
 
         protected void LoginAsHost(string userName)
