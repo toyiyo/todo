@@ -219,9 +219,9 @@ namespace toyiyo.todo.Jobs
             if (user == null) { throw new ArgumentNullException(nameof(user)); }
             if (assignee != null && job.Project.TenantId != assignee.TenantId) 
             { 
-                throw new ArgumentOutOfRangeException(nameof(assignee), "assignee must be in the same project"); 
+                throw new ArgumentOutOfRangeException(nameof(assignee), "assignee must be in the same tenant"); 
             }
-            if (job.JobStatus == Status.Done) { throw new ArgumentOutOfRangeException("Cannot assign a job that is done"); }
+            if (job.JobStatus == Status.Done) { throw new ArgumentOutOfRangeException("Cannot assign a job that is done", nameof(job.JobStatus)); }
             job.Assignee = assignee; //allowing null assignee
             SetLastModified(job, user);
             return job;
