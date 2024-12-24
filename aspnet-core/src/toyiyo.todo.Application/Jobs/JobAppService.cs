@@ -166,9 +166,14 @@ namespace toyiyo.todo.Jobs
 
         public async Task<JobDto> SetAssignee(JobSetAssigneeInputDto input)
         {
-            var job = Job.SetAssignee(await _jobManager.Get(input.Id), input.AssigneeId == null ? null : await _userManager.GetUserByIdAsync(input.AssigneeId.Value), await GetCurrentUserAsync());
-            await _jobManager.Update(job);
-            return ObjectMapper.Map<JobDto>(job);
+            try
+            {
+                var job = Job.SetAssignee(await _jobManager.Get(input.Id), input.AssigneeId == null ? null : await _userManager.GetUserByIdAsync(input.AssigneeId.Value), await GetCurrentUserAsync());
+                await _jobManager.Update(job);
+                return ObjectMapper.Map<JobDto>(job);
+            }
+            catch (Exception ex) { throw new UserFriendlyException(L("JobUpdateFailed"), ex.Message); }
+            
         }
 
         public async Task<JobDto> UpdateAllFields(JobUpdateInputDto input)

@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using toyiyo.todo.Jobs.Dto;
 using toyiyo.todo.Invitations;
 using toyiyo.todo.Authorization.Users;
+using Abp.UI;
 
 namespace toyiyo.todo.Tests.Jobs
 {
@@ -613,7 +614,7 @@ namespace toyiyo.todo.Tests.Jobs
             var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job" });
 
             // Act & Assert
-            await Assert.ThrowsAsync<Abp.AbpException>(async () =>
+            await Assert.ThrowsAsync<UserFriendlyException>(async () =>
                 await _jobAppService.SetAssignee(new JobSetAssigneeInputDto { Id = job.Id, AssigneeId = long.MaxValue }));
         }
 
@@ -630,7 +631,7 @@ namespace toyiyo.todo.Tests.Jobs
 
 
             // Act & Assert
-            await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await Assert.ThrowsAsync<UserFriendlyException>(async () =>
                 await _jobAppService.SetAssignee(new JobSetAssigneeInputDto { Id = job.Id, AssigneeId = differentTenantUser.Id }));
         }
 
@@ -644,7 +645,7 @@ namespace toyiyo.todo.Tests.Jobs
             var newAssignee = await GetCurrentUserAsync();
 
             // Act & Assert
-            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
+            await Assert.ThrowsAsync<UserFriendlyException>(async () =>
                 await _jobAppService.SetAssignee(new JobSetAssigneeInputDto { Id = job.Id, AssigneeId = newAssignee.Id }));
         }
         [Fact]
@@ -662,7 +663,7 @@ namespace toyiyo.todo.Tests.Jobs
             });
 
             // Act & Assert
-            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
+            await Assert.ThrowsAsync<UserFriendlyException>(async () =>
                 await _jobAppService.SetAssignee(new JobSetAssigneeInputDto { Id = job.Id, AssigneeId = currentUser.Id }));
         }
 
