@@ -20,6 +20,7 @@ namespace toyiyo.todo.Jobs
         Task<ActionResult<JobDto>> PatchOrderByDate(JobPatchOrderByDateInputDto jobPatchOrderByDateInputDto);
         Task<JobStatsDto> GetJobStats();
         Task<JobDto> SetLevel(JobSetLevelInputDto input);
+        Task<JobDto> SetAssignee(JobSetAssigneeInputDto input);
         Task<JobDto> UpdateAllFields(JobUpdateInputDto input);
     }
 }

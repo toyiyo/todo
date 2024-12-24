@@ -8,6 +8,7 @@ using Abp.Authorization;
 using Abp.UI;
 using Microsoft.AspNetCore.Mvc;
 using toyiyo.todo.Authorization;
+using toyiyo.todo.Authorization.Users;
 using toyiyo.todo.Jobs.Dto;
 using toyiyo.todo.Projects;
 using static toyiyo.todo.Jobs.Job;
@@ -19,17 +20,19 @@ namespace toyiyo.todo.Jobs
     {
         private readonly IJobManager _jobManager;
         private readonly IProjectManager _projectManager;
-        public JobAppService(IJobManager jobManager, IProjectManager projectManager)
+        private readonly UserManager _userManager;
+        public JobAppService(IJobManager jobManager, IProjectManager projectManager, UserManager userManager)
         {
-            _projectManager = projectManager;
             _jobManager = jobManager;
+            _projectManager = projectManager;
+            _userManager = userManager;
         }
         /// <summary> Creates a new Job. </summary>
         public async Task<JobDto> Create(JobCreateInputDto input)
         {
             var tenant = await GetCurrentTenantAsync();
             var project = await _projectManager.Get(input.ProjectId);
-            var job = Job.Create(project, input.Title, input.Description, await GetCurrentUserAsync(), tenant.Id, input.DueDate ?? default, input.ParentId ?? default, input.Level );
+            var job = Job.Create(project, input.Title, input.Description, await GetCurrentUserAsync(), tenant.Id, input.DueDate ?? default, input.ParentId ?? default, input.Level);
             await _jobManager.Create(job);
             return ObjectMapper.Map<JobDto>(job);
         }
@@ -52,7 +55,7 @@ namespace toyiyo.todo.Jobs
             //getting stats for the account, for the future, we should allow filtering by project.
             //we'll manually remove subtasks from the stats count for now.  
             //todo, once we have a job type defined, we can filter by job type
-            var getAllJobsInput = new GetAllJobsInput(){ MaxResultCount = int.MaxValue, Levels = new List<JobLevel> { JobLevel.Task, JobLevel.Bug }.ToArray() };
+            var getAllJobsInput = new GetAllJobsInput() { MaxResultCount = int.MaxValue, Levels = new List<JobLevel> { JobLevel.Task, JobLevel.Bug }.ToArray() };
             var jobs = await GetAll(getAllJobsInput);
             return new JobStatsDto
             {
@@ -108,9 +111,9 @@ namespace toyiyo.todo.Jobs
             var job = await _jobManager.Get(jobSetParentInputDto.Id);
             var parentJob = jobSetParentInputDto.ParentId == null || jobSetParentInputDto.ParentId == Guid.Empty ? null : await _jobManager.Get(jobSetParentInputDto.ParentId.Value);
             var user = await GetCurrentUserAsync();
-            
+
             job = Job.SetParent(job, parentJob, user);
-            await _jobManager.Update(job);            
+            await _jobManager.Update(job);
 
             return ObjectMapper.Map<JobDto>(job);
         }
@@ -156,27 +159,40 @@ namespace toyiyo.todo.Jobs
                 return ObjectMapper.Map<JobDto>(job);
             }
             catch (Exception ex)
-            {                
+            {
                 throw new UserFriendlyException(L("JobUpdateFailed"), ex.Message);
             }
         }
 
+        public async Task<JobDto> SetAssignee(JobSetAssigneeInputDto input)
+        {
+            try
+            {
+                var job = Job.SetAssignee(await _jobManager.Get(input.Id), input.AssigneeId == null ? null : await _userManager.GetUserByIdAsync(input.AssigneeId.Value), await GetCurrentUserAsync());
+                await _jobManager.Update(job);
+                return ObjectMapper.Map<JobDto>(job);
+            }
+            catch (Exception ex) { throw new UserFriendlyException(L("JobUpdateFailed"), ex.Message); }
+            
+        }
+
         public async Task<JobDto> UpdateAllFields(JobUpdateInputDto input)
         {
-            try {
+            try
+            {
                 var job = await _jobManager.Get(input.Id);
                 var user = await GetCurrentUserAsync();
-                
+
                 // Update all fields using existing domain methods
                 job = Job.SetTitle(job, input.Title, user);
                 job = Job.SetDescription(job, input.Description, user);
                 job = Job.SetDueDate(job, input.DueDate ?? default, user);
                 job = Job.SetLevel(job, input.Level, user);
                 job = Job.SetParent(job, input.ParentId == Guid.Empty ? null : await _jobManager.Get(input.ParentId), user);
-                
+                Job.SetAssignee(job, input.AssigneeId == null ? null : await _userManager.GetUserByIdAsync(input.AssigneeId.Value), user);
                 // Save changes once
                 await _jobManager.Update(job);
-                
+
                 return ObjectMapper.Map<JobDto>(job);
             }
             catch (Exception ex) { throw new UserFriendlyException(L("JobUpdateFailed"), ex.Message); }

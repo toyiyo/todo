@@ -50,5 +50,6 @@ namespace toyiyo.todo.Jobs.Dto
         /// Gets or sets the parent job identifier.
         /// </summary>
         public System.Guid ParentId { get; set; }
+        public long? AssigneeId { get; set; }
     }
 }

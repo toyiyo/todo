@@ -18,6 +18,7 @@ namespace toyiyo.todo.EntityFrameworkCore.Seed.Tenants
         public void Create()
         {
             CreateDefaultTenant();
+            CreateTestTenant();
         }
 
         private void CreateDefaultTenant()
@@ -36,6 +37,26 @@ namespace toyiyo.todo.EntityFrameworkCore.Seed.Tenants
                 }
 
                 _context.Tenants.Add(defaultTenant);
+                _context.SaveChanges();
+            }
+        }
+
+        private void CreateTestTenant()
+        {
+            // Test tenant
+
+            var testTenant = _context.Tenants.IgnoreQueryFilters().FirstOrDefault(t => t.TenancyName == "Test");
+            if (testTenant == null)
+            {
+                testTenant = new Tenant("Test", "Test");
+
+                var defaultEdition = _context.Editions.IgnoreQueryFilters().FirstOrDefault(e => e.Name == EditionManager.DefaultEditionName);
+                if (defaultEdition != null)
+                {
+                    testTenant.EditionId = defaultEdition.Id;
+                }
+
+                _context.Tenants.Add(testTenant);
                 _context.SaveChanges();
             }
         }

@@ -10,6 +10,9 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using toyiyo.todo.Jobs.Dto;
+using toyiyo.todo.Invitations;
+using toyiyo.todo.Authorization.Users;
+using Abp.UI;
 
 namespace toyiyo.todo.Tests.Jobs
 {
@@ -18,11 +21,13 @@ namespace toyiyo.todo.Tests.Jobs
         private readonly IProjectAppService _projectAppService;
         private readonly ISessionAppService _sessionAppService;
         private readonly IJobAppService _jobAppService;
+        private readonly UserManager _userManager;
         public JobAppServiceTests()
         {
             _projectAppService = Resolve<IProjectAppService>();
             _sessionAppService = Resolve<ISessionAppService>();
             _jobAppService = Resolve<IJobAppService>();
+            _userManager = Resolve<UserManager>();
         }
         [Fact]
         public async Task CreateJob_ReturnsNewJob()
@@ -40,7 +45,6 @@ namespace toyiyo.todo.Tests.Jobs
             job.Title.ShouldBe("test job");
             job.Description.ShouldBe("test job");
             job.JobStatus.ShouldBe(Status.Open);
-            job.Assignee.Id.ShouldBe(currentUser.Id);
             job.Owner.Id.ShouldBe(currentUser.Id);
             
         }
@@ -62,7 +66,6 @@ namespace toyiyo.todo.Tests.Jobs
             job.Title.ShouldBe("test job");
             job.Description.ShouldBe("test job");
             job.JobStatus.ShouldBe(Status.Open);
-            job.Assignee.Id.ShouldBe(currentUser.Id);
             job.Owner.Id.ShouldBe(currentUser.Id);
             job.DueDate.ShouldBe(dueDate);
         }
@@ -567,6 +570,101 @@ namespace toyiyo.todo.Tests.Jobs
                 Level = (JobLevel)999 // Invalid level
             };
             await Assert.ThrowsAsync<Abp.Runtime.Validation.AbpValidationException>(async () => await _jobAppService.SetLevel(setLevelInput));
+        }
+
+        [Fact]
+        public async Task SetAssignee_Success()
+        {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job" });
+            var newAssignee = currentUser;
+
+            // Act
+            var updatedJob = await _jobAppService.SetAssignee(new JobSetAssigneeInputDto { Id = job.Id, AssigneeId = newAssignee.Id });
+
+            // Assert
+            updatedJob.ShouldNotBeNull();
+            updatedJob.Assignee.Id.ShouldBe(newAssignee.Id);
+        }
+
+        [Fact]
+        public async Task SetAssignee_NullAssignee_Success()
+        {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job" });
+
+            // Act
+            var updatedJob = await _jobAppService.SetAssignee(new JobSetAssigneeInputDto { Id = job.Id, AssigneeId = null });
+
+            // Assert
+            updatedJob.ShouldNotBeNull();
+            updatedJob.Assignee.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task SetAssignee_InvalidAssignee_ThrowsException()
+        {
+            // Arrange
+            var currentUser = await GetCurrentUserAsync();
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job" });
+
+            // Act & Assert
+            await Assert.ThrowsAsync<UserFriendlyException>(async () =>
+                await _jobAppService.SetAssignee(new JobSetAssigneeInputDto { Id = job.Id, AssigneeId = long.MaxValue }));
+        }
+
+        [Fact]
+        public async Task SetAssignee_AssigneeFromDifferentTenant_ThrowsException()
+        {
+            // Arrange
+            LoginAsDefaultTenantAdmin();
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job" });
+
+            LoginAsTestTenantAdmin();
+            var differentTenantUser = await GetCurrentUserAsync();
+
+
+            // Act & Assert
+            await Assert.ThrowsAsync<UserFriendlyException>(async () =>
+                await _jobAppService.SetAssignee(new JobSetAssigneeInputDto { Id = job.Id, AssigneeId = differentTenantUser.Id }));
+        }
+
+        [Fact]
+        public async Task SetAssignee_JobIsDone_ThrowsException()
+        {
+            // Arrange
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job" });
+            await _jobAppService.SetJobStatus(new JobSetStatusInputDto { Id = job.Id, JobStatus = Status.Done });
+            var newAssignee = await GetCurrentUserAsync();
+
+            // Act & Assert
+            await Assert.ThrowsAsync<UserFriendlyException>(async () =>
+                await _jobAppService.SetAssignee(new JobSetAssigneeInputDto { Id = job.Id, AssigneeId = newAssignee.Id }));
+        }
+        [Fact]
+        public async Task SetAssignee_AssigneeIsInactive_ThrowsException()
+        {
+            // Arrange
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job" });
+            var currentUser = await GetCurrentUserAsync();
+            currentUser.IsActive = false;
+            await UsingDbContextAsync(async context =>
+            {
+                context.Users.Update(currentUser);
+                await context.SaveChangesAsync();
+            });
+
+            // Act & Assert
+            await Assert.ThrowsAsync<UserFriendlyException>(async () =>
+                await _jobAppService.SetAssignee(new JobSetAssigneeInputDto { Id = job.Id, AssigneeId = currentUser.Id }));
         }
 
         private async Task<JobDto> CreateTestJobAsync()

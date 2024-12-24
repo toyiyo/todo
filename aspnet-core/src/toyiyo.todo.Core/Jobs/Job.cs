@@ -76,7 +76,6 @@ namespace toyiyo.todo.Jobs
                 Project = project,
                 TenantId = tenantId,
                 Owner = user,
-                Assignee = user,
                 CreatorUserId = user.Id,
                 LastModifierUserId = user.Id,
                 CreationTime = Clock.Now,
@@ -210,6 +209,21 @@ namespace toyiyo.todo.Jobs
                 throw new ArgumentException("Invalid job level", nameof(level));
             }
             job.Level = level;
+            SetLastModified(job, user);
+            return job;
+        }
+
+        public static Job SetAssignee(Job job, User assignee, User user)
+        {
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if (assignee != null && job.Project.TenantId != assignee.TenantId) 
+            { 
+                throw new ArgumentOutOfRangeException(nameof(assignee), "assignee must be in the same tenant"); 
+            }
+            if (assignee != null && !assignee.IsActive) {throw new ArgumentOutOfRangeException(nameof(assignee), "assignee must be active");}
+            if (job.JobStatus == Status.Done) { throw new ArgumentOutOfRangeException("Cannot assign a job that is done", nameof(job.JobStatus)); }
+            job.Assignee = assignee; //allowing null assignee
             SetLastModified(job, user);
             return job;
         }
