@@ -189,7 +189,7 @@ namespace toyiyo.todo.Jobs
                 job = Job.SetDueDate(job, input.DueDate ?? default, user);
                 job = Job.SetLevel(job, input.Level, user);
                 job = Job.SetParent(job, input.ParentId == Guid.Empty ? null : await _jobManager.Get(input.ParentId), user);
-                Job.SetAssignee(await _jobManager.Get(input.Id), input.AssigneeId == null ? null : await _userManager.GetUserByIdAsync(input.AssigneeId.Value), await GetCurrentUserAsync());
+                Job.SetAssignee(job, input.AssigneeId == null ? null : await _userManager.GetUserByIdAsync(input.AssigneeId.Value), user);
                 // Save changes once
                 await _jobManager.Update(job);
 
