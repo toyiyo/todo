@@ -107,10 +107,12 @@
             return 'OrderByDate';  
         }  
         const columnMap = {  
-            0: 'OrderByDate',  
-            2: 'Level',  
-            3: 'Title',  
-            4: 'DueDate'  
+            0: 'OrderByDate', 
+            1: 'Title',
+            2: 'Assignee', 
+            3: 'DueDate',
+            4: 'JobStatus',
+            5: 'Level' 
         };  
         return columnMap[columnIdx] || 'OrderByDate';  
     }  
@@ -165,8 +167,8 @@
         },
         buttons: [],
         columnDefs: [
-            { orderable: true, targets: [0, 2, 3, 4] }, // Make columns orderable
-            { orderable: false, targets: [1, 5] }, // Disable ordering on specified columns
+            { orderable: true, targets: [0, 1, 2, 3, 4, 5] }, // Make columns orderable
+            { orderable: false, targets: [6] }, // Disable ordering on specified columns
             {
                 targets: 0,
                 data: 'lastModificationTime',
@@ -184,25 +186,6 @@
             },
             {
                 targets: 1,
-                data: null,
-                defaultContent: '',
-                width: '1em',
-                render: (data, type, row, meta) => {
-                    return getStatusButton(row.jobStatus, row.id);
-                }
-            },
-            {
-                targets: 2,
-                data: 'level',
-                className: 'level',
-                defaultContent: '',
-                width: '1em',
-                render: (data, type, row, meta) => {
-                    return getLevelButton(row.level, row.id);
-                }
-            },
-            {
-                targets: 3,
                 data: 'title',
                 className: 'title',
                 orderable: true,
@@ -212,7 +195,20 @@
                 }
             },
             {
-                targets: 4,
+                targets: 2,
+                width: '1em',
+                data: 'assignee',
+                orderable: true,
+                defaultContent: '',
+                render: (data, type, row, meta) => {
+                        if (row.assignee) {
+                        
+                            return `<div class="user-initials elevation-2" style="background-color:${row.assignee.color};" title="${row.assignee.emailAddress}">${row.assignee.initials}</div>`
+                        }
+                    }
+            },
+            {
+                targets: 3,
                 data: 'dueDate',
                 orderable: true,
                 defaultContent: '',
@@ -224,7 +220,26 @@
                 }
             },
             {
+                targets: 4,
+                data: null,
+                defaultContent: '',
+                width: '1em',
+                render: (data, type, row, meta) => {
+                    return getStatusButton(row.jobStatus, row.id);
+                }
+            },
+            {
                 targets: 5,
+                data: 'level',
+                className: 'level',
+                defaultContent: '',
+                width: '1em',
+                render: (data, type, row, meta) => {
+                    return getLevelButton(row.level, row.id);
+                }
+            },
+            {
+                targets: 6,
                 data: null,
                 autoWidth: false,
                 defaultContent: '',

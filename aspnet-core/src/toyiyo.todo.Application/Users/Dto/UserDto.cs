@@ -36,5 +36,7 @@ namespace toyiyo.todo.Users.Dto
         public DateTime CreationTime { get; set; }
 
         public string[] RoleNames { get; set; }
+        public string Initials {get { return User.GetInitials(Name, Surname); }}
+        public string Color {get { return User.GetUserColor(EmailAddress); }}
     }
 }
