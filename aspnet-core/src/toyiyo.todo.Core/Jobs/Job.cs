@@ -221,6 +221,7 @@ namespace toyiyo.todo.Jobs
             { 
                 throw new ArgumentOutOfRangeException(nameof(assignee), "assignee must be in the same tenant"); 
             }
+            if (assignee != null && !assignee.IsActive) {throw new ArgumentOutOfRangeException(nameof(assignee), "assignee must be active");}
             if (job.JobStatus == Status.Done) { throw new ArgumentOutOfRangeException("Cannot assign a job that is done", nameof(job.JobStatus)); }
             job.Assignee = assignee; //allowing null assignee
             SetLastModified(job, user);

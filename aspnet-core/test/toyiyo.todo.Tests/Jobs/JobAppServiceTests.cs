@@ -647,6 +647,24 @@ namespace toyiyo.todo.Tests.Jobs
             await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
                 await _jobAppService.SetAssignee(new JobSetAssigneeInputDto { Id = job.Id, AssigneeId = newAssignee.Id }));
         }
+        [Fact]
+        public async Task SetAssignee_AssigneeIsInactive_ThrowsException()
+        {
+            // Arrange
+            var project = await _projectAppService.Create(new CreateProjectInputDto() { Title = "test" });
+            var job = await _jobAppService.Create(new JobCreateInputDto() { ProjectId = project.Id, Title = "test job", Description = "test job" });
+            var currentUser = await GetCurrentUserAsync();
+            currentUser.IsActive = false;
+            await UsingDbContextAsync(async context =>
+            {
+                context.Users.Update(currentUser);
+                await context.SaveChangesAsync();
+            });
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
+                await _jobAppService.SetAssignee(new JobSetAssigneeInputDto { Id = job.Id, AssigneeId = currentUser.Id }));
+        }
 
         private async Task<JobDto> CreateTestJobAsync()
         {
