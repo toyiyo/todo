@@ -32,6 +32,7 @@
         var job = _$form.serializeFormToObject();
         job.description = editor.getMarkdown();
         job.dueDate = moment(job.dueDate).endOf('day').utc();
+        job.assigneeId = _$form.find('#assigneeSelect').val();;
 
         abp.ui.setBusy(_$form);
 

@@ -1,0 +1,74 @@
+@model toyiyo.todo.Web.Views.Shared.Components.UserDropdown.UserDropdownViewModel
+
+<div class="form-group">
+    <label>@L("Assignee")</label>
+    <input type="text" class="form-control mb-2" placeholder=@L("SearchUser") id="assigneeSearch" />
+    <select id="assigneeSelect" class="form-control">
+        <option value="">@L("Unassigned")</option>
+        @foreach (var user in Model.Users)
+        {
+            if (user.Id == Model.SelectedUserId)
+            {
+                <option value="@user.Id" selected>@user.EmailAddress</option>
+            }
+            else
+            {
+                <option value="@user.Id">@user.EmailAddress</option>
+            }
+        }
+    </select>
+</div>
+
+<script>
+    (function() {
+        var searchInput = document.getElementById('assigneeSearch');
+        var dropdown = document.getElementById('assigneeSelect');
+        var assignedSuccessfullyMessage = '@L("AssignedSuccessfully")';
+        var jobId = '@Model.JobId'; // Ensure jobId is passed correctly
+
+        // Function to open the dropdown
+        function openDropdown() {
+            dropdown.size = dropdown.options.length;
+        }
+
+        // Function to close the dropdown
+        function closeDropdown() {
+            dropdown.size = 1;
+        }
+
+        searchInput.addEventListener('input', function() {
+            var filter = searchInput.value.toLowerCase();
+            var options = dropdown.options;
+            var visibleOptions = 0;
+            for (var i = 0; i < options.length; i++) {
+                var text = options[i].text.toLowerCase();
+                if (text.indexOf(filter) > -1) {
+                    options[i].style.display = '';
+                    visibleOptions++;
+                } else {
+                    options[i].style.display = 'none';
+                }
+            }
+            dropdown.size = visibleOptions > 1 ? visibleOptions : 2;
+        });
+
+        searchInput.addEventListener('focus', openDropdown);
+        searchInput.addEventListener('blur', closeDropdown);
+        // Add click event listener to dropdown options
+        dropdown.addEventListener('click', function() {
+            var event = new Event('change');
+            dropdown.dispatchEvent(event);
+        });
+
+        dropdown.addEventListener('change', function() {
+            var userId = dropdown.value;
+            abp.services.app.job.setAssignee({
+                Id: jobId,
+                assigneeId: userId
+            }).done(function(){
+                abp.notify.info(assignedSuccessfullyMessage);
+                closeDropdown();
+            });
+        });
+    })();
+</script>

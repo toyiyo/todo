@@ -67,6 +67,12 @@
             </div>
         </div>
         <div class="form-group row">
+            <label class="col-md-3 col-form-label" for="assignee">@L("Assignee")</label>
+            <div class="col-md-9">
+                @await Html.PartialAsync("~/Views/Shared/Components/UserDropdown/_UserDropdown.cshtml", Model.UserDropdown)
+            </div>
+        </div>
+        <div class="form-group row">
             <label class="col-md-3 col-form-label" for="dueDate">@L("DueDate")</label>
             <div class="col-md-9">
                 @* if model.duedate is default, don't set the value, otherwise use model.duedate *@
