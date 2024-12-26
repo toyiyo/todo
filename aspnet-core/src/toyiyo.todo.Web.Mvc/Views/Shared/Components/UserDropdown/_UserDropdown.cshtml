@@ -7,13 +7,14 @@
         <option value="">@L("Unassigned")</option>
         @foreach (var user in Model.Users)
         {
+            var displayText = $"{user.Name} ({user.EmailAddress})";
             if (user.Id == Model.SelectedUserId)
             {
-                <option value="@user.Id" selected>@user.EmailAddress</option>
+                <option value="@user.Id" selected data-color="@user.Color" data-initials="@user.Initials" data-search-text="@($"{user.Name} ({user.EmailAddress})".ToLower())">@displayText</option>
             }
             else
             {
-                <option value="@user.Id">@user.EmailAddress</option>
+                <option value="@user.Id" data-color="@user.Color" data-initials="@user.Initials" data-search-text="@($"{user.Name} ({user.EmailAddress})".ToLower())">@displayText</option>
             }
         }
     </select>
@@ -36,12 +37,22 @@
             dropdown.size = 1;
         }
 
+        function assignUser(userId) {
+            abp.services.app.job.setAssignee({
+                Id: jobId,
+                assigneeId: userId
+            }).done(function(){
+                abp.notify.info(assignedSuccessfullyMessage);
+                closeDropdown();
+            });
+        }
+
         searchInput.addEventListener('input', function() {
             var filter = searchInput.value.toLowerCase();
             var options = dropdown.options;
             var visibleOptions = 0;
             for (var i = 0; i < options.length; i++) {
-                var text = options[i].text.toLowerCase();
+                var text = options[i].getAttribute('data-search-text');
                 if (text.indexOf(filter) > -1) {
                     options[i].style.display = '';
                     visibleOptions++;
@@ -55,20 +66,22 @@
         searchInput.addEventListener('focus', openDropdown);
         searchInput.addEventListener('blur', closeDropdown);
         // Add click event listener to dropdown options
-        dropdown.addEventListener('click', function() {
-            var event = new Event('change');
-            dropdown.dispatchEvent(event);
-        });
+        dropdown.addEventListener('click', function() { assignUser(dropdown.value);});
+        //dropdown.addEventListener('change', function(e) { e.preventDefault(); assignUser(dropdown.value);});
 
-        dropdown.addEventListener('change', function() {
-            var userId = dropdown.value;
-            abp.services.app.job.setAssignee({
-                Id: jobId,
-                assigneeId: userId
-            }).done(function(){
-                abp.notify.info(assignedSuccessfullyMessage);
-                closeDropdown();
-            });
-        });
+        // Transform each option to display user icon + text
+        var options = dropdown.querySelectorAll('option');
+        for (var i = 0; i < options.length; i++) {
+            var color = options[i].getAttribute('data-color');
+            var initials = options[i].getAttribute('data-initials');
+            if (color && initials) {
+                var originalLabel = options[i].text;
+                options[i].innerHTML =
+                    '<div class="d-flex align-items-center">' +
+                        '<div class="user-initials" style="background-color:' + color + ';">' + initials + '</div>' +
+                        '<span class="ml-2">' + originalLabel + '</span>' +
+                    '</div>';
+            }
+        }
     })();
 </script>
