@@ -164,5 +164,9 @@
     <text name="GetSubscriptionByEmailNotFound">We couldn't find an active subscription with the email address {0}.</text>
     <text name="Subscription">Subscription</text>
     <text name="JobUpdateFailed">Job update failed</text>
+    <text name="AssignedSuccessfully">Assigned successfully</text>
+    <text name="Assignee">Assignee</text>
+    <text name="SearchUser">Search user</text>
+    <text name="Unassigned">Unassigned</text>
   </texts>
 </localizationDictionary>

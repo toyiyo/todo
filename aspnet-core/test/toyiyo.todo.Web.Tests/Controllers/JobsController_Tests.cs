@@ -18,6 +18,7 @@ using Abp.MultiTenancy;
 using Abp.Domain.Repositories;
 using toyiyo.todo.Authorization.Roles;
 using Abp.Domain.Uow;
+using toyiyo.todo.Users;
 
 namespace toyiyo.todo.Web.Tests.Controllers
 {
@@ -30,6 +31,7 @@ namespace toyiyo.todo.Web.Tests.Controllers
         private readonly IRepository<Project, Guid> _projectRepository;
         private readonly IRepository<Job, Guid> _jobRepository;
         private readonly RoleManager _roleManager;
+        private readonly IUserAppService _userAppService;
 
         public JobsController_Tests()
         {
@@ -40,6 +42,7 @@ namespace toyiyo.todo.Web.Tests.Controllers
             _projectRepository = Resolve<IRepository<Project, Guid>>();
             _jobRepository = Resolve<IRepository<Job, Guid>>();
             _roleManager = Resolve<RoleManager>();
+            _userAppService = Resolve<IUserAppService>();
         }
 
         [Fact]
@@ -74,7 +77,7 @@ namespace toyiyo.todo.Web.Tests.Controllers
             var jobId = Guid.NewGuid();
 
             // Create an instance of the controller
-            var controller = new JobsController(_jobAppService, _projectAppService);
+            var controller = new JobsController(_jobAppService, _projectAppService, _userAppService);
 
             // Act
             using var unitOfWork = unitOfWorkManager.Begin();

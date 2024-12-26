@@ -11,20 +11,25 @@ using static toyiyo.todo.Jobs.Job;
 using toyiyo.todo.Projects;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using toyiyo.todo.Web.Views.Shared.Components.UserDropdown;
+using toyiyo.todo.Users;
+using toyiyo.todo.Users.Dto;
 
 namespace toyiyo.todo.Web.Controllers
 {
     [AbpMvcAuthorize]
     public class JobsController : todoControllerBase
     {
-        public JobsController(IJobAppService jobAppService, IProjectAppService projectAppService)
+        public JobsController(IJobAppService jobAppService, IProjectAppService projectAppService, IUserAppService userAppService)
         {
             JobAppService = jobAppService;
             ProjectAppService = projectAppService;
+            UserAppService = userAppService;
         }
 
         public IJobAppService JobAppService { get; }
         public IProjectAppService ProjectAppService { get; }
+        public IUserAppService UserAppService { get; }
 
 
         [HttpGet("/projects/{projectId}/jobs")]
@@ -72,6 +77,11 @@ namespace toyiyo.todo.Web.Controllers
                 });
 
                 var model = ObjectMapper.Map<EditJobModalViewModel>(output);
+                model.UserDropdown = new UserDropdownViewModel {
+                    Users = (await UserAppService.GetAllAsync(new PagedUserResultRequestDto() { MaxResultCount = int.MaxValue })).Items.ToList(),
+                    SelectedUserId = output.Assignee?.Id,
+                    JobId = output.Id
+                };
                 return PartialView("_EditModal", model);
             }
             catch (ArgumentNullException) { return new NotFoundResult(); }

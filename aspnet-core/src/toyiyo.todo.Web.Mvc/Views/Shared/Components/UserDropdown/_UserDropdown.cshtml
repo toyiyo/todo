@@ -1,0 +1,77 @@
+@model toyiyo.todo.Web.Views.Shared.Components.UserDropdown.UserDropdownViewModel
+
+<div class="form-group">
+    <label>@L("Assignee")</label>
+    <input type="text" class="form-control mb-2" placeholder=@L("SearchUser") id="assigneeSearch" />
+    <select id="assigneeSelect" class="form-control" size=3>
+        <option value="" data-search-text="">@L("Unassigned")</option>
+        @foreach (var user in Model.Users)
+        {
+            var displayText = $"{user.Name} ({user.EmailAddress})";
+            if (user.Id == Model.SelectedUserId)
+            {
+                <option value="@user.Id" selected data-color="@user.Color" data-initials="@user.Initials" data-search-text="@($"{user.Name} ({user.EmailAddress})".ToLower())">@displayText</option>
+            }
+            else
+            {
+                <option value="@user.Id" data-color="@user.Color" data-initials="@user.Initials" data-search-text="@($"{user.Name} ({user.EmailAddress})".ToLower())">@displayText</option>
+            }
+        }
+    </select>
+</div>
+
+<script>
+    (function() {
+        var searchInput = document.getElementById('assigneeSearch');
+        var dropdown = document.getElementById('assigneeSelect');
+        var assignedSuccessfullyMessage = '@L("AssignedSuccessfully")';
+        var jobId = '@Model.JobId'; // Ensure jobId is passed correctly
+
+        function assignUser(userId) {
+            abp.services.app.job.setAssignee({
+                Id: jobId,
+                assigneeId: userId
+            }).done(function(){
+                abp.notify.info(assignedSuccessfullyMessage);
+            });
+        }
+
+        searchInput.addEventListener('input', function() {
+            var filter = searchInput.value.toLowerCase();
+            var options = dropdown.options;
+            for (var i = 0; i < options.length; i++) {
+                var text = options[i].getAttribute('data-search-text');
+                if (text.indexOf(filter) > -1) {
+                    options[i].style.display = '';
+                } else {
+                    options[i].style.display = 'none';
+                }
+            }
+        });
+
+        // Add click event listener to dropdown options
+        dropdown.addEventListener('click', function() { assignUser(dropdown.value);});
+        //dropdown.addEventListener('change', function(e) { e.preventDefault(); assignUser(dropdown.value);});
+
+        // Transform each option to display user icon + text
+        var options = dropdown.querySelectorAll('option');
+        for (var i = 0; i < options.length; i++) {
+            var color = options[i].getAttribute('data-color');
+            var initials = options[i].getAttribute('data-initials');
+            if (color && initials) {
+                var originalLabel = options[i].text;
+                options[i].innerHTML =
+                    '<div class="d-flex align-items-center">' +
+                        '<div class="user-initials" style="background-color:' + color + ';">' + initials + '</div>' +
+                        '<span class="ml-2">' + originalLabel + '</span>' +
+                    '</div>';
+            }
+        }
+        // Scroll the selected option into view
+        var selectedOption = dropdown.querySelector('option[selected]');
+        if (selectedOption) {
+            selectedOption.scrollIntoView({ block: 'nearest' });
+        }
+
+    })();
+</script>
