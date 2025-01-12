@@ -7,6 +7,8 @@
 @inject IWebResourceManager WebResourceManager
 @inject IAlertManager AlertManager
 @inject ILanguageManager LanguageManager
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+
 @{
     AbpAntiForgeryManager.SetCookie(Context);
 
@@ -73,14 +75,13 @@
     </script>
     <!-- Download Canny SDK -->
     <script>!function (w, d, i, s) { function l() { if (!d.getElementById(i)) { var f = d.getElementsByTagName(s)[0], e = d.createElement(s); e.type = "text/javascript", e.async = !0, e.src = "https://canny.io/sdk.js", f.parentNode.insertBefore(e, f) } } if ("function" != typeof w.Canny) { var c = function () { c.q.push(arguments) }; c.q = [], w.Canny = c, "complete" === d.readyState ? l() : w.attachEvent ? w.attachEvent("onload", l) : w.addEventListener("load", l, !1) } }(window, document, "canny-jssdk", "script");</script>
-
-    <!-- Use the Canny SDK to identify the current user of your website -->
     <script>
+        var CANNY_APP_ID = '@Configuration["CANNY_APP_ID"]'
         abp.services.app.session.getCurrentLoginInformations().done(function (result) {
             var user = result.user;
             if (user) {
                 Canny('identify', {
-                    appID: '65fb282c50c6166732778b39',
+                    appID: CANNY_APP_ID,
                     user: {
                         email: user.emailAddress,
                         name: user.name,
