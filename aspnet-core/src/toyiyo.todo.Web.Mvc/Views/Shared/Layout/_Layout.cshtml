@@ -15,6 +15,7 @@
 }
 <!DOCTYPE html>
 <html lang="@LanguageManager.CurrentLanguage.Name">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -25,6 +26,7 @@
     @await Html.PartialAsync("_Styles.cshtml")
     @RenderSection("styles", required: false)
 </head>
+
 <body class="hold-transition sidebar-mini">
     <div class="wrapper">
         @await Html.PartialAsync("_Header.cshtml")
@@ -42,30 +44,54 @@
     @* cdn based scripts *@
     <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
     <script src="https://cdn.datatables.net/rowreorder/1.2.8/js/dataTables.rowReorder.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"
+        integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        (function(h,o,u,n,d) {
-            h=h[d]=h[d]||{q:[],onReady:function(c){h.q.push(c)}}
-            d=o.createElement(u);d.async=1;d.src=n
-            n=o.getElementsByTagName(u)[0];n.parentNode.insertBefore(d,n)
-        })(window,document,'script','https://www.datadoghq-browser-agent.com/datadog-rum-v4.js','DD_RUM')
-        DD_RUM.onReady(function() {
+        (function (h, o, u, n, d) {
+            h = h[d] = h[d] || { q: [], onReady: function (c) { h.q.push(c) } }
+            d = o.createElement(u); d.async = 1; d.src = n
+            n = o.getElementsByTagName(u)[0]; n.parentNode.insertBefore(d, n)
+        })(window, document, 'script', 'https://www.datadoghq-browser-agent.com/datadog-rum-v4.js', 'DD_RUM')
+        DD_RUM.onReady(function () {
             DD_RUM.init({
-            clientToken: 'pub1a4cf1b167ef3430dc6303f84f937d61',
-            applicationId: 'a8a50dea-73b1-44d9-a5cf-2e0d35f4bc8e',
-            site: 'datadoghq.com',
-            service: 'toyiyo-production',
+                clientToken: 'pub1a4cf1b167ef3430dc6303f84f937d61',
+                applicationId: 'a8a50dea-73b1-44d9-a5cf-2e0d35f4bc8e',
+                site: 'datadoghq.com',
+                service: 'toyiyo-production',
 
-            // Specify a version number to identify the deployed version of your application in Datadog 
-            // version: '1.0.0',
-            sampleRate: 100,
-            premiumSampleRate: 100,
-            trackInteractions: true,
-            defaultPrivacyLevel: 'mask-user-input',
+                // Specify a version number to identify the deployed version of your application in Datadog 
+                // version: '1.0.0',
+                sampleRate: 100,
+                premiumSampleRate: 100,
+                trackInteractions: true,
+                defaultPrivacyLevel: 'mask-user-input',
             });
 
             DD_RUM.startSessionReplayRecording();
         })
-</script>
+    </script>
+    <!-- Download Canny SDK -->
+    <script>!function (w, d, i, s) { function l() { if (!d.getElementById(i)) { var f = d.getElementsByTagName(s)[0], e = d.createElement(s); e.type = "text/javascript", e.async = !0, e.src = "https://canny.io/sdk.js", f.parentNode.insertBefore(e, f) } } if ("function" != typeof w.Canny) { var c = function () { c.q.push(arguments) }; c.q = [], w.Canny = c, "complete" === d.readyState ? l() : w.attachEvent ? w.attachEvent("onload", l) : w.addEventListener("load", l, !1) } }(window, document, "canny-jssdk", "script");</script>
+
+    <!-- Use the Canny SDK to identify the current user of your website -->
+    <script>
+        abp.services.app.session.getCurrentLoginInformations().done(function (result) {
+            var user = result.user;
+            if (user) {
+                Canny('identify', {
+                    appID: '65fb282c50c6166732778b39',
+                    user: {
+                        email: user.emailAddress,
+                        name: user.name,
+                        id: user.id,
+                        //avatarURL: user.profilePictureId ? abp.appPath + 'Profile/GetProfilePictureById?id=' + user.profilePictureId : null,
+                        //created: new Date(user.creationTime).toISOString(),
+                    },
+                });
+            }
+        });
+    </script>
 </body>
+
 </html>
