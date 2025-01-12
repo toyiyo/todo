@@ -168,5 +168,6 @@
     <text name="Assignee">Assignee</text>
     <text name="SearchUser">Search user</text>
     <text name="Unassigned">Unassigned</text>
+    <text name="SuggestFeature">Suggest a feature</text>
   </texts>
 </localizationDictionary>

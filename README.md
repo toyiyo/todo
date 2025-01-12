@@ -143,6 +143,42 @@ export SenderDisplayName="[ValidatedSenderNameInSendgrid]"
 - **Google OAuth**: Supports secure authentication and authorization using Google OAuth.
 - **Built-In User Management**: Provides user management features out of the box.
 
+### Setting Up Canny for User Feedback
+
+To enable user feedback using Canny, follow these steps:
+
+1. **Sign Up for Canny**
+
+   Go to [Canny's website](https://canny.io/) and sign up for an account.
+
+2. **Create a New Board**
+
+   After signing up, create a new board in Canny where users can submit their feedback.
+
+3. **Get Your Canny App ID**
+
+   Once your board is created, you will be provided with an App ID. This App ID is required to integrate Canny with your application.
+
+4. **Set the `CANNY_APP_ID` Environment Variable**
+
+   Set the `CANNY_APP_ID` environment variable to the App ID you obtained from Canny.
+
+   **For macOS/Linux:**
+
+   Add the following line to your `~/.zshrc` or `~/.bashrc` file:
+
+   ```sh
+   export CANNY_APP_ID="your-app-id-here"
+
+5. **Verify the configuration**
+    Verify the Configuration
+
+    Ensure that the CANNY_APP_ID environment variable is correctly set by running the following command:
+
+    `echo $CANNY_APP_ID`
+
+    You should see your Canny App ID in the output.
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
