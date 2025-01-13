@@ -67,6 +67,7 @@
     <text name="ResetPasswordMessage" value="Please set a new password" />
     <text name="CanBeEmptyToLoginAsHost" value="Can be empty to login as host." />
     <text name="Register" value="Register" />
+    <text name="StartFreeTrial" value="Start your free trial" />
     <text name="RegisterNewCompany" value="Register a new company" />
     <text name="ContinueWith" value="Continue With" />
     <text name="WaitingForActivationMessage" value="Your account is waiting to be activated by system admin." />

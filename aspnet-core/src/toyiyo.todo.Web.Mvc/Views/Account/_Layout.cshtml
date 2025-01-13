@@ -3,107 +3,143 @@
 @using toyiyo.todo
 @using toyiyo.todo.Web.Resources
 @inject IAbpAntiForgeryManager AbpAntiForgeryManager
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 @inject IWebResourceManager WebResourceManager
 @inject ILanguageManager LanguageManager
 @inject IMultiTenancyConfig MultiTenancyConfig
 @{
-  Layout = null;
-  AbpAntiForgeryManager.SetCookie(Context);
+   Layout = null;
+   AbpAntiForgeryManager.SetCookie(Context);
 
-  var pageTitle = !string.IsNullOrWhiteSpace(ViewBag.Title) ? ViewBag.Title + " / " : "";
-  pageTitle += "Toyiyo";
+   var pageTitle = !string.IsNullOrWhiteSpace(ViewBag.Title) ? ViewBag.Title + " / " : "";
+   pageTitle += "Toyiyo";
+
+   var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+   var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 }
 <!DOCTYPE html>
 <html lang="@LanguageManager.CurrentLanguage.Name">
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-    <title>@pageTitle</title>
+   <title>@pageTitle</title>
 
-    @await Html.PartialAsync("_Styles.cshtml")
-    @RenderSection("styles", required: false)
+   @await Html.PartialAsync("_Styles.cshtml")
+   @RenderSection("styles", required: false)
 </head>
+
 <body class="login-page">
-<section class="vh-100">
-   <div class="container-fluid h-custom">
-      <div class="row d-flex justify-content-center align-items-center h-100">
-        
-         <div class="col-md-6 d-flex justify-content-center">
-            <img src="/img/logo.png" alt="Logo" class="img-fluid img-circle elevation-3" style="opacity: .8; max-height:350px" >
-         </div>
-         <div class="col-md-6 d-flex justify-content-center">
-            <div class="card">
-               @if (MultiTenancyConfig.IsEnabled)
-               {
-               <div class="card-header">
-                  <vc:tenant-change></vc:tenant-change>
+   <section class="vh-100">
+      <div class="container-fluid h-custom">
+         <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-md-6 d-flex flex-column align-items-center">
+               <h3 class="text-center mb-4">What Our Users Say</h3>
+               <div class="row justify-content-center">
+                  <div class="col-lg-4 col-md-6 mb-4">
+                     <div class="card h-100">
+                        <div class="card-body text-center">
+                           <i class="mdi mdi-format-quote-open mdi-36px text-primary mb-3"></i>
+                           <p class="mb-3">Toyiyo transformed our project management approach—tasks are clearer, and
+                              our
+                              team is more productive than ever!</p>
+                           <p class="fw-semibold mb-0">Alex P.</p>
+                           <small class="text-muted">Project Manager</small>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-lg-4 col-md-6 mb-4">
+                     <div class="card h-100">
+                        <div class="card-body text-center">
+                           <i class="mdi mdi-format-quote-open mdi-36px text-primary mb-3"></i>
+                           <p class="mb-3">The intuitive design meant we could get started immediately without a
+                              steep
+                              learning curve.</p>
+                           <p class="fw-semibold mb-0">Jamie L.</p>
+                           <small class="text-muted">Team Lead</small>
+                        </div>
+                     </div>
+                  </div>
                </div>
-               }
-               <div class="card-body login-card-body">
-                  @RenderBody()
-               </div>
-               <div class="card-footer">
+               <img src="/img/logo.png" alt="Logo" class="img-fluid img-circle elevation-3 mt-4"
+                  style="opacity: .8; max-height:350px">
+            </div>
+            <div class="col-md-6 d-flex justify-content-center">
+               <div class="card">
+                  @if (MultiTenancyConfig.IsEnabled && currentController == "Account" && currentAction == "Login")
+                  {
+                     <div class="card-header">
+                        <vc:tenant-change></vc:tenant-change>
+                     </div>
+                  }
+                  <div class="card-body login-card-body">
+                     @RenderBody()
+                  </div>
+                  <div class="card-footer">
+                  </div>
                </div>
             </div>
          </div>
       </div>
-   </div>
       <div class="container-fluid justify-content-center mw-100">
          <footer class="footer mt-auto">
             <div class="float-left d-none d-sm-inline-block mx-auto">
-                <p>Copyright &copy; @DateTime.Now.Year Toyiyo, llc</p> 
+               <p>Copyright &copy; @DateTime.Now.Year Toyiyo, llc</p>
             </div>
             <div class="float-right d-none d-sm-inline-block mx-auto">
-                <ul class="nav justify-content-end">
-                    <li class="nav-item">
-                        <a class="nav-link px-1 text-muted" href="@Url.Action("Privacy", "Legal")">@L("Privacy")</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-1 text-muted" href="@Url.Action("Terms", "Legal")">@L("Terms")</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-1 text-muted" href="@Url.Action("Cookies", "Legal")">@L("Cookie")</a>
-                    </li>
-                </ul>
+               <ul class="nav justify-content-end">
+                  <li class="nav-item">
+                     <a class="nav-link px-1 text-muted" href="@Url.Action("Privacy", "Legal")">@L("Privacy")</a>
+                  </li>
+                  <li class="nav-item">
+                     <a class="nav-link px-1 text-muted" href="@Url.Action("Terms", "Legal")">@L("Terms")</a>
+                  </li>
+                  <li class="nav-item">
+                     <a class="nav-link px-1 text-muted" href="@Url.Action("Cookies", "Legal")">@L("Cookie")</a>
+                  </li>
+               </ul>
             </div>
-        </footer>
+         </footer>
       </div>
-</section>
+   </section>
 
-@* <section>
+   @* <section>
   @await Html.PartialAsync("~/Views/Shared/Layout/_Footer.cshtml")
 </section> *@
 
-  @await Html.PartialAsync("_Scripts.cshtml")
-  @RenderSection("scripts", required: false)
-  @WebResourceManager.RenderScripts()
-  @* cdn based scripts *@
-    <script>
+   @await Html.PartialAsync("_Scripts.cshtml")
+   @RenderSection("scripts", required: false)
+   @WebResourceManager.RenderScripts()
+   @* cdn based scripts *@
+   <script>
+      var DATADOG_CLIENT_TOKEN = '@Configuration["DATADOG_CLIENT_TOKEN"]';
+      var DATADOG_APPLICATION_ID = '@Configuration["DATADOG_APPLICATION_ID"]';
       <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
-      (function(h,o,u,n,d) {
-        h=h[d]=h[d]||{q:[],onReady:function(c){h.q.push(c)}}
+         (function(h,o,u,n,d) {
+            h = h[d] = h[d] || { q: [], onReady: function (c) { h.q.push(c) } }
         d=o.createElement(u);d.async=1;d.src=n
-        n=o.getElementsByTagName(u)[0];n.parentNode.insertBefore(d,n)
+         n=o.getElementsByTagName(u)[0];n.parentNode.insertBefore(d,n)
       })(window,document,'script','https://www.datadoghq-browser-agent.com/datadog-rum-v4.js','DD_RUM')
-      DD_RUM.onReady(function() {
-        DD_RUM.init({
-          clientToken: 'pub1a4cf1b167ef3430dc6303f84f937d61',
-          applicationId: 'a8a50dea-73b1-44d9-a5cf-2e0d35f4bc8e',
-          site: 'datadoghq.com',
-          service: 'toyiyo-production',
+         DD_RUM.onReady(function() {
+            DD_RUM.init({
+               clientToken: DATADOG_CLIENT_TOKEN,
+               applicationId: DATADOG_APPLICATION_ID,
+               site: 'datadoghq.com',
+               service: 'toyiyo-production',
 
-          // Specify a version number to identify the deployed version of your application in Datadog 
-          // version: '1.0.0',
-          sampleRate: 100,
-          premiumSampleRate: 100,
-          trackInteractions: true,
-          defaultPrivacyLevel: 'mask-user-input',
-        });
+               // Specify a version number to identify the deployed version of your application in Datadog 
+               // version: '1.0.0',
+               sampleRate: 100,
+               premiumSampleRate: 100,
+               trackInteractions: true,
+               defaultPrivacyLevel: 'mask-user-input',
+            });
 
-        DD_RUM.startSessionReplayRecording();
+         DD_RUM.startSessionReplayRecording();
       })
-  </script>
+   </script>
 </body>
+
 </html>
