@@ -21,11 +21,16 @@ namespace toyiyo.todo.Jobs
         private readonly IJobManager _jobManager;
         private readonly IProjectManager _projectManager;
         private readonly UserManager _userManager;
-        public JobAppService(IJobManager jobManager, IProjectManager projectManager, UserManager userManager)
+        private readonly IMarkdownImageExtractor _imageExtractor;
+        private readonly IJobImageManager _jobImageManager;
+
+        public JobAppService(IJobManager jobManager, IProjectManager projectManager, UserManager userManager, IMarkdownImageExtractor imageExtractor, IJobImageManager jobImageManager)
         {
             _jobManager = jobManager;
             _projectManager = projectManager;
             _userManager = userManager;
+            _imageExtractor = imageExtractor;
+            _jobImageManager = jobImageManager;
         }
         /// <summary> Creates a new Job. </summary>
         public async Task<JobDto> Create(JobCreateInputDto input)
@@ -76,10 +81,36 @@ namespace toyiyo.todo.Jobs
             };
         }
 
-        public async Task<JobDto> SetDescription(JobSetDescriptionInputDto jobSetDescriptionInputDto)
+        public async Task<JobDto> SetDescription(JobSetDescriptionInputDto input)
         {
-            var job = Job.SetDescription(await _jobManager.Get(jobSetDescriptionInputDto.Id), jobSetDescriptionInputDto.Description, await GetCurrentUserAsync());
+            var currentUser = await GetCurrentUserAsync();
+            var job = await _jobManager.Get(input.Id);
+            
+            // Extract and save images
+            var images = _imageExtractor.ExtractImages(input.Description);
+            var imageIdMap = new Dictionary<string, Guid>();
+            
+            foreach (var img in images)
+            {
+                var imageData = Convert.FromBase64String(img.Base64Data);
+                var jobImage = JobImage.Create(
+                    job,
+                    img.ContentType,
+                    img.FileName,
+                    imageData,
+                    AbpSession.TenantId.Value,
+                    currentUser
+                );
+                
+                var savedImage = await _jobImageManager.Create(jobImage);
+                imageIdMap.Add(img.Base64Data, savedImage.Id);
+            }
+
+            // Update description with image URLs
+            var cleanDescription = _imageExtractor.ReplaceBase64ImagesWithUrls(input.Description, imageIdMap);
+            job = Job.SetDescription(job, cleanDescription, currentUser);
             await _jobManager.Update(job);
+            
             return ObjectMapper.Map<JobDto>(job);
         }
 

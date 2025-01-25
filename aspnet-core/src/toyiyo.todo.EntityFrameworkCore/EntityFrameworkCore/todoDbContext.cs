@@ -16,6 +16,7 @@ namespace toyiyo.todo.EntityFrameworkCore
         public DbSet<Project> Projects { get; set; }
         public DbSet<Job> Jobs { get; set; }
         public DbSet<UserInvitation> UserInvitations { get; set; }
+        public DbSet<JobImage> JobImages { get; set; }
 
         public todoDbContext(DbContextOptions<todoDbContext> options)
             : base(options)
