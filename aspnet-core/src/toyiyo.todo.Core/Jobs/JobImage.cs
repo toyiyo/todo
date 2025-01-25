@@ -5,9 +5,12 @@ using toyiyo.todo.Jobs;
 using Abp.Timing;
 using toyiyo.todo.Authorization.Users;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography;
+using Microsoft.EntityFrameworkCore;
 
 namespace toyiyo.todo.Jobs
 {
+    [Index(nameof(ContentHash), IsUnique = true)]
     public class JobImage : FullAuditedEntity<Guid>, IMustHaveTenant
     {
         [Required]
@@ -23,6 +26,10 @@ namespace toyiyo.todo.Jobs
         public string FileName { get; protected set; }
         [Required]
         public byte[] ImageData { get; protected set; }
+
+        [Required]
+        [StringLength(64)]
+        public string ContentHash { get; protected set; }
 
         public static JobImage Create(Job job, string ContentType, string FileName, byte[] imageData, int tenantId, User user)
         {
@@ -40,7 +47,8 @@ namespace toyiyo.todo.Jobs
                 CreatorUserId = user.Id,
                 CreationTime = Clock.Now,
                 LastModifierUserId = user.Id,
-                LastModificationTime = Clock.Now
+                LastModificationTime = Clock.Now,
+                ContentHash = ComputeHash(imageData)
             };
 
             SetImageData(image, imageData, user);
@@ -76,6 +84,15 @@ namespace toyiyo.todo.Jobs
         {
             image.LastModificationTime = Clock.Now;
             image.LastModifierUserId = user.Id;
+        }
+
+        public static string ComputeHash(byte[] imageData)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hash = sha256.ComputeHash(imageData);
+                return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+            }
         }
     }
 }

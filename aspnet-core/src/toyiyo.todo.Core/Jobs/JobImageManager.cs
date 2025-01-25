@@ -36,5 +36,10 @@ namespace toyiyo.todo.Jobs
         {
             return await _jobImageRepository.GetAllListAsync(x => x.JobId == jobId);
         }
+
+        public async Task<JobImage> GetByHash(string hash)
+        {
+            return await _jobImageRepository.FirstOrDefaultAsync(x => x.ContentHash == hash);
+        }
     }
 }

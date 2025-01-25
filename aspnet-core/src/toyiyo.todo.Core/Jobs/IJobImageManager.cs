@@ -9,5 +9,6 @@ namespace toyiyo.todo.Jobs
         Task<JobImage> Get(Guid id);
         Task<JobImage> Create(JobImage jobImage);
         Task Delete(Guid id, User user);
+        Task<JobImage> GetByHash(string contentHash);
     }
 }

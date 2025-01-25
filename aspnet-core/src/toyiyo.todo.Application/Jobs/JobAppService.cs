@@ -102,6 +102,16 @@ namespace toyiyo.todo.Jobs
             foreach (var img in images)
             {
                 var imageData = Convert.FromBase64String(img.Base64Data);
+                var contentHash = JobImage.ComputeHash(imageData);
+                
+                // Check if image already exists
+                var existingImage = await _jobImageManager.GetByHash(contentHash);
+                if (existingImage != null)
+                {
+                    imageIdMap.Add(img.Base64Data, existingImage.Id);
+                    continue;
+                }
+
                 var jobImage = JobImage.Create(
                     job,
                     img.ContentType,
@@ -115,9 +125,7 @@ namespace toyiyo.todo.Jobs
                 imageIdMap.Add(img.Base64Data, savedImage.Id);
             }
 
-            // Update description with image URLs
-            var cleanDescription = _imageExtractor.ReplaceBase64ImagesWithUrls(description, imageIdMap);
-            return cleanDescription;
+            return _imageExtractor.ReplaceBase64ImagesWithUrls(description, imageIdMap);
         }
 
         public async Task<JobDto> SetJobStatus(JobSetStatusInputDto jobSetStatusInputDto)
