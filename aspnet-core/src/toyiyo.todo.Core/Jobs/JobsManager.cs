@@ -56,7 +56,7 @@ namespace toyiyo.todo.Jobs
             //repository methods already filter by tenant, we can check other attributes by adding "or" "||" to the whereif clause
             var query = _jobRepository.GetAll()
                 .WhereIf(!input.ProjectId.Equals(Guid.Empty), x => x.Project.Id == input.ProjectId)
-                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), p => p.Title.ToUpper().Contains(input.Keyword.ToUpper()))
+                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), p => p.Title.ToUpper().Contains(input.Keyword.ToUpper()) || p.Description.ToUpper().Contains(input.Keyword.ToUpper()))
                 .WhereIf(input.JobStatus != null, p => p.JobStatus == input.JobStatus)
                 .WhereIf(!input.ParentJobId.Equals(Guid.Empty), p => p.ParentId == input.ParentJobId)
                 .WhereIf(input.Levels != null && input.Levels.Any(), p => input.Levels.Contains(p.Level));
