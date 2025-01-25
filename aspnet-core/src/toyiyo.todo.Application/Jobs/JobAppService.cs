@@ -85,11 +85,20 @@ namespace toyiyo.todo.Jobs
         {
             var currentUser = await GetCurrentUserAsync();
             var job = await _jobManager.Get(input.Id);
-            
+
             // Extract and save images
-            var images = _imageExtractor.ExtractImages(input.Description);
+            string imageCleanedDescription = await ExtractAndReplaceImagesInDescription(input.Description, currentUser, job);
+            job = Job.SetDescription(job, imageCleanedDescription, currentUser);
+            await _jobManager.Update(job);
+
+            return ObjectMapper.Map<JobDto>(job);
+        }
+
+        private async Task<string> ExtractAndReplaceImagesInDescription(string description, User currentUser, Job job)
+        {
+            var images = _imageExtractor.ExtractImages(description);
             var imageIdMap = new Dictionary<string, Guid>();
-            
+
             foreach (var img in images)
             {
                 var imageData = Convert.FromBase64String(img.Base64Data);
@@ -101,17 +110,14 @@ namespace toyiyo.todo.Jobs
                     AbpSession.TenantId.Value,
                     currentUser
                 );
-                
+
                 var savedImage = await _jobImageManager.Create(jobImage);
                 imageIdMap.Add(img.Base64Data, savedImage.Id);
             }
 
             // Update description with image URLs
-            var cleanDescription = _imageExtractor.ReplaceBase64ImagesWithUrls(input.Description, imageIdMap);
-            job = Job.SetDescription(job, cleanDescription, currentUser);
-            await _jobManager.Update(job);
-            
-            return ObjectMapper.Map<JobDto>(job);
+            var cleanDescription = _imageExtractor.ReplaceBase64ImagesWithUrls(description, imageIdMap);
+            return cleanDescription;
         }
 
         public async Task<JobDto> SetJobStatus(JobSetStatusInputDto jobSetStatusInputDto)
@@ -213,10 +219,11 @@ namespace toyiyo.todo.Jobs
             {
                 var job = await _jobManager.Get(input.Id);
                 var user = await GetCurrentUserAsync();
+                string imageCleanedDescription = await ExtractAndReplaceImagesInDescription(input.Description, user, job);
 
                 // Update all fields using existing domain methods
                 job = Job.SetTitle(job, input.Title, user);
-                job = Job.SetDescription(job, input.Description, user);
+                job = Job.SetDescription(job, imageCleanedDescription, user);
                 job = Job.SetDueDate(job, input.DueDate ?? default, user);
                 job = Job.SetLevel(job, input.Level, user);
                 job = Job.SetParent(job, input.ParentId == Guid.Empty ? null : await _jobManager.Get(input.ParentId), user);

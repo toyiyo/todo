@@ -41,7 +41,7 @@ namespace toyiyo.todo.Jobs
                 if (imageIdMap.TryGetValue(base64Data, out Guid imageId))
                 {
                     // Use relative URL format that will work with your API
-                    return $"![{altText}](/api/services/app/JobImage/Get?id={imageId})";
+                    return $"![{altText}](/api/services/app/JobImage/GetImage?id={imageId})";
                 }
                 
                 return m.Value; // Keep original if no mapping found
