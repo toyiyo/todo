@@ -14,7 +14,7 @@ namespace toyiyo.todo.Jobs
 
     public class MarkdownImageExtractor : DomainService, IMarkdownImageExtractor
     {
-        private static readonly Regex ImagePattern = new(@"!\[([^\]]*)\]\(data:([^;]+);base64,([^\)]+)\)", RegexOptions.Compiled);
+        private static readonly Regex ImagePattern = new(@"!\[([^\]]*)\]\(data:([^;]+);base64,([^\)]+)\)", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
 
         public IEnumerable<MarkdownImage> ExtractImages(string markdown)
         {

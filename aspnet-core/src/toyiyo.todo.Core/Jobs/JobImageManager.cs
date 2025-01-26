@@ -29,7 +29,8 @@ namespace toyiyo.todo.Jobs
 
         public async Task Delete(Guid id, User user)
         {
-            await _jobImageRepository.DeleteAsync(id);
+            var jobImage = JobImage.Delete(await this.Get(id), user);
+            await _jobImageRepository.DeleteAsync(jobImage);
         }
 
         public async Task<List<JobImage>> GetByJobId(Guid jobId)

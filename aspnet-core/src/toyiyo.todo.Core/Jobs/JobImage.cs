@@ -74,6 +74,7 @@ namespace toyiyo.todo.Jobs
             {
                 throw new ArgumentNullException();
             }
+            SetLastModified(image, user);
             image.IsDeleted = true;
             image.DeletionTime = Clock.Now;
             image.DeleterUserId = user.Id;
