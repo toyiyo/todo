@@ -57,23 +57,18 @@ namespace toyiyo.todo.Jobs
 
         public static JobImage SetImageData(JobImage image, byte[] imageData, User user)
         {
-            if (image == null || imageData == null || imageData.Length == 0)
-            {
-                throw new ArgumentNullException(nameof(image));
-            }
+            if (image == null) { throw new ArgumentNullException(nameof(image)); }
+            if (imageData == null || imageData.Length == 0) { throw new ArgumentNullException(nameof(imageData)); }
             if (user == null) { throw new ArgumentNullException(nameof(user)); }
             image.ImageData = imageData;
             SetLastModified(image, user);
             return image;
         }
 
-
         public static JobImage Delete(JobImage image, User user)
         {
-            if (image == null || user == null)
-            {
-                throw new ArgumentNullException();
-            }
+            if (image == null) { throw new ArgumentNullException(nameof(image)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
             SetLastModified(image, user);
             image.IsDeleted = true;
             image.DeletionTime = Clock.Now;
