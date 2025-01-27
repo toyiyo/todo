@@ -10,6 +10,7 @@ namespace toyiyo.todo.Jobs
     {
         Task<JobImageDto> Create(JobImageCreateInputDto input);
         Task<JobImageDto> Get(Guid id);
+        Task<IActionResult> GetImage(Guid id);
         Task<IActionResult> Delete(Guid id);
     }
 }

@@ -67,9 +67,12 @@ namespace toyiyo.todo.Tests.Jobs
 
             var result = await _jobImageAppService.Get(created.Id);
 
-            Assert.NotNull(result);
-            Assert.Equal(created.ContentType, result.ContentType);
-            Assert.Equal(created.FileName, result.FileName);
+            Assert.NotNull(result);  
+            Assert.Equal(created.Id, result.Id);  
+            Assert.Equal(created.JobId, result.JobId);  
+            Assert.Equal(created.ContentType, result.ContentType);  
+            Assert.Equal(created.FileName, result.FileName);  
+            Assert.Equal(created.ImageData, result.ImageData); 
         }
 
         [Fact]
@@ -91,7 +94,7 @@ namespace toyiyo.todo.Tests.Jobs
                 ImageData = new byte[] { 1, 2, 3, 4 }
             });
 
-            var actionResult = await _jobImageAppService.Get(created.Id);
+            var actionResult = await _jobImageAppService.GetImage(created.Id);
             var fileResult = Assert.IsType<FileContentResult>(actionResult);
 
             Assert.Equal(created.ContentType, fileResult.ContentType);
@@ -120,7 +123,7 @@ namespace toyiyo.todo.Tests.Jobs
             var result = await _jobImageAppService.Delete(created.Id);
             Assert.IsType<NoContentResult>(result);
 
-            await Assert.ThrowsAsync<Abp.Domain.Entities.EntityNotFoundException>(
+            await Assert.ThrowsAsync<Abp.UI.UserFriendlyException>(
                 async () => await _jobImageAppService.Get(created.Id)
             );
         }
