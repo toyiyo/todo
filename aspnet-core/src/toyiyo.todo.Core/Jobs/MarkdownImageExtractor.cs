@@ -9,7 +9,7 @@ namespace toyiyo.todo.Jobs
     public interface IMarkdownImageExtractor
     {
         IEnumerable<MarkdownImage> ExtractImages(string markdown);
-        string ReplaceBase64ImagesWithUrls(string markdown, Dictionary<string, Guid> imageIdMap);
+        string ReplaceBase64ImagesWithUrls(string markdown, Dictionary<string, JobImage> imageIdMap);
     }
 
     public class MarkdownImageExtractor : DomainService, IMarkdownImageExtractor
@@ -29,7 +29,7 @@ namespace toyiyo.todo.Jobs
             });
         }
 
-        public string ReplaceBase64ImagesWithUrls(string markdown, Dictionary<string, Guid> imageIdMap)
+        public string ReplaceBase64ImagesWithUrls(string markdown, Dictionary<string, JobImage> imageIdMap)
         {
             if (string.IsNullOrEmpty(markdown)) return markdown;
 
@@ -38,10 +38,11 @@ namespace toyiyo.todo.Jobs
                 var altText = m.Groups[1].Value;
                 var base64Data = m.Groups[3].Value;
                 
-                if (imageIdMap.TryGetValue(base64Data, out Guid imageId))
+                if (imageIdMap.TryGetValue(base64Data, out JobImage existingImage))
                 {
-                    // Use relative URL format that will work with your API
-                    return $"![{altText}](/api/services/app/JobImage/GetImage?id={imageId})";
+                    // Use relative URL format that will work with your API - move this function to a calculated property in the JobImage class
+                    var imageTag = $"<img src=\"{existingImage.ImageUrl}\" alt=\"{altText}\" />";
+                    return $"[{imageTag}]({existingImage.ImageUrl})";
                 }
                 
                 return m.Value; // Keep original if no mapping found

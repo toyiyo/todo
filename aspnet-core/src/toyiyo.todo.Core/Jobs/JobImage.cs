@@ -31,6 +31,8 @@ namespace toyiyo.todo.Jobs
         [StringLength(64)]
         public string ContentHash { get; protected set; }
 
+        public string ImageUrl => $"/api/services/app/JobImage/GetImage?id={Id}"; //$"![{altText}](/api/services/app/JobImage/GetImage?id={imageId})";
+
         public static JobImage Create(Job job, string ContentType, string FileName, byte[] imageData, int tenantId, User user)
         {
             if (job == null) { throw new ArgumentNullException(nameof(job)); }

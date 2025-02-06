@@ -97,7 +97,7 @@ namespace toyiyo.todo.Jobs
         private async Task<string> ExtractAndReplaceImagesInDescription(string description, User currentUser, Job job)
         {
             var images = _imageExtractor.ExtractImages(description);
-            var imageIdMap = new Dictionary<string, Guid>();
+            var imageIdMap = new Dictionary<string, JobImage>();
 
             foreach (var img in images)
             {
@@ -108,7 +108,7 @@ namespace toyiyo.todo.Jobs
                 var existingImage = await _jobImageManager.GetByHash(contentHash);
                 if (existingImage != null)
                 {
-                    imageIdMap.Add(img.Base64Data, existingImage.Id);
+                    imageIdMap.Add(img.Base64Data, existingImage);
                     continue;
                 }
 
@@ -122,7 +122,7 @@ namespace toyiyo.todo.Jobs
                 );
 
                 var savedImage = await _jobImageManager.Create(jobImage);
-                imageIdMap.Add(img.Base64Data, savedImage.Id);
+                imageIdMap.Add(img.Base64Data, savedImage);
             }
 
             return _imageExtractor.ReplaceBase64ImagesWithUrls(description, imageIdMap);

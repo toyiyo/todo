@@ -72,7 +72,7 @@ namespace toyiyo.todo.Tests.Jobs
             Assert.Equal(created.JobId, result.JobId);  
             Assert.Equal(created.ContentType, result.ContentType);  
             Assert.Equal(created.FileName, result.FileName);  
-            Assert.Equal(created.ImageData, result.ImageData); 
+            Assert.Equal(created.imageUrl, result.imageUrl); 
         }
 
         [Fact]
