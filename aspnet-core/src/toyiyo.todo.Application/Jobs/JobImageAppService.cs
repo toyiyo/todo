@@ -31,6 +31,14 @@ namespace toyiyo.todo.Jobs
             {
                 await input.ImageData.CopyToAsync(ms);
                 var fileBytes = ms.ToArray();
+                var contentHash = JobImage.ComputeHash(fileBytes);
+
+                // Check if image already exists
+                var existingImage = await _jobImageManager.GetByHash(contentHash);
+                if (existingImage != null)
+                {
+                    return ObjectMapper.Map<JobImageDto>(existingImage);
+                }
 
                 var jobImage = JobImage.Create(
                     job,

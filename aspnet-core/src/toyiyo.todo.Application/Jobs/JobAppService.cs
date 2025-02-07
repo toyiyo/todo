@@ -92,14 +92,14 @@ namespace toyiyo.todo.Jobs
             var job = await _jobManager.Get(input.Id);
 
             // Extract and save images
-            string imageCleanedDescription = await ExtractAndReplaceImagesInDescription(input.Description, currentUser, job);
+            string imageCleanedDescription = await ExtractAndReplaceImagesInDescription(input.Description, job);
             job = Job.SetDescription(job, imageCleanedDescription, currentUser);
             await _jobManager.Update(job);
 
             return ObjectMapper.Map<JobDto>(job);
         }
 
-        private async Task<string> ExtractAndReplaceImagesInDescription(string description, User currentUser, Job job)
+        private async Task<string> ExtractAndReplaceImagesInDescription(string description, Job job)
         {
             var images = _imageExtractor.ExtractImages(description);
             var imageIdMap = new Dictionary<string, string>();
@@ -107,33 +107,24 @@ namespace toyiyo.todo.Jobs
             foreach (var img in images)
             {
                 var imageData = Convert.FromBase64String(img.Base64Data);
-                var contentHash = JobImage.ComputeHash(imageData);
 
-                // Check if image already exists
-                var existingImage = await _jobImageManager.GetByHash(contentHash);
-                if (existingImage != null)
+                var jobImageCreateInputDto = new JobImageCreateInputDto
                 {
-                    imageIdMap.TryAdd(img.Base64Data, existingImage.ImageUrl);
-                }
-                else
-                {                    
-                    var jobImageCreateInputDto = new JobImageCreateInputDto
-                    {
-                        JobId = job.Id,
-                        ContentType = img.ContentType,
-                        FileName = img.FileName,
-                        ImageData = new FormFile(
-                            new MemoryStream(imageData),
-                            0,
-                            imageData.Length,
-                            img.FileName,
-                            img.FileName
-                        )
-                    };
+                    JobId = job.Id,
+                    ContentType = img.ContentType,
+                    FileName = img.FileName,
+                    ImageData = new FormFile(
+                        new MemoryStream(imageData),
+                        0,
+                        imageData.Length,
+                        img.FileName,
+                        img.FileName
+                    )
+                };
 
-                    var savedImage = await _jobImageAppService.Create(jobImageCreateInputDto);
-                    imageIdMap.TryAdd(img.Base64Data, savedImage.imageUrl);
-                }
+                var savedImage = await _jobImageAppService.Create(jobImageCreateInputDto);
+                imageIdMap.TryAdd(img.Base64Data, savedImage.imageUrl);
+
             }
 
             return _imageExtractor.ReplaceBase64ImagesWithUrls(description, imageIdMap);
@@ -238,7 +229,7 @@ namespace toyiyo.todo.Jobs
             {
                 var job = await _jobManager.Get(input.Id);
                 var user = await GetCurrentUserAsync();
-                string imageCleanedDescription = await ExtractAndReplaceImagesInDescription(input.Description, user, job);
+                string imageCleanedDescription = await ExtractAndReplaceImagesInDescription(input.Description, job);
 
                 // Update all fields using existing domain methods
                 job = Job.SetTitle(job, input.Title, user);
