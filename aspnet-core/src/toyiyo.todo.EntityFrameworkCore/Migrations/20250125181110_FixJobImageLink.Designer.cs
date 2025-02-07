@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using toyiyo.todo.EntityFrameworkCore;
@@ -11,9 +12,10 @@ using toyiyo.todo.EntityFrameworkCore;
 namespace toyiyo.todo.Migrations
 {
     [DbContext(typeof(todoDbContext))]
-    partial class todoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250125181110_FixJobImageLink")]
+    partial class FixJobImageLink
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1706,11 +1708,6 @@ namespace toyiyo.todo.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ContentHash")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
                     b.Property<string>("ContentType")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -1753,9 +1750,6 @@ namespace toyiyo.todo.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ContentHash")
-                        .IsUnique();
 
                     b.ToTable("JobImages");
                 });

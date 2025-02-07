@@ -22,7 +22,7 @@ namespace toyiyo.todo.Sessions
 
             if (AbpSession.TenantId.HasValue)
             {
-                output.Tenant = ObjectMapper.Map<TenantLoginInfoDto>(await GetCurrentTenantAsync());
+                output.Tenant = ObjectMapper.Map<TenantLoginInfoDto>(await GetCurrentTenantAsync()); 
             }
 
             if (AbpSession.UserId.HasValue)

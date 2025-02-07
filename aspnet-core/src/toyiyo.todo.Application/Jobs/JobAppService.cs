@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
+using Abp.Collections.Extensions;
 using Abp.UI;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using toyiyo.todo.Authorization;
 using toyiyo.todo.Authorization.Users;
@@ -21,11 +24,18 @@ namespace toyiyo.todo.Jobs
         private readonly IJobManager _jobManager;
         private readonly IProjectManager _projectManager;
         private readonly UserManager _userManager;
-        public JobAppService(IJobManager jobManager, IProjectManager projectManager, UserManager userManager)
+        private readonly IMarkdownImageExtractor _imageExtractor;
+        private readonly IJobImageManager _jobImageManager;
+        private readonly IJobImageAppService _jobImageAppService;
+
+        public JobAppService(IJobManager jobManager, IProjectManager projectManager, UserManager userManager, IMarkdownImageExtractor imageExtractor, IJobImageManager jobImageManager, IJobImageAppService jobImageAppService)
         {
             _jobManager = jobManager;
             _projectManager = projectManager;
             _userManager = userManager;
+            _imageExtractor = imageExtractor;
+            _jobImageManager = jobImageManager;
+            _jobImageAppService = jobImageAppService;
         }
         /// <summary> Creates a new Job. </summary>
         public async Task<JobDto> Create(JobCreateInputDto input)
@@ -76,11 +86,48 @@ namespace toyiyo.todo.Jobs
             };
         }
 
-        public async Task<JobDto> SetDescription(JobSetDescriptionInputDto jobSetDescriptionInputDto)
+        public async Task<JobDto> SetDescription(JobSetDescriptionInputDto input)
         {
-            var job = Job.SetDescription(await _jobManager.Get(jobSetDescriptionInputDto.Id), jobSetDescriptionInputDto.Description, await GetCurrentUserAsync());
+            var currentUser = await GetCurrentUserAsync();
+            var job = await _jobManager.Get(input.Id);
+
+            // Extract and save images
+            string imageCleanedDescription = await ExtractAndReplaceImagesInDescription(input.Description, job);
+            job = Job.SetDescription(job, imageCleanedDescription, currentUser);
             await _jobManager.Update(job);
+
             return ObjectMapper.Map<JobDto>(job);
+        }
+
+        private async Task<string> ExtractAndReplaceImagesInDescription(string description, Job job)
+        {
+            var images = _imageExtractor.ExtractImages(description);
+            var imageIdMap = new Dictionary<string, string>();
+
+            foreach (var img in images)
+            {
+                var imageData = Convert.FromBase64String(img.Base64Data);
+
+                var jobImageCreateInputDto = new JobImageCreateInputDto
+                {
+                    JobId = job.Id,
+                    ContentType = img.ContentType,
+                    FileName = img.FileName,
+                    ImageData = new FormFile(
+                        new MemoryStream(imageData),
+                        0,
+                        imageData.Length,
+                        img.FileName,
+                        img.FileName
+                    )
+                };
+
+                var savedImage = await _jobImageAppService.Create(jobImageCreateInputDto);
+                imageIdMap.TryAdd(img.Base64Data, savedImage.imageUrl);
+
+            }
+
+            return _imageExtractor.ReplaceBase64ImagesWithUrls(description, imageIdMap);
         }
 
         public async Task<JobDto> SetJobStatus(JobSetStatusInputDto jobSetStatusInputDto)
@@ -173,7 +220,7 @@ namespace toyiyo.todo.Jobs
                 return ObjectMapper.Map<JobDto>(job);
             }
             catch (Exception ex) { throw new UserFriendlyException(L("JobUpdateFailed"), ex.Message); }
-            
+
         }
 
         public async Task<JobDto> UpdateAllFields(JobUpdateInputDto input)
@@ -182,10 +229,11 @@ namespace toyiyo.todo.Jobs
             {
                 var job = await _jobManager.Get(input.Id);
                 var user = await GetCurrentUserAsync();
+                string imageCleanedDescription = await ExtractAndReplaceImagesInDescription(input.Description, job);
 
                 // Update all fields using existing domain methods
                 job = Job.SetTitle(job, input.Title, user);
-                job = Job.SetDescription(job, input.Description, user);
+                job = Job.SetDescription(job, imageCleanedDescription, user);
                 job = Job.SetDueDate(job, input.DueDate ?? default, user);
                 job = Job.SetLevel(job, input.Level, user);
                 job = Job.SetParent(job, input.ParentId == Guid.Empty ? null : await _jobManager.Get(input.ParentId), user);
