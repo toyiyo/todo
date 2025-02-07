@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using toyiyo.todo.Jobs;
 using toyiyo.todo.Projects;
 using Xunit;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using System.ComponentModel.DataAnnotations;
 
 namespace toyiyo.todo.Tests.Jobs
 {
@@ -20,6 +23,16 @@ namespace toyiyo.todo.Tests.Jobs
             LoginAsDefaultTenantAdmin();
         }
 
+        private IFormFile CreateFormFile(byte[] fileBytes, string fileName, string contentType)
+        {
+            var stream = new MemoryStream(fileBytes);
+            return new FormFile(stream, 0, fileBytes.Length, fileName, fileName)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = contentType
+            };
+        }
+
         [Fact]
         public async Task Create_ShouldReturnJobImageDto()
         {
@@ -34,10 +47,12 @@ namespace toyiyo.todo.Tests.Jobs
             var input = new JobImageCreateInputDto
             {
                 JobId = jobDto.Id,
-                ContentType = "image/png",
-                FileName = "test.png",
-                ImageData = new byte[] { 1, 2, 3 }
+                ContentType = "image/jpeg",
+                FileName = "test.jpg",
+                ImageData = CreateFormFile(new byte[] { 1, 2, 3 }, "test.jpg", "image/jpeg")
             };
+
+            ValidateObject(input);
 
             var result = await _jobImageAppService.Create(input);
 
@@ -62,8 +77,10 @@ namespace toyiyo.todo.Tests.Jobs
                 JobId = jobDto.Id,
                 ContentType = "image/png",
                 FileName = "test-get.png",
-                ImageData = new byte[] { 9, 9, 9 }
+                ImageData = CreateFormFile(new byte[] { 9, 9, 9 }, "test-get.png", "image/png")
             });
+
+            ValidateObject(created);
 
             var result = await _jobImageAppService.Get(created.Id);
 
@@ -91,8 +108,10 @@ namespace toyiyo.todo.Tests.Jobs
                 JobId = jobDto.Id,
                 ContentType = "image/png",
                 FileName = "test-getimage.png",
-                ImageData = new byte[] { 1, 2, 3, 4 }
+                ImageData = CreateFormFile(new byte[] { 1, 2, 3, 4 }, "test-getimage.png", "image/png")
             });
+
+            ValidateObject(created);
 
             var actionResult = await _jobImageAppService.GetImage(created.Id);
             var fileResult = Assert.IsType<FileContentResult>(actionResult);
@@ -117,8 +136,10 @@ namespace toyiyo.todo.Tests.Jobs
                 JobId = jobDto.Id,
                 ContentType = "image/png",
                 FileName = "test-delete.png",
-                ImageData = new byte[] { 5, 6, 7 }
+                ImageData = CreateFormFile(new byte[] { 5, 6, 7 }, "test-delete.png", "image/png")
             });
+
+            ValidateObject(created);
 
             var result = await _jobImageAppService.Delete(created.Id);
             Assert.IsType<NoContentResult>(result);
@@ -126,6 +147,12 @@ namespace toyiyo.todo.Tests.Jobs
             await Assert.ThrowsAsync<Abp.UI.UserFriendlyException>(
                 async () => await _jobImageAppService.Get(created.Id)
             );
+        }
+
+        private void ValidateObject(object obj)
+        {
+            var validationContext = new ValidationContext(obj, null, null);
+            Validator.ValidateObject(obj, validationContext, validateAllProperties: true);
         }
     }
 }

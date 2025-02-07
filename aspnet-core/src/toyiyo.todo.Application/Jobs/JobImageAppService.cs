@@ -1,4 +1,3 @@
-
 using System;
 using System.Threading.Tasks;
 using Abp.Authorization;
@@ -28,18 +27,25 @@ namespace toyiyo.todo.Jobs
             var job = await _jobManager.Get(input.JobId);
             var user = await GetCurrentUserAsync();
 
-            var jobImage = JobImage.Create(
-                job,
-                input.ContentType,
-                input.FileName,
-                input.ImageData,
-                tenant.Id,
-                user
-            );
+            using(var ms = new System.IO.MemoryStream())
+            {
+                await input.ImageData.CopyToAsync(ms);
+                var fileBytes = ms.ToArray();
 
-            await _jobImageManager.Create(jobImage);
-            return ObjectMapper.Map<JobImageDto>(jobImage);
+                var jobImage = JobImage.Create(
+                    job,
+                    input.ContentType,
+                    input.FileName,
+                    fileBytes,
+                    tenant.Id,
+                    user
+                );
+
+                await _jobImageManager.Create(jobImage);
+                return ObjectMapper.Map<JobImageDto>(jobImage);
+            }
         }
+
         public async Task<JobImageDto> Get(Guid id)
         {
             try
