@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
+using Abp.Collections.Extensions;
 using Abp.UI;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using toyiyo.todo.Authorization;
 using toyiyo.todo.Authorization.Users;
@@ -23,14 +26,16 @@ namespace toyiyo.todo.Jobs
         private readonly UserManager _userManager;
         private readonly IMarkdownImageExtractor _imageExtractor;
         private readonly IJobImageManager _jobImageManager;
+        private readonly IJobImageAppService _jobImageAppService;
 
-        public JobAppService(IJobManager jobManager, IProjectManager projectManager, UserManager userManager, IMarkdownImageExtractor imageExtractor, IJobImageManager jobImageManager)
+        public JobAppService(IJobManager jobManager, IProjectManager projectManager, UserManager userManager, IMarkdownImageExtractor imageExtractor, IJobImageManager jobImageManager, IJobImageAppService jobImageAppService)
         {
             _jobManager = jobManager;
             _projectManager = projectManager;
             _userManager = userManager;
             _imageExtractor = imageExtractor;
             _jobImageManager = jobImageManager;
+            _jobImageAppService = jobImageAppService;
         }
         /// <summary> Creates a new Job. </summary>
         public async Task<JobDto> Create(JobCreateInputDto input)
@@ -97,32 +102,38 @@ namespace toyiyo.todo.Jobs
         private async Task<string> ExtractAndReplaceImagesInDescription(string description, User currentUser, Job job)
         {
             var images = _imageExtractor.ExtractImages(description);
-            var imageIdMap = new Dictionary<string, JobImage>();
+            var imageIdMap = new Dictionary<string, string>();
 
             foreach (var img in images)
             {
                 var imageData = Convert.FromBase64String(img.Base64Data);
                 var contentHash = JobImage.ComputeHash(imageData);
-                
+
                 // Check if image already exists
                 var existingImage = await _jobImageManager.GetByHash(contentHash);
                 if (existingImage != null)
                 {
-                    imageIdMap.Add(img.Base64Data, existingImage);
-                    continue;
+                    imageIdMap.TryAdd(img.Base64Data, existingImage.ImageUrl);
                 }
+                else
+                {                    
+                    var jobImageCreateInputDto = new JobImageCreateInputDto
+                    {
+                        JobId = job.Id,
+                        ContentType = img.ContentType,
+                        FileName = img.FileName,
+                        ImageData = new FormFile(
+                            new MemoryStream(imageData),
+                            0,
+                            imageData.Length,
+                            img.FileName,
+                            img.FileName
+                        )
+                    };
 
-                var jobImage = JobImage.Create(
-                    job,
-                    img.ContentType,
-                    img.FileName,
-                    imageData,
-                    AbpSession.TenantId.Value,
-                    currentUser
-                );
-
-                var savedImage = await _jobImageManager.Create(jobImage);
-                imageIdMap.Add(img.Base64Data, savedImage);
+                    var savedImage = await _jobImageAppService.Create(jobImageCreateInputDto);
+                    imageIdMap.TryAdd(img.Base64Data, savedImage.imageUrl);
+                }
             }
 
             return _imageExtractor.ReplaceBase64ImagesWithUrls(description, imageIdMap);
@@ -218,7 +229,7 @@ namespace toyiyo.todo.Jobs
                 return ObjectMapper.Map<JobDto>(job);
             }
             catch (Exception ex) { throw new UserFriendlyException(L("JobUpdateFailed"), ex.Message); }
-            
+
         }
 
         public async Task<JobDto> UpdateAllFields(JobUpdateInputDto input)

@@ -10,7 +10,7 @@
     const editor = new Editor({
         el: document.querySelector('#Description'),
         initialValue: $('#descriptionFromServer').val(),
-        height: '400px',
+        height: '50em',
         initialEditType: 'wysiwyg',
         previewStyle: 'vertical'
     });

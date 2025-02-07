@@ -9,7 +9,7 @@ namespace toyiyo.todo.Jobs
     public interface IMarkdownImageExtractor
     {
         IEnumerable<MarkdownImage> ExtractImages(string markdown);
-        string ReplaceBase64ImagesWithUrls(string markdown, Dictionary<string, JobImage> imageIdMap);
+        string ReplaceBase64ImagesWithUrls(string markdown, Dictionary<string, string> imageIdMap);
     }
 
     public class MarkdownImageExtractor : DomainService, IMarkdownImageExtractor
