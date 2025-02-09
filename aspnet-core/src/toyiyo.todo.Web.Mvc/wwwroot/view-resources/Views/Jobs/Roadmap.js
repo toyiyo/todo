@@ -96,7 +96,7 @@
 
             // Render jobs for this project
             group.jobs.forEach(function(job) {
-                var $jobElement = createJobElement(job);
+                var $jobElement = createJobElement(job, DAY_WIDTH, timelineStart); // Pass DAY_WIDTH here
                 positionJobElement($jobElement, job, timelineStart, DAY_WIDTH, currentRow * 90);
                 $timeline.append($jobElement);
                 currentRow++;
@@ -198,12 +198,26 @@
             },
             stop: function(event, ui) {
                 $(this).removeClass('ui-draggable-dragging');
-                const jobId = $(this).data('job-id');
+                const $element = $(this);
+                const jobId = $element.attr('data-job-id');
+                const job = $element.data('job-data');
+                
+                // Calculate new dates
                 const daysOffset = Math.round(ui.position.left / dayWidth);
                 const newStartDate = new Date(timelineStart);
                 newStartDate.setDate(newStartDate.getDate() + daysOffset);
                 
-                updateJobDates(jobId, newStartDate);
+                // Calculate end date based on job's current duration or default to one quarter
+                let newEndDate;
+                if (job.startDate && job.dueDate) {
+                    const originalDuration = new Date(job.dueDate) - new Date(job.startDate);
+                    newEndDate = new Date(newStartDate.getTime() + originalDuration);
+                } else {
+                    newEndDate = new Date(newStartDate);
+                    newEndDate.setMonth(newEndDate.getMonth() + 3); // Default to one quarter duration
+                }
+                
+                updateJobDates(jobId, newStartDate, newEndDate);
             }
         });
     }
@@ -223,26 +237,8 @@
         return intervals;
     }
 
-    function createTimelineScale(startDate, endDate, viewType) {
-        var $scale = $('<div>').addClass('timeline-scale');
-        var start = new Date(startDate);
-        var end = new Date(endDate);
-        var current = new Date(start);
 
-        while (current <= end) {
-            var label = 'Q' + (Math.floor(current.getMonth() / 3) + 1) + ' ' + current.getFullYear();
-            
-            $scale.append($('<div>')
-                .addClass('timeline-scale-marker')
-                .text(label));
-
-            current.setMonth(current.getMonth() + 3);
-        }
-
-        return $scale;
-    }
-
-    function createJobElement(job) {
+    function createJobElement(job, dayWidth, timelineStart) {
         console.log('Creating element for job:', job); // Debug log
 
         var $jobElement = $('<div>')
@@ -274,13 +270,41 @@
             .append($dates)
             .append($status);
 
-        $jobElement.draggable({
-            axis: 'x',
+        // Add resize handles
+        $jobElement.append(
+            $('<div>').addClass('roadmap-resize-handle-left'),
+            $('<div>').addClass('roadmap-resize-handle-right')
+        );
+
+        // Initialize resizable
+        $jobElement.resizable({
+            handles: {
+                e: '.roadmap-resize-handle-right',
+                w: '.roadmap-resize-handle-left'
+            },
+            grid: [dayWidth, 0],
             containment: 'parent',
+            start: function(event, ui) {
+                $(this).addClass('ui-resizable-resizing');
+            },
             stop: function(event, ui) {
-                // Handle date update based on position
-                var offsetDays = Math.round(ui.position.left / 30); // Assuming 30px per day
-                updateJobDates(job.id, offsetDays);
+                $(this).removeClass('ui-resizable-resizing');
+                const jobId = $(this).attr('data-job-id');
+                const job = $(this).data('job-data');
+                
+                // Calculate new dates based on resize
+                const daysFromStart = Math.round(ui.position.left / dayWidth);
+                const widthInDays = Math.round(ui.size.width / dayWidth);
+                
+                // Calculate new start and end dates
+                const newStartDate = new Date(timelineStart);
+                newStartDate.setDate(newStartDate.getDate() + daysFromStart);
+                
+                const newEndDate = new Date(timelineStart);
+                newEndDate.setDate(newEndDate.getDate() + daysFromStart + widthInDays);
+
+                // Update the job dates
+                updateJobDates(jobId, newStartDate, newEndDate);
             }
         });
 
@@ -292,24 +316,11 @@
         return new Date(dateString).toLocaleDateString();
     }
 
-    function updateJobDates(jobId, newStartDate) {
-        console.log('Updating dates for job:', jobId);
-        var $element = _$roadmapContainer.find('div[data-job-id="' + jobId + '"]');
-        var job = $element.data('job-data');
+    function updateJobDates(jobId, newStartDate, newEndDate) {
+        console.log('Updating dates for job:', jobId, newStartDate, newEndDate);
         
-        if (!job) {
-            console.error('Job data not found for id:', jobId);
-            return;
-        }
-
-        // Calculate new due date
-        var originalStartDate = new Date(job.startDate || job.dueDate);
-        var originalDueDate = new Date(job.dueDate);
-        var originalDuration = originalDueDate - originalStartDate;
-        var newDueDate = new Date(newStartDate.getTime() + originalDuration);
-
         // Use new updateDates method
-        _jobService.updateDates(jobId, newStartDate, newDueDate)
+        _jobService.updateDates(jobId, newStartDate, newEndDate)
             .done(function() {
                 abp.notify.success('Job dates updated');
                 loadRoadmapData();

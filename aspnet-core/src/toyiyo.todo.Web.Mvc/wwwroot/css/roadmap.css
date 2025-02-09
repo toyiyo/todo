@@ -29,6 +29,38 @@
     height: 80px;
     transition: box-shadow .15s ease-in-out;
     margin-top: 4px; /* Adjust top margin */
+    resize: none; /* Disable default resize */
+}
+
+/* Custom resize handles */
+.roadmap-resize-handle-left,
+.roadmap-resize-handle-right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    background-color: rgba(0,0,0,0.1);
+    cursor: ew-resize;
+    transition: background-color 0.2s;
+}
+
+.roadmap-resize-handle-left:hover,
+.roadmap-resize-handle-right:hover {
+    background-color: rgba(0,0,0,0.2);
+}
+
+.roadmap-resize-handle-left {
+    left: 0;
+}
+
+.roadmap-resize-handle-right {
+    right: 0;
+}
+
+/* Style while resizing */
+.ui-resizable-resizing {
+    z-index: 1000;
+    opacity: 0.8;
 }
 
 .roadmap-item:hover {
