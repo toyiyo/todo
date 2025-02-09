@@ -31,6 +31,14 @@ namespace toyiyo.todo.Web.Startup
                     )
                 ).AddItem(
                     new MenuItemDefinition(
+                        PageNames.Roadmap,
+                        L("Roadmap"),
+                        url: "Roadmap",
+                        icon: "fas fa-road",
+                        permissionDependency: new SimplePermissionDependency(PermissionNames.Pages_Jobs)
+                    )
+                ).AddItem(
+                    new MenuItemDefinition(
                         PageNames.Tenants,
                         L("Tenants"),
                         url: "Tenants",

@@ -250,10 +250,13 @@
 }
 
 .roadmap-timeline-scale-container {
-    position: relative;
+    position: sticky;
+    top: 0;
     height: 60px; /* Adjust height as needed */
     width: fit-content;
     min-width: 100%;
+    z-index: 100; /* Ensure it stays on top of other elements */
+    background-color: #fff; /* Ensure it has a background */
 }
 
 .roadmap-timeline {
