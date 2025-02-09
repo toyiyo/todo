@@ -73,13 +73,59 @@
             .addClass('roadmap-timeline')
             .css('width', timelineWidth + 'px');
 
+        // Add timeline grid and scale
+        addTimelineGridAndScale($timeline, timelineStart, timelineEnd, data.viewTypeValue, dayWidth);
+
+        // Group jobs by project
+        var projectGroups = {};
+        data.jobs.forEach(function(job) {
+            var projectId = job.project.id;
+            if (!projectGroups[projectId]) {
+                projectGroups[projectId] = {
+                    project: job.project,
+                    jobs: []
+                };
+            }
+            projectGroups[projectId].jobs.push(job);
+        });
+
+        // Track vertical position
+        var currentRow = 0;
+
+        // Render projects and their jobs
+        Object.values(projectGroups).forEach(function(group) {
+            // Add project header
+            var $projectHeader = $('<div>')
+                .addClass('roadmap-project-header')
+                .text(group.project.title)
+                .css('top', (currentRow * 90) + 'px');
+            
+            $timeline.append($projectHeader);
+            currentRow++;
+
+            // Render jobs for this project
+            group.jobs.forEach(function(job) {
+                var $jobElement = createJobElement(job);
+                positionJobElement($jobElement, job, timelineStart, dayWidth, currentRow * 90);
+                $timeline.append($jobElement);
+                currentRow++;
+            });
+
+            // Add spacing between projects
+            currentRow++;
+        });
+
+        _$roadmapContainer.append($timeline);
+        initializeDraggable(dayWidth, timelineStart);
+    }
+
+    function addTimelineGridAndScale($timeline, timelineStart, timelineEnd, viewType, dayWidth) {
         // Add timeline grid
         var $timelineGrid = $('<div>').addClass('timeline-grid');
-        var intervals = data.viewTypeValue === 'Monthly' ? 
+        var intervals = viewType === 'Monthly' ? 
             getMonthIntervals(timelineStart, timelineEnd) :
             getQuarterIntervals(timelineStart, timelineEnd);
 
-        // Use regular function instead of arrow function
         intervals.forEach(function() {
             $timelineGrid.append($('<div>').addClass('timeline-grid-line'));
         });
@@ -93,51 +139,6 @@
                 .text(interval.label));
         });
         _$roadmapContainer.append($timelineScale);
-
-        // Group jobs by parent ID
-        var jobsMap = {};
-        var rootJobs = [];
-        
-        // First, create a map of all jobs
-        data.jobs.forEach(function(job) {
-            jobsMap[job.id] = {
-                job: job,
-                children: []
-            };
-        });
-
-        // Then, organize into parent-child relationships
-        data.jobs.forEach(function(job) {
-            if (job.parentId && jobsMap[job.parentId]) {
-                jobsMap[job.parentId].children.push(job);
-            } else {
-                rootJobs.push(job);
-            }
-        });
-
-        // Track vertical position
-        var currentRow = 0;
-
-        // Render root jobs and their children
-        rootJobs.forEach(function(rootJob) {
-            var $rootElement = createJobElement(rootJob);
-            positionJobElement($rootElement, rootJob, timelineStart, dayWidth, currentRow++ * 90);
-            $timeline.append($rootElement);
-
-            // Render children if any
-            var children = jobsMap[rootJob.id] ? jobsMap[rootJob.id].children : [];
-            children.forEach(function(childJob) {
-                var $childElement = createJobElement(childJob);
-                positionJobElement($childElement, childJob, timelineStart, dayWidth, currentRow++ * 90);
-                $childElement.addClass('task-indent');
-                $timeline.append($childElement);
-            });
-        });
-
-        _$roadmapContainer.append($timeline);
-
-        // Initialize draggable
-        initializeDraggable(dayWidth, timelineStart);
     }
 
     function positionJobElement($element, job, timelineStart, dayWidth, topOffset) {
