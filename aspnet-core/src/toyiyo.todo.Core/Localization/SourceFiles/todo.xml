@@ -170,5 +170,6 @@
     <text name="SearchUser">Search user</text>
     <text name="Unassigned">Unassigned</text>
     <text name="SuggestFeature">Suggest a feature</text>
+    <text name="Roadmap">Roadmap</text>
   </texts>
 </localizationDictionary>
