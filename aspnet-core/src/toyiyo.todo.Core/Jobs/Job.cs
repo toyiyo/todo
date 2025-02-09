@@ -44,6 +44,12 @@ namespace toyiyo.todo.Jobs
         //our default ordering is by date created, give we don't have all the values in the DB, we are returning a default value in code
         public DateTime OrderByDate { get { return (_orderByDate == DateTime.MinValue) ? CreationTime : _orderByDate; } protected set { _orderByDate = value; } }
 
+        // Start date for roadmap visualization
+        public DateTime? StartDate { get; protected set; }
+    
+        // Dependencies collection
+        public virtual ICollection<Job> Dependencies { get; protected set; }
+
         /// <summary>
         /// We don't make constructor public and forcing to create events using <see cref="Create"/> method.
         /// But constructor can not be private since it's used by EntityFramework.
@@ -226,6 +232,59 @@ namespace toyiyo.todo.Jobs
             if (job.JobStatus == Status.Done) { throw new ArgumentOutOfRangeException("Cannot assign a job that is done", nameof(job.JobStatus)); }
             job.Assignee = assignee; //allowing null assignee
             SetLastModified(job, user);
+            return job;
+        }
+
+        public static Job SetStartDate(Job job, DateTime? startDate, User user)
+        {
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if (startDate.HasValue && startDate.Value > job.DueDate) 
+            { 
+                throw new ArgumentException("Start date must be before due date"); 
+            }
+
+            job.StartDate = startDate;
+            SetLastModified(job, user);
+            return job;
+        }
+
+        public static Job AddDependency(Job job, Job dependency, User user)
+        {
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (dependency == null) { throw new ArgumentNullException(nameof(dependency)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if (job.TenantId != dependency.TenantId) 
+            { 
+                throw new ArgumentException("Dependencies must be in the same tenant"); 
+            }
+
+            if (job.Dependencies == null)
+            {
+                job.Dependencies = new List<Job>();
+            }
+
+            if (!job.Dependencies.Contains(dependency))
+            {
+                job.Dependencies.Add(dependency);
+                SetLastModified(job, user);
+            }
+
+            return job;
+        }
+
+        public static Job RemoveDependency(Job job, Job dependency, User user)
+        {
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (dependency == null) { throw new ArgumentNullException(nameof(dependency)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+
+            if (job.Dependencies != null && job.Dependencies.Contains(dependency))
+            {
+                job.Dependencies.Remove(dependency);
+                SetLastModified(job, user);
+            }
+
             return job;
         }
     }

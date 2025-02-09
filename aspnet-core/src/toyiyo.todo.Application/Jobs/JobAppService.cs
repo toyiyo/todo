@@ -246,5 +246,62 @@ namespace toyiyo.todo.Jobs
             catch (Exception ex) { throw new UserFriendlyException(L("JobUpdateFailed"), ex.Message); }
 
         }
+
+        public async Task<RoadmapViewDto> GetRoadmapView(DateTime startDate, DateTime endDate, RoadmapViewDto.ViewType viewType)
+        {
+            var input = new GetAllJobsInput
+            {
+                MaxResultCount = int.MaxValue,
+                Levels = new[] { JobLevel.Epic, JobLevel.Task }
+            };
+
+            var jobs = await GetAll(input);
+
+            return new RoadmapViewDto
+            {
+                StartDate = startDate,
+                EndDate = endDate,
+                ViewTypeValue = viewType,
+                Jobs = jobs.Items
+                    .Where(j => (j.StartDate >= startDate && j.StartDate <= endDate) ||
+                               (j.DueDate >= startDate && j.DueDate <= endDate))
+                    .ToList()
+            };
+        }
+
+        public async Task<JobDto> SetStartDate(Guid id, DateTime? startDate)
+        {
+            var job = await _jobManager.Get(id);
+            var currentUser = await GetCurrentUserAsync();
+
+            job = Job.SetStartDate(job, startDate, currentUser);
+            await _jobManager.Update(job);
+
+            return ObjectMapper.Map<JobDto>(job);
+        }
+
+        public async Task<JobDto> AddDependency(Guid jobId, Guid dependencyId)
+        {
+            var job = await _jobManager.Get(jobId);
+            var dependency = await _jobManager.Get(dependencyId);
+            var currentUser = await GetCurrentUserAsync();
+
+            job = Job.AddDependency(job, dependency, currentUser);
+            await _jobManager.Update(job);
+
+            return ObjectMapper.Map<JobDto>(job);
+        }
+
+        public async Task<JobDto> RemoveDependency(Guid jobId, Guid dependencyId)
+        {
+            var job = await _jobManager.Get(jobId);
+            var dependency = await _jobManager.Get(dependencyId);
+            var currentUser = await GetCurrentUserAsync();
+
+            job = Job.RemoveDependency(job, dependency, currentUser);
+            await _jobManager.Update(job);
+
+            return ObjectMapper.Map<JobDto>(job);
+        }
     }
 }

@@ -1,0 +1,70 @@
+@using toyiyo.todo.Web.Startup
+@{
+    ViewBag.Title = L("Roadmap");
+    ViewBag.CurrentPageName = PageNames.Roadmap;
+}
+@section styles {
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="~/css/roadmap.css" asp-append-version="true">
+}
+@section scripts {
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" 
+            integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" 
+            crossorigin="anonymous"></script>
+    <environment names="Development">
+        <script src="~/view-resources/Views/Jobs/Roadmap.js" asp-append-version="true"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="~/view-resources/Views/Jobs/Roadmap.min.js" asp-append-version="true"></script>
+    </environment>
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">@L("Roadmap")</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col-md-6 mb-2 mb-md-0">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary active" id="monthlyView">
+                                <i class="fas fa-calendar-alt mr-1"></i> @L("Monthly")
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" id="quarterlyView">
+                                <i class="fas fa-calendar mr-1"></i> @L("Quarterly")
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fas fa-calendar-week"></i>
+                                </span>
+                            </div>
+                            <input type="date" class="form-control" id="startDate">
+                            <div class="input-group-prepend input-group-append">
+                                <span class="input-group-text">to</span>
+                            </div>
+                            <input type="date" class="form-control" id="endDate">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="roadmap-wrapper">
+                    <div id="roadmapContainer" class="roadmap-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
