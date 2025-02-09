@@ -9,7 +9,7 @@
     position: relative;
     padding-top: 0; /* Remove top padding */
     overflow-x: auto;
-    min-height: 600px;
+    height: calc(100vh - 100px); /* Fill the remaining height */
     background: #fff;
 }
 
@@ -235,6 +235,18 @@
     width: 100%;
     border-left: 4px solid #0d6efd;
     z-index: 4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.roadmap-collapse-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    padding: 0;
+    margin-left: 10px;
 }
 
 .roadmap-timeline-scale-container {

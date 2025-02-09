@@ -5,14 +5,14 @@
     return;
   }
 
-  var _jobService = abp.services.app.job;
-  var _$roadmapContainer = $("#roadmapContainer");
-  var _$startDate = $("#startDate");
-  var _$endDate = $("#endDate");
+  let _jobService = abp.services.app.job;
+  let _$roadmapContainer = $("#roadmapContainer");
+  let _$startDate = $("#startDate");
+  let _$endDate = $("#endDate");
 
   function initialize() {
     // Set default date range (1 year from now)
-    var today = new Date();
+    let today = new Date();
     _$startDate.val(today.toISOString().split("T")[0]);
     today.setFullYear(today.getFullYear() + 1);
     _$endDate.val(today.toISOString().split("T")[0]);
@@ -26,8 +26,8 @@
   }
 
   function loadRoadmapData() {
-    var startDate = new Date(_$startDate.val());
-    var endDate = new Date(_$endDate.val());
+    let startDate = new Date(_$startDate.val());
+    let endDate = new Date(_$endDate.val());
 
     abp.ui.setBusy(_$roadmapContainer);
     _jobService
@@ -48,29 +48,29 @@
     _$roadmapContainer.empty();
 
     // Calculate timeline dimensions
-    var timelineStart = new Date(data.startDate);
-    var timelineEnd = new Date(data.endDate);
+    let timelineStart = new Date(data.startDate);
+    let timelineEnd = new Date(data.endDate);
 
     // Set consistent start/end points at quarter boundaries
     timelineStart = getQuarterStart(timelineStart);
     timelineEnd = getQuarterEnd(timelineEnd);
 
     // Use dayWidth to calculate exact positions
-    var dayWidth = 10; // Increased dayWidth
+    let dayWidth = 10; // Increased dayWidth
 
     // Calculate total quarters and timeline width
-    var totalDays = Math.ceil(
+    let totalDays = Math.ceil(
       (timelineEnd - timelineStart) / (1000 * 60 * 60 * 24)
     );
-    var timelineWidth = Math.ceil(totalDays * dayWidth);
+    let timelineWidth = Math.ceil(totalDays * dayWidth);
 
     // Create timeline scale container
-    var $timelineScaleContainer = $("<div>")
+    let $timelineScaleContainer = $("<div>")
       .addClass("roadmap-timeline-scale-container")
       .css("width", timelineWidth + "px");
 
     // Create timeline container with calculated width
-    var $timeline = $("<div>")
+    let $timeline = $("<div>")
       .addClass("roadmap-timeline")
       .css("width", timelineWidth + "px");
 
@@ -86,9 +86,9 @@
     _$roadmapContainer.append($timelineScaleContainer);
 
     // Group jobs by project
-    var projectGroups = {};
+    let projectGroups = {};
     data.jobs.forEach(function (job) {
-      var projectId = job.project.id;
+      let projectId = job.project.id;
       if (!projectGroups[projectId]) {
         projectGroups[projectId] = {
           project: job.project,
@@ -99,22 +99,43 @@
     });
 
     // Track vertical position
-    var currentRow = 0;
+    let currentRow = 0;
 
     // Render projects and their jobs
     Object.values(projectGroups).forEach(function (group) {
       // Add project header
-      var $projectHeader = $("<div>")
+      let $projectHeader = $("<div>")
         .addClass("roadmap-project-header")
         .text(group.project.title)
         .css("top", currentRow * 90 + "px");
 
+      // Add collapse/expand button
+      let $collapseButton = $("<button>")
+        .addClass("roadmap-collapse-button")
+        .text("-")
+        .on("click", function () {
+          let $button = $(this);
+          let $projectJobs = $timeline.find(
+            `.roadmap-item[data-project-id="${group.project.id}"]`
+          );
+
+          if ($button.text() === "-") {
+            $button.text("+");
+            $projectJobs.hide();
+          } else {
+            $button.text("-");
+            $projectJobs.show();
+          }
+        });
+
+      $projectHeader.append($collapseButton);
       $timeline.append($projectHeader);
       currentRow++;
 
       // Render jobs for this project
       group.jobs.forEach(function (job) {
-        var $jobElement = createJobElement(job, dayWidth, timelineStart); // Pass dayWidth here
+        let $jobElement = createJobElement(job, dayWidth, timelineStart); // Pass dayWidth here
+        $jobElement.attr("data-project-id", group.project.id); // Add project ID to job element
         positionJobElement(
           $jobElement,
           job,
@@ -152,10 +173,10 @@
     dayWidth,
     topOffset
   ) {
-    var jobStart = job.startDate
+    let jobStart = job.startDate
       ? new Date(job.startDate)
       : new Date(timelineStart);
-    var jobEnd = job.dueDate ? new Date(job.dueDate) : new Date(jobStart);
+    let jobEnd = job.dueDate ? new Date(job.dueDate) : new Date(jobStart);
 
     if (jobStart.getTime() === jobEnd.getTime()) {
       jobEnd = new Date(jobStart);
@@ -163,12 +184,12 @@
     }
 
     // Calculate exact position and width based on days
-    var daysFromStart = (jobStart - timelineStart) / (1000 * 60 * 60 * 24);
-    var durationInDays = (jobEnd - jobStart) / (1000 * 60 * 60 * 24);
+    let daysFromStart = (jobStart - timelineStart) / (1000 * 60 * 60 * 24);
+    let durationInDays = (jobEnd - jobStart) / (1000 * 60 * 60 * 24);
 
     // Calculate position ensuring dates align with actual calendar
-    var leftPosition = Math.round(daysFromStart * dayWidth);
-    var itemWidth = Math.round(durationInDays * dayWidth);
+    let leftPosition = Math.round(daysFromStart * dayWidth);
+    let itemWidth = Math.round(durationInDays * dayWidth);
 
     $element.css({
       left: leftPosition + "px",
@@ -193,14 +214,14 @@
     timelineEnd,
     dayWidth
   ) {
-    var intervals = getMonthIntervals(timelineStart, timelineEnd);
+    let intervals = getMonthIntervals(timelineStart, timelineEnd);
 
     // Add grid lines
-    var $timelineGrid = $("<div>").addClass("timeline-grid");
+    let $timelineGrid = $("<div>").addClass("timeline-grid");
     intervals.forEach(function (interval, index) {
-      var daysFromStart =
+      let daysFromStart =
         (interval.date - timelineStart) / (1000 * 60 * 60 * 24);
-      var leftPos = Math.round(daysFromStart * dayWidth);
+      let leftPos = Math.round(daysFromStart * dayWidth);
       $timelineGrid.append(
         $("<div>")
           .addClass("timeline-grid-line")
@@ -210,11 +231,11 @@
     $timeline.append($timelineGrid);
 
     // Add month labels
-    var $timelineScale = $("<div>").addClass("timeline-scale");
+    let $timelineScale = $("<div>").addClass("timeline-scale");
     intervals.forEach(function (interval, index) {
-      var daysFromStart =
+      let daysFromStart =
         (interval.date - timelineStart) / (1000 * 60 * 60 * 24);
-      var leftPos = Math.round(daysFromStart * dayWidth);
+      let leftPos = Math.round(daysFromStart * dayWidth);
       $timelineScale.append(
         $("<div>")
           .addClass("timeline-scale-marker")
@@ -279,15 +300,15 @@
   }
 
   function createJobElement(job, dayWidth, timelineStart) {
-    var $jobElement = $("<div>")
+    let $jobElement = $("<div>")
       .addClass("roadmap-item")
       .addClass(job.level === 2 ? "roadmap-epic" : "roadmap-task")
       .attr("data-job-id", job.id) // Add this line to set the attribute
       .data("job-data", job);
 
-    var $header = $("<div>").addClass("roadmap-item-header").text(job.title);
+    let $header = $("<div>").addClass("roadmap-item-header").text(job.title);
 
-    var $dates = $("<div>").addClass("roadmap-item-dates");
+    let $dates = $("<div>").addClass("roadmap-item-dates");
 
     if (!job.startDate) {
       $dates.append(
@@ -299,7 +320,7 @@
 
     $dates.append(formatDate(job.startDate) + " - " + formatDate(job.dueDate));
 
-    var $status = $("<div>")
+    let $status = $("<div>")
       .addClass("roadmap-item-status")
       .addClass("status-" + job.jobStatus)
       .text(job.jobStatus);
@@ -312,7 +333,7 @@
     );
 
     // Create tooltip element
-    var $tooltip = $('<div>')
+    let $tooltip = $('<div>')
       .addClass('resize-tooltip')
       .hide()
       .appendTo($jobElement); // Append to $jobElement
@@ -400,18 +421,18 @@
       abp.notify.success("Job dates updated");
 
       // Find the corresponding epic element
-      var $jobElement = $(`.roadmap-item[data-job-id="${jobId}"]`);
+      let $jobElement = $(`.roadmap-item[data-job-id="${jobId}"]`);
 
       if ($jobElement.length) {
         // Update the data-job-data attribute
-        var jobData = $jobElement.data("job-data");
+        let jobData = $jobElement.data("job-data");
         jobData.exactStartDate = newStartDate;
         jobData.exactEndDate = newEndDate;
         $jobElement.data("job-data", jobData);
 
         // Update the displayed dates
-        var formattedStartDate = formatDate(newStartDate);
-        var formattedEndDate = formatDate(newEndDate);
+        let formattedStartDate = formatDate(newStartDate);
+        let formattedEndDate = formatDate(newEndDate);
         $jobElement
           .find(".roadmap-item-dates")
           .text(formattedStartDate + " - " + formattedEndDate);
