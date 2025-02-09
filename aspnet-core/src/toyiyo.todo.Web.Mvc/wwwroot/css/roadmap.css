@@ -26,7 +26,7 @@
     min-width: 200px;
     z-index: 2;
     top: 0;
-    height: 80px;
+    height: 80px !important; /* Force constant height */
     transition: box-shadow .15s ease-in-out;
     margin-top: 4px; /* Adjust top margin */
     resize: none; /* Disable default resize */
@@ -57,10 +57,24 @@
     right: 0;
 }
 
-/* Style while resizing */
+/* Ensure resizing doesn't affect height */
 .ui-resizable-resizing {
     z-index: 1000;
     opacity: 0.8;
+    height: 80px !important;
+}
+
+/* Add styles for resize tooltip */
+.resize-tooltip {
+    position: absolute;
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 1000;
+    white-space: nowrap;
 }
 
 .roadmap-item:hover {

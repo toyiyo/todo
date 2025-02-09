@@ -50,14 +50,18 @@
         var timelineStart = new Date(data.startDate);
         var timelineEnd = new Date(data.endDate);
         
+        // Set consistent start/end points at quarter boundaries
+        timelineStart = getQuarterStart(timelineStart);
+        timelineEnd = getQuarterEnd(timelineEnd);
+        
         // Constants for timeline scaling
+        const DAYS_PER_QUARTER = 91;
         const QUARTER_WIDTH = 272; // Width in pixels for each quarter
-        const DAYS_PER_QUARTER = 91; // ~91 days per quarter
-        const DAY_WIDTH = QUARTER_WIDTH / DAYS_PER_QUARTER; // Calculate day width from quarter width
+        const DAY_WIDTH = QUARTER_WIDTH / DAYS_PER_QUARTER;
 
-        // Calculate total timeline width based on quarters
-        var totalQuarters = Math.ceil(((timelineEnd - timelineStart) / (1000 * 60 * 60 * 24)) / DAYS_PER_QUARTER);
-        var timelineWidth = totalQuarters * QUARTER_WIDTH;
+        // Calculate total quarters and timeline width
+        var totalDays = Math.ceil((timelineEnd - timelineStart) / (1000 * 60 * 60 * 24));
+        var timelineWidth = Math.ceil(totalDays * DAY_WIDTH);
 
         // Create timeline container with calculated width
         var $timeline = $('<div>')
@@ -65,7 +69,7 @@
             .css('width', timelineWidth + 'px');
 
         // Add timeline grid and scale
-        addTimelineGridAndScale($timeline, timelineStart, timelineEnd, data.viewTypeValue, DAY_WIDTH);
+        addTimelineGridAndScale($timeline, timelineStart, timelineEnd, QUARTER_WIDTH);
 
         // Group jobs by project
         var projectGroups = {};
@@ -110,82 +114,89 @@
         initializeDraggable(DAY_WIDTH, timelineStart);
     }
 
-    function addTimelineGridAndScale($timeline, timelineStart, timelineEnd, viewType, dayWidth) {
-        // Add timeline grid
-        var $timelineGrid = $('<div>').addClass('timeline-grid');
-        var intervals = getQuarterIntervals(timelineStart, timelineEnd);
+    function getQuarterStart(date) {
+        const quarterMonth = Math.floor(date.getMonth() / 3) * 3;
+        return new Date(date.getFullYear(), quarterMonth, 1);
+    }
 
-        intervals.forEach(function() {
-            $timelineGrid.append($('<div>').addClass('timeline-grid-line'));
-        });
-        $timeline.append($timelineGrid);
-
-        // Add timeline scale
-        var $timelineScale = $('<div>').addClass('timeline-scale');
-        intervals.forEach(function(interval) {
-            $timelineScale.append($('<div>')
-                .addClass('timeline-scale-marker')
-                .text(interval.label));
-        });
-        _$roadmapContainer.append($timelineScale);
+    function getQuarterEnd(date) {
+        const quarterMonth = Math.floor(date.getMonth() / 3) * 3 + 2;
+        const endDate = new Date(date.getFullYear(), quarterMonth + 1, 0);
+        return endDate;
     }
 
     function positionJobElement($element, job, timelineStart, dayWidth, topOffset) {
-        const QUARTER_WIDTH = 272; // Width in pixels for each quarter
-        const DAYS_PER_QUARTER = 91; // ~91 days per quarter
-        var jobStart, jobEnd;
+        var jobStart = job.startDate ? new Date(job.startDate) : new Date(timelineStart);
+        var jobEnd = job.dueDate ? new Date(job.dueDate) : new Date(jobStart);
 
-        // Handle date calculation
-        if (job.startDate && job.dueDate) {
-            jobStart = new Date(job.startDate);
-            jobEnd = new Date(job.dueDate);
-            
-            // If same day, set to one quarter duration
-            if (jobStart.getTime() === jobEnd.getTime()) {
-                jobEnd = new Date(jobStart);
-                jobEnd.setMonth(jobEnd.getMonth() + 3);
-            }
-        } else {
-            // Default to timeline start with one quarter duration
-            jobStart = new Date(timelineStart);
-            jobEnd = new Date(timelineStart);
-            jobEnd.setMonth(jobEnd.getMonth() + 3);
+        if (jobStart.getTime() === jobEnd.getTime()) {
+            jobEnd = new Date(jobStart);
+            jobEnd.setDate(jobEnd.getDate() + 1); // Minimum 1 day duration
         }
 
-        // Calculate position
-        var daysFromStart = Math.max(0, Math.ceil((jobStart - timelineStart) / (1000 * 60 * 60 * 24)));
-        
-        // Calculate duration in quarters (rounded up)
+        // Calculate exact position and width based on days
+        var daysFromStart = Math.max(0, (jobStart - timelineStart) / (1000 * 60 * 60 * 24));
         var durationInDays = Math.ceil((jobEnd - jobStart) / (1000 * 60 * 60 * 24));
-        var quarters = Math.ceil(durationInDays / DAYS_PER_QUARTER);
         
-        // Set width to exact number of quarters
-        var width = quarters * QUARTER_WIDTH;
-        
-        // Position the element
+        // Calculate position ensuring dates align with actual calendar
+        var leftPosition = Math.floor(daysFromStart * dayWidth);
+        var itemWidth = Math.ceil(durationInDays * dayWidth);
+
         $element.css({
-            left: (daysFromStart * dayWidth) + 'px',
-            width: width + 'px',
+            left: leftPosition + 'px',
+            width: itemWidth + 'px',
             top: topOffset + 'px'
         });
 
-        // Visual indicators for incomplete dates
-        $element
-            .toggleClass('no-start-date', !job.startDate)
-            .toggleClass('no-end-date', !job.dueDate)
-            .toggleClass('no-dates', !job.startDate && !job.dueDate);
-
-        // Store the job data
-        $element.data('job-data', job);
-
-        // Debug info
-        console.log('Positioned job:', {
-            title: job.title,
-            start: jobStart,
-            end: jobEnd,
-            left: daysFromStart * dayWidth,
-            width: width
+        // Store exact dates
+        $element.data('job-data', {
+            ...job,
+            exactStartDate: jobStart,
+            exactEndDate: jobEnd
         });
+    }
+
+    function addTimelineGridAndScale($timeline, timelineStart, timelineEnd, quarterWidth) {
+        var intervals = getQuarterIntervals(timelineStart, timelineEnd);
+        
+        // Add grid lines
+        var $timelineGrid = $('<div>').addClass('timeline-grid');
+        intervals.forEach(function(interval, index) {
+            $timelineGrid.append(
+                $('<div>')
+                    .addClass('timeline-grid-line')
+                    .css('left', (index * quarterWidth) + 'px')
+            );
+        });
+        $timeline.append($timelineGrid);
+
+        // Add quarter labels
+        var $timelineScale = $('<div>').addClass('timeline-scale');
+        intervals.forEach(function(interval, index) {
+            $timelineScale.append(
+                $('<div>')
+                    .addClass('timeline-scale-marker')
+                    .css('left', (index * quarterWidth) + 'px')
+                    .text(interval.label)
+            );
+        });
+        $timeline.append($timelineScale);
+    }
+
+    function getQuarterIntervals(start, end) {
+        const intervals = [];
+        let current = new Date(start);
+        
+        while (current <= end) {
+            const quarter = Math.floor(current.getMonth() / 3) + 1;
+            intervals.push({
+                date: new Date(current),
+                label: `Q${quarter} ${current.getFullYear()}`
+            });
+            current.setMonth(current.getMonth() + 3);
+        }
+        
+        return intervals;
     }
 
     function initializeDraggable(dayWidth, timelineStart) {
@@ -237,7 +248,6 @@
         return intervals;
     }
 
-
     function createJobElement(job, dayWidth, timelineStart) {
         console.log('Creating element for job:', job); // Debug log
 
@@ -276,6 +286,12 @@
             $('<div>').addClass('roadmap-resize-handle-right')
         );
 
+        // Create tooltip element
+        var $tooltip = $('<div>')
+            .addClass('resize-tooltip')
+            .hide()
+            .appendTo('body');
+
         // Initialize resizable
         $jobElement.resizable({
             handles: {
@@ -287,23 +303,48 @@
             start: function(event, ui) {
                 $(this).addClass('ui-resizable-resizing');
             },
+            resize: function(event, ui) {
+                const position = ui.position.left;
+                const width = ui.size.width;
+                
+                // Calculate exact dates based on days
+                const daysFromStart = Math.round(position / dayWidth);
+                const durationDays = Math.round(width / dayWidth);
+                
+                const startDate = new Date(timelineStart);
+                startDate.setDate(startDate.getDate() + daysFromStart);
+                
+                const endDate = new Date(timelineStart);
+                endDate.setDate(endDate.getDate() + daysFromStart + durationDays);
+                
+                // Format dates for tooltip
+                const tooltipContent = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+                $tooltip
+                    .text(tooltipContent)
+                    .css({
+                        top: ui.position.top - 25,
+                        left: ui.position.left + (ui.size.width / 2) - ($tooltip.width() / 2)
+                    })
+                    .show();
+            },
             stop: function(event, ui) {
                 $(this).removeClass('ui-resizable-resizing');
+                $tooltip.hide();
+                
                 const jobId = $(this).attr('data-job-id');
-                const job = $(this).data('job-data');
+                const position = ui.position.left;
+                const width = ui.size.width;
                 
-                // Calculate new dates based on resize
-                const daysFromStart = Math.round(ui.position.left / dayWidth);
-                const widthInDays = Math.round(ui.size.width / dayWidth);
+                // Calculate exact dates for update
+                const daysFromStart = Math.round(position / dayWidth);
+                const durationDays = Math.round(width / dayWidth);
                 
-                // Calculate new start and end dates
                 const newStartDate = new Date(timelineStart);
                 newStartDate.setDate(newStartDate.getDate() + daysFromStart);
                 
                 const newEndDate = new Date(timelineStart);
-                newEndDate.setDate(newEndDate.getDate() + daysFromStart + widthInDays);
-
-                // Update the job dates
+                newEndDate.setDate(newEndDate.getDate() + daysFromStart + durationDays);
+                
                 updateJobDates(jobId, newStartDate, newEndDate);
             }
         });
@@ -311,10 +352,15 @@
         return $jobElement;
     }
 
-    function formatDate(dateString) {
-        if (!dateString) return 'Not set';
-        return new Date(dateString).toLocaleDateString();
+    function formatDate(date) {
+        if (!date) return 'Not set';
+        return new Date(date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
     }
+
 
     function updateJobDates(jobId, newStartDate, newEndDate) {
         console.log('Updating dates for job:', jobId, newStartDate, newEndDate);
