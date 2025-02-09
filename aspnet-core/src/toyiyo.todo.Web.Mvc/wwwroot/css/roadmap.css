@@ -208,13 +208,14 @@
     display: flex;
     pointer-events: none;
     z-index: 1;
+    height: 100%; /* Extend grid to full height */
 }
 
 .timeline-grid-line {
     min-width: 200px;
     flex: 1;
     border-right: 1px dashed rgba(0,0,0,.125);
-    height: 100%;
+    height: 100%; /* Extend grid lines to full height */
 }
 
 .ui-draggable-dragging {
@@ -249,4 +250,5 @@
     margin-top: 0;
     width: fit-content;
     min-width: 100%;
+    z-index: 2; /* Ensure timeline is above the grid */
 }

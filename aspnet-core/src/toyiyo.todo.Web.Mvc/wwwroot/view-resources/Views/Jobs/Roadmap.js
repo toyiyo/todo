@@ -56,7 +56,7 @@
     timelineEnd = getQuarterEnd(timelineEnd);
 
     // Use dayWidth to calculate exact positions
-    var dayWidth = 3;
+    var dayWidth = 10; // Increased dayWidth
 
     // Calculate total quarters and timeline width
     var totalDays = Math.ceil(
