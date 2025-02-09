@@ -320,12 +320,7 @@
 
     $dates.append(formatDate(job.startDate) + " - " + formatDate(job.dueDate));
 
-    let $status = $("<div>")
-      .addClass("roadmap-item-status")
-      .addClass("status-" + job.jobStatus)
-      .text(job.jobStatus);
-
-    $jobElement.append($header).append($dates).append($status);
+    $jobElement.append($header).append($dates);
 
     // Add resize handles
     $jobElement.append(
