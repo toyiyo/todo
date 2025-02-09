@@ -287,5 +287,17 @@ namespace toyiyo.todo.Jobs
 
             return job;
         }
+
+        public static Job SetDates(Job job, DateTime startDate, DateTime dueDate, User user)
+        {
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if (startDate > dueDate) { throw new ArgumentException("Start date must be before due date"); }
+
+            job.StartDate = startDate;
+            job.DueDate = dueDate;
+            SetLastModified(job, user);
+            return job;
+        }
     }
 }

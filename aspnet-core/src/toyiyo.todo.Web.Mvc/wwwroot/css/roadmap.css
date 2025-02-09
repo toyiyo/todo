@@ -33,11 +33,24 @@
 
 .roadmap-item:hover {
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+    opacity: 1;
 }
 
 .roadmap-item.no-start-date {
     opacity: 0.8;
+    border-left-style: dashed;
+}
+
+.roadmap-item.no-end-date {
+    opacity: 0.8;
+    border-right-style: dashed;
+}
+
+.roadmap-item.no-dates {
+    opacity: 0.7;
     border-style: dashed;
+    background-image: linear-gradient(45deg, rgba(0,0,0,0.05) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.05) 75%, transparent 75%, transparent);
+    background-size: 16px 16px;
 }
 
 .roadmap-item.no-start-date:hover {

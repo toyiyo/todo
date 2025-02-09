@@ -62,11 +62,11 @@
         _$roadmapContainer.empty();
 
         // Calculate timeline dimensions
-        const timelineStart = new Date(data.startDate);
-        const timelineEnd = new Date(data.endDate);
-        const totalDays = Math.ceil((timelineEnd - timelineStart) / (1000 * 60 * 60 * 24));
-        const dayWidth = 25;
-        const timelineWidth = Math.max(totalDays * dayWidth, _$roadmapContainer.width());
+        var timelineStart = new Date(data.startDate);
+        var timelineEnd = new Date(data.endDate);
+        var totalDays = Math.ceil((timelineEnd - timelineStart) / (1000 * 60 * 60 * 24));
+        var dayWidth = 25;
+        var timelineWidth = Math.max(totalDays * dayWidth, _$roadmapContainer.width());
 
         // Create timeline container
         var $timeline = $('<div>')
@@ -79,14 +79,15 @@
             getMonthIntervals(timelineStart, timelineEnd) :
             getQuarterIntervals(timelineStart, timelineEnd);
 
-        intervals.forEach(() => {
+        // Use regular function instead of arrow function
+        intervals.forEach(function() {
             $timelineGrid.append($('<div>').addClass('timeline-grid-line'));
         });
         $timeline.append($timelineGrid);
 
         // Add timeline scale
         var $timelineScale = $('<div>').addClass('timeline-scale');
-        intervals.forEach(interval => {
+        intervals.forEach(function(interval) {
             $timelineScale.append($('<div>')
                 .addClass('timeline-scale-marker')
                 .text(interval.label));
@@ -94,39 +95,39 @@
         _$roadmapContainer.append($timelineScale);
 
         // Group jobs by parent ID
-        const jobsMap = new Map();
-        const rootJobs = [];
+        var jobsMap = {};
+        var rootJobs = [];
         
         // First, create a map of all jobs
-        data.jobs.forEach(job => {
-            jobsMap.set(job.id, {
+        data.jobs.forEach(function(job) {
+            jobsMap[job.id] = {
                 job: job,
                 children: []
-            });
+            };
         });
 
         // Then, organize into parent-child relationships
-        data.jobs.forEach(job => {
-            if (job.parentId && jobsMap.has(job.parentId)) {
-                jobsMap.get(job.parentId).children.push(job);
+        data.jobs.forEach(function(job) {
+            if (job.parentId && jobsMap[job.parentId]) {
+                jobsMap[job.parentId].children.push(job);
             } else {
                 rootJobs.push(job);
             }
         });
 
         // Track vertical position
-        let currentRow = 0;
+        var currentRow = 0;
 
         // Render root jobs and their children
-        rootJobs.forEach(rootJob => {
-            const $rootElement = createJobElement(rootJob);
+        rootJobs.forEach(function(rootJob) {
+            var $rootElement = createJobElement(rootJob);
             positionJobElement($rootElement, rootJob, timelineStart, dayWidth, currentRow++ * 90);
             $timeline.append($rootElement);
 
             // Render children if any
-            const children = jobsMap.get(rootJob.id)?.children || [];
-            children.forEach(childJob => {
-                const $childElement = createJobElement(childJob);
+            var children = jobsMap[rootJob.id] ? jobsMap[rootJob.id].children : [];
+            children.forEach(function(childJob) {
+                var $childElement = createJobElement(childJob);
                 positionJobElement($childElement, childJob, timelineStart, dayWidth, currentRow++ * 90);
                 $childElement.addClass('task-indent');
                 $timeline.append($childElement);
@@ -140,43 +141,65 @@
     }
 
     function positionJobElement($element, job, timelineStart, dayWidth, topOffset) {
-        // If no start date, calculate backwards from due date
-        let jobStart, jobEnd;
+        var jobStart, jobEnd;
         
-        if (job.startDate) {
+        // Handle date calculation
+        if (job.startDate && job.dueDate) {
+            // Both dates set
             jobStart = new Date(job.startDate);
-            jobEnd = new Date(job.dueDate || timelineStart);
-        } else if (job.dueDate) {
             jobEnd = new Date(job.dueDate);
-            // If only due date is set, assume 2 weeks duration
+        } else if (job.startDate) {
+            // Only start date - assume 1 month duration
+            jobStart = new Date(job.startDate);
+            jobEnd = new Date(jobStart);
+            jobEnd.setMonth(jobEnd.getMonth() + 1);
+        } else if (job.dueDate) {
+            // Only end date - position 1 month before
+            jobEnd = new Date(job.dueDate);
             jobStart = new Date(jobEnd);
-            jobStart.setDate(jobEnd.getDate() - 14);
+            jobStart.setMonth(jobStart.getMonth() - 1);
         } else {
-            // If neither date is set, position at timeline start with default duration
+            // No dates set - position at timeline start
             jobStart = new Date(timelineStart);
             jobEnd = new Date(timelineStart);
-            jobEnd.setDate(jobEnd.getDate() + 14);
+            jobEnd.setMonth(jobEnd.getMonth() + 1);
         }
 
-        const daysFromStart = Math.ceil((jobStart - timelineStart) / (1000 * 60 * 60 * 24));
-        const jobDuration = Math.ceil((jobEnd - jobStart) / (1000 * 60 * 60 * 24));
+        // Ensure dates are valid
+        if (jobStart == 'Invalid Date' || jobEnd == 'Invalid Date') {
+            jobStart = new Date(timelineStart);
+            jobEnd = new Date(timelineStart);
+            jobEnd.setMonth(jobEnd.getMonth() + 1);
+            console.warn('Invalid dates for job:', job.title, 'Using default dates');
+        }
+
+        // Calculate position
+        var daysFromStart = Math.max(0, Math.ceil((jobStart - timelineStart) / (1000 * 60 * 60 * 24)));
+        var jobDuration = Math.max(30, Math.ceil((jobEnd - jobStart) / (1000 * 60 * 60 * 24)));
         
+        // Position the element
         $element.css({
             left: (daysFromStart * dayWidth) + 'px',
             width: Math.max((jobDuration * dayWidth), 200) + 'px',
-            top: topOffset + 'px'    // Use provided top offset instead of nth-child
+            top: topOffset + 'px'
         });
 
-        // Add visual indicator for items without start date
-        if (!job.startDate) {
-            $element.addClass('no-start-date');
-        }
+        // Visual indicators for incomplete dates
+        $element
+            .toggleClass('no-start-date', !job.startDate)
+            .toggleClass('no-end-date', !job.dueDate)
+            .toggleClass('no-dates', !job.startDate && !job.dueDate);
 
-        $element.data('job-data', {
-            startDate: jobStart,
-            dueDate: jobEnd,
-            duration: jobDuration,
-            hasStartDate: !!job.startDate
+        // Store the job data
+        $element.data('job-data', job);
+
+        // Debug info
+        console.log('Positioned job:', {
+            title: job.title,
+            start: jobStart,
+            end: jobEnd,
+            left: daysFromStart * dayWidth,
+            width: jobDuration * dayWidth
         });
     }
 
@@ -256,10 +279,13 @@
     }
 
     function createJobElement(job) {
+        console.log('Creating element for job:', job); // Debug log
+
         var $jobElement = $('<div>')
             .addClass('roadmap-item')
             .addClass(job.level === 2 ? 'roadmap-epic' : 'roadmap-task')
-            .data('job-id', job.id);
+            .attr('data-job-id', job.id) // Add this line to set the attribute
+            .data('job-data', job);
 
         var $header = $('<div>')
             .addClass('roadmap-item-header')
@@ -303,19 +329,28 @@
     }
 
     function updateJobDates(jobId, newStartDate) {
-        var job = _$roadmapContainer.find(`[data-job-id="${jobId}"]`).data('job-data');
-        if (!job) return;
+        console.log('Updating dates for job:', jobId);
+        var $element = _$roadmapContainer.find('div[data-job-id="' + jobId + '"]');
+        var job = $element.data('job-data');
+        
+        if (!job) {
+            console.error('Job data not found for id:', jobId);
+            return;
+        }
 
-        const duration = job.dueDate - job.startDate;
-        const newDueDate = new Date(newStartDate.getTime() + duration);
+        // Calculate new due date
+        var originalStartDate = new Date(job.startDate || job.dueDate);
+        var originalDueDate = new Date(job.dueDate);
+        var originalDuration = originalDueDate - originalStartDate;
+        var newDueDate = new Date(newStartDate.getTime() + originalDuration);
 
-        _jobService.setStartDate(jobId, newStartDate)
-            .then(() => _jobService.setDueDate(jobId, newDueDate))
-            .then(() => {
+        // Use new updateDates method
+        _jobService.updateDates(jobId, newStartDate, newDueDate)
+            .done(function() {
                 abp.notify.success('Job dates updated');
                 loadRoadmapData();
             })
-            .catch(err => {
+            .fail(function(err) {
                 abp.notify.error('Failed to update job dates');
                 console.error(err);
                 loadRoadmapData();

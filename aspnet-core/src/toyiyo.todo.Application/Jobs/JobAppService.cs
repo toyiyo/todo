@@ -252,20 +252,39 @@ namespace toyiyo.todo.Jobs
             var input = new GetAllJobsInput
             {
                 MaxResultCount = int.MaxValue,
-                Levels = new[] { JobLevel.Epic, JobLevel.Task }
+                Levels = new[] { JobLevel.Epic }
             };
 
             var jobs = await GetAll(input);
+            
+            // Include all epics that:
+            // 1. Have start OR end date within range
+            // 2. Have start date or due date at default value (will be placed at start of timeline)
+            // 3. Span across the range (start before, end after)
+            var filteredJobs = jobs.Items.Where(j => 
+                // No dates set (both at default)
+                (j.StartDate == default && j.DueDate == default) ||
+                // Only start date set (due date at default) and it's in range
+                (j.StartDate != default && j.DueDate == default && j.StartDate <= endDate) ||
+                // Only due date set (start date at default) and it's in range
+                (j.StartDate == default && j.DueDate != default && j.DueDate >= startDate) ||
+                // Both dates set and either:
+                // - Start date is in range
+                // - End date is in range
+                // - Dates span across the range
+                (j.StartDate != default && j.DueDate != default && (
+                    (j.StartDate <= endDate && j.StartDate >= startDate) ||
+                    (j.DueDate >= startDate && j.DueDate <= endDate) ||
+                    (j.StartDate <= startDate && j.DueDate >= endDate)
+                ))
+            ).ToList();
 
             return new RoadmapViewDto
             {
                 StartDate = startDate,
                 EndDate = endDate,
                 ViewTypeValue = viewType,
-                Jobs = jobs.Items
-                    .Where(j => (j.StartDate >= startDate && j.StartDate <= endDate) ||
-                               (j.DueDate >= startDate && j.DueDate <= endDate))
-                    .ToList()
+                Jobs = filteredJobs
             };
         }
 
@@ -299,6 +318,18 @@ namespace toyiyo.todo.Jobs
             var currentUser = await GetCurrentUserAsync();
 
             job = Job.RemoveDependency(job, dependency, currentUser);
+            await _jobManager.Update(job);
+
+            return ObjectMapper.Map<JobDto>(job);
+        }
+
+        public async Task<JobDto> UpdateDates(Guid id, DateTime startDate, DateTime dueDate)
+        {
+            var job = await _jobManager.Get(id);
+            var currentUser = await GetCurrentUserAsync();
+
+            // Temporarily remove the validation to allow setting both dates
+            job = Job.SetDates(job, startDate, dueDate, currentUser);
             await _jobManager.Update(job);
 
             return ObjectMapper.Map<JobDto>(job);
