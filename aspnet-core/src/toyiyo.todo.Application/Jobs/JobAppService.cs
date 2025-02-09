@@ -247,7 +247,7 @@ namespace toyiyo.todo.Jobs
 
         }
 
-        public async Task<RoadmapViewDto> GetRoadmapView(DateTime startDate, DateTime endDate, RoadmapViewDto.ViewType viewType)
+        public async Task<RoadmapViewDto> GetRoadmapView(DateTime startDate, DateTime endDate)
         {
             var input = new GetAllJobsInput
             {
@@ -283,7 +283,6 @@ namespace toyiyo.todo.Jobs
             {
                 StartDate = startDate,
                 EndDate = endDate,
-                ViewTypeValue = viewType,
                 Jobs = filteredJobs
             };
         }

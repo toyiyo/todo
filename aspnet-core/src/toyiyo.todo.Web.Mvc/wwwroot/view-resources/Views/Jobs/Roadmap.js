@@ -7,34 +7,20 @@
 
     var _jobService = abp.services.app.job;
     var _$roadmapContainer = $('#roadmapContainer');
-    var _$monthlyViewBtn = $('#monthlyView');
-    var _$quarterlyViewBtn = $('#quarterlyView');
     var _$startDate = $('#startDate');
     var _$endDate = $('#endDate');
 
     function initialize() {
-        // Set default date range (6 months from now)
+        // Set default date range (1 year from now)
         var today = new Date();
         _$startDate.val(today.toISOString().split('T')[0]);
-        today.setMonth(today.getMonth() + 6);
+        today.setFullYear(today.getFullYear() + 1);
         _$endDate.val(today.toISOString().split('T')[0]);
 
         // Initialize view
         loadRoadmapData();
 
         // Bind events
-        _$monthlyViewBtn.click(function() {
-            _$monthlyViewBtn.addClass('active');
-            _$quarterlyViewBtn.removeClass('active');
-            loadRoadmapData();
-        });
-
-        _$quarterlyViewBtn.click(function() {
-            _$quarterlyViewBtn.addClass('active');
-            _$monthlyViewBtn.removeClass('active');
-            loadRoadmapData();
-        });
-
         _$startDate.change(loadRoadmapData);
         _$endDate.change(loadRoadmapData);
     }
@@ -42,10 +28,9 @@
     function loadRoadmapData() {
         var startDate = new Date(_$startDate.val());
         var endDate = new Date(_$endDate.val());
-        var viewType = _$monthlyViewBtn.hasClass('active') ? 'Monthly' : 'Quarterly';
 
         abp.ui.setBusy(_$roadmapContainer);
-        _jobService.getRoadmapView(startDate, endDate, viewType)
+        _jobService.getRoadmapView(startDate, endDate)
             .done(function (result) {
                 renderRoadmap(result);
             })
@@ -122,9 +107,7 @@
     function addTimelineGridAndScale($timeline, timelineStart, timelineEnd, viewType, dayWidth) {
         // Add timeline grid
         var $timelineGrid = $('<div>').addClass('timeline-grid');
-        var intervals = viewType === 'Monthly' ? 
-            getMonthIntervals(timelineStart, timelineEnd) :
-            getQuarterIntervals(timelineStart, timelineEnd);
+        var intervals = getQuarterIntervals(timelineStart, timelineEnd);
 
         intervals.forEach(function() {
             $timelineGrid.append($('<div>').addClass('timeline-grid-line'));
@@ -224,21 +207,6 @@
         });
     }
 
-    function getMonthIntervals(start, end) {
-        const intervals = [];
-        let current = new Date(start);
-        
-        while (current <= end) {
-            intervals.push({
-                date: new Date(current),
-                label: current.toLocaleString('default', { month: 'short', year: 'numeric' })
-            });
-            current.setMonth(current.getMonth() + 1);
-        }
-        
-        return intervals;
-    }
-
     function getQuarterIntervals(start, end) {
         const intervals = [];
         let current = new Date(start);
@@ -261,19 +229,13 @@
         var current = new Date(start);
 
         while (current <= end) {
-            var label = viewType === 'Monthly' 
-                ? current.toLocaleString('default', { month: 'short', year: 'numeric' })
-                : 'Q' + (Math.floor(current.getMonth() / 3) + 1) + ' ' + current.getFullYear();
+            var label = 'Q' + (Math.floor(current.getMonth() / 3) + 1) + ' ' + current.getFullYear();
             
             $scale.append($('<div>')
                 .addClass('timeline-scale-marker')
                 .text(label));
 
-            if (viewType === 'Monthly') {
-                current.setMonth(current.getMonth() + 1);
-            } else {
-                current.setMonth(current.getMonth() + 3);
-            }
+            current.setMonth(current.getMonth() + 3);
         }
 
         return $scale;

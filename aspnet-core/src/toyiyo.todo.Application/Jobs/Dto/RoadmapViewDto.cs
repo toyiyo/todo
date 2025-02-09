@@ -19,22 +19,8 @@ namespace toyiyo.todo.Jobs.Dto
         public DateTime EndDate { get; set; }
 
         /// <summary>
-        /// Type of view for the roadmap
-        /// </summary>
-        public ViewType ViewTypeValue { get; set; }
-
-        /// <summary>
         /// List of jobs in the roadmap
         /// </summary>
         public List<JobDto> Jobs { get; set; }
-
-        /// <summary>
-        /// Defines the type of view for the roadmap
-        /// </summary>
-        public enum ViewType
-        {
-            Monthly,
-            Quarterly
-        }
     }
 }
