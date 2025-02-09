@@ -183,21 +183,6 @@
         $timeline.append($timelineScale);
     }
 
-    function getQuarterIntervals(start, end) {
-        const intervals = [];
-        let current = new Date(start);
-        
-        while (current <= end) {
-            const quarter = Math.floor(current.getMonth() / 3) + 1;
-            intervals.push({
-                date: new Date(current),
-                label: `Q${quarter} ${current.getFullYear()}`
-            });
-            current.setMonth(current.getMonth() + 3);
-        }
-        
-        return intervals;
-    }
 
     function initializeDraggable(dayWidth, timelineStart) {
         $('.roadmap-item').draggable({
