@@ -253,12 +253,74 @@
       grid: [dayWidth, 0],
       start: function (event, ui) {
         $(this).addClass("ui-draggable-dragging");
+        // Show tooltip on drag start
+        const $element = $(this);
+        const job = $element.data("job-data");
+        const originalStartDate = job.exactStartDate || new Date(job.startDate) || timelineStart;
+        const $tooltip = $element.find('.resize-tooltip');
+
+        // Calculate new dates based on current position
+        const daysOffset = Math.round(ui.position.left / dayWidth);
+        const newStartDate = new Date(timelineStart);
+        newStartDate.setDate(newStartDate.getDate() + daysOffset);
+
+        // Calculate end date based on job's current duration
+        let newEndDate;
+        if (job.exactStartDate && job.exactEndDate) {
+          const originalDuration = job.exactEndDate.getTime() - job.exactStartDate.getTime();
+          newEndDate = new Date(newStartDate.getTime() + originalDuration);
+        } else {
+          newEndDate = new Date(newStartDate);
+          newEndDate.setMonth(newEndDate.getMonth() + 3); // Default to one quarter duration
+        }
+
+        const tooltipContent = `${formatDate(newStartDate)} - ${formatDate(newEndDate)}`;
+        $tooltip
+          .text(tooltipContent)
+          .css({
+            top: 0, // Position at the top of the roadmap-item
+            left: ui.position.left + 10, // Position to the right of the handle
+          })
+          .show();
+      },
+      drag: function (event, ui) {
+        // Update tooltip content on drag
+        const $element = $(this);
+        const job = $element.data("job-data");
+        const originalStartDate = job.exactStartDate || new Date(job.startDate) || timelineStart;
+        const $tooltip = $element.find('.resize-tooltip');
+
+        // Calculate new dates based on current position
+        const daysOffset = Math.round(ui.position.left / dayWidth);
+        const newStartDate = new Date(timelineStart);
+        newStartDate.setDate(newStartDate.getDate() + daysOffset);
+
+        // Calculate end date based on job's current duration
+        let newEndDate;
+        if (job.exactStartDate && job.exactEndDate) {
+          const originalDuration = job.exactEndDate.getTime() - job.exactStartDate.getTime();
+          newEndDate = new Date(newStartDate.getTime() + originalDuration);
+        } else {
+          newEndDate = new Date(newStartDate);
+          newEndDate.setMonth(newEndDate.getMonth() + 3); // Default to one quarter duration
+        }
+
+        const tooltipContent = `${formatDate(newStartDate)} - ${formatDate(newEndDate)}`;
+        $tooltip
+          .text(tooltipContent)
+          .css({
+            top: 0, // Position at the top of the roadmap-item
+            left: 10, // Position to the right of the handle, relative to the item
+          })
       },
       stop: function (event, ui) {
         $(this).removeClass("ui-draggable-dragging");
+        // Hide tooltip on drag stop
         const $element = $(this);
         const jobId = $element.attr("data-job-id");
         const job = $element.data("job-data");
+        const $tooltip = $element.find('.resize-tooltip');
+        $tooltip.hide();
 
         // Calculate new dates
         const daysOffset = Math.round(ui.position.left / dayWidth);
@@ -268,8 +330,7 @@
         // Calculate end date based on job's current duration
         let newEndDate;
         if (job.exactStartDate && job.exactEndDate) {
-          const originalDuration =
-            job.exactEndDate.getTime() - job.exactStartDate.getTime();
+          const originalDuration = job.exactEndDate.getTime() - job.exactStartDate.getTime();
           newEndDate = new Date(newStartDate.getTime() + originalDuration);
         } else {
           newEndDate = new Date(newStartDate);
