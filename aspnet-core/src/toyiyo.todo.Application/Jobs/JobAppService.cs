@@ -42,7 +42,7 @@ namespace toyiyo.todo.Jobs
         {
             var tenant = await GetCurrentTenantAsync();
             var project = await _projectManager.Get(input.ProjectId);
-            var job = Job.Create(project, input.Title, input.Description, await GetCurrentUserAsync(), tenant.Id, input.DueDate ?? default, input.ParentId ?? default, input.Level);
+            var job = Job.Create(project, input.Title, input.Description, await GetCurrentUserAsync(), tenant.Id, input.DueDate ?? default, input.ParentId ?? default, input.Level, input.StartDate);
             await _jobManager.Create(job);
             return ObjectMapper.Map<JobDto>(job);
         }

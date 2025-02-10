@@ -28,5 +28,6 @@ namespace toyiyo.todo.Jobs
 
         public Guid? ParentId { get; set;}
         public JobLevel Level { get; set; }
+        public DateTime? StartDate { get; set; }
     }
 }

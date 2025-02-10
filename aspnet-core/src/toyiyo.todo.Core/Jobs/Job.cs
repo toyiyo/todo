@@ -71,8 +71,9 @@ namespace toyiyo.todo.Jobs
         /// <param name="dueDate">The due date of the job (optional).</param>
         /// <param name="parentId">The ID of the parent job (optional).</param>
         /// <param name="jobLevel">The level of the job (optional). Defaults to task.  Options are Task, SubTask, Epic</param>
+        /// <param name="startDate">The start date of the job (optional).</param>
         /// <returns>The newly created job.</returns>
-        public static Job Create(Project project, string title, string description, User user, int tenantId, DateTime dueDate = default, Guid parentId = default, JobLevel jobLevel = 0)
+        public static Job Create(Project project, string title, string description, User user, int tenantId, DateTime dueDate = default, Guid parentId = default, JobLevel jobLevel = 0, DateTime? startDate = null)
         {
             if (user == null) { throw new ArgumentNullException(nameof(user)); }
             if (tenantId <= 0) { throw new ArgumentNullException(nameof(tenantId)); }
@@ -95,6 +96,7 @@ namespace toyiyo.todo.Jobs
             SetTitle(job, title, user);
             SetDescription(job, description, user);
             SetDueDate(job, dueDate, user);
+            SetStartDate(job, startDate, user);
             SetLevel(job, jobLevel, user);
             
             // Set parent last since it depends on the level being set

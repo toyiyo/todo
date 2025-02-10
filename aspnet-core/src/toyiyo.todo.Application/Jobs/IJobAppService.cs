@@ -22,5 +22,11 @@ namespace toyiyo.todo.Jobs
         Task<JobDto> SetLevel(JobSetLevelInputDto input);
         Task<JobDto> SetAssignee(JobSetAssigneeInputDto input);
         Task<JobDto> UpdateAllFields(JobUpdateInputDto input);
+        Task<RoadmapViewDto> GetRoadmapView(DateTime startDate, DateTime endDate);
+        Task<JobDto> SetStartDate(Guid id, DateTime? startDate);
+        Task<JobDto> AddDependency(Guid jobId, Guid dependencyId);
+        Task<JobDto> RemoveDependency(Guid jobId, Guid dependencyId);
+        Task<JobDto> UpdateDates(Guid id, DateTime startDate, DateTime dueDate);
+
     }
 }
