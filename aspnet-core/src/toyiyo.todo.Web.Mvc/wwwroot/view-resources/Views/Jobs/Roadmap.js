@@ -218,7 +218,7 @@
 
     // Add grid lines
     let $timelineGrid = $("<div>").addClass("timeline-grid");
-    intervals.forEach(function (interval, index) {
+    intervals.forEach(function (interval) {
       let daysFromStart =
         (interval.date - timelineStart) / (1000 * 60 * 60 * 24);
       let leftPos = Math.round(daysFromStart * dayWidth);
@@ -232,7 +232,7 @@
 
     // Add month labels
     let $timelineScale = $("<div>").addClass("timeline-scale");
-    intervals.forEach(function (interval, index) {
+    intervals.forEach(function (interval) {
       let daysFromStart =
         (interval.date - timelineStart) / (1000 * 60 * 60 * 24);
       let leftPos = Math.round(daysFromStart * dayWidth);
@@ -256,7 +256,6 @@
         // Show tooltip on drag start
         const $element = $(this);
         const job = $element.data("job-data");
-        const originalStartDate = job.exactStartDate || new Date(job.startDate) || timelineStart;
         const $tooltip = $element.find('.resize-tooltip');
 
         // Calculate new dates based on current position
@@ -287,7 +286,6 @@
         // Update tooltip content on drag
         const $element = $(this);
         const job = $element.data("job-data");
-        const originalStartDate = job.exactStartDate || new Date(job.startDate) || timelineStart;
         const $tooltip = $element.find('.resize-tooltip');
 
         // Calculate new dates based on current position
@@ -345,7 +343,8 @@
   function getMonthIntervals(start, end) {
     const intervals = [];
     let current = new Date(start);
-
+    // Loop until current date exceeds the end date
+    // SonarQube: end is used as a boundary condition and is not intended to be modified
     while (current <= end) {
       intervals.push({
         date: new Date(current),
@@ -401,7 +400,7 @@
       },
       grid: [dayWidth, 0],
       containment: 'parent',
-      start: function (event, ui) {
+      start: function () {
         $(this).addClass("ui-resizable-resizing");
       },
       resize: function (event, ui) {
