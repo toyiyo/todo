@@ -10,5 +10,6 @@
         public const string Jobs = "Jobs";
         public const string Subscriptions = "Subscriptions";
         public const string Invitations = "Invitations";
+        public const string Roadmap = "Roadmap";
     }
 }

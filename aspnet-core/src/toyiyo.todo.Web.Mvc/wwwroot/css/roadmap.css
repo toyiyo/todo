@@ -1,0 +1,269 @@
+.roadmap-wrapper {
+    position: relative;
+    background: #f8f9fa;
+    border-top: 1px solid rgba(0,0,0,.125);
+    overflow: hidden; /* Contain the timeline */
+}
+
+.roadmap-container {
+    position: relative;
+    padding-top: 0; /* Remove top padding */
+    overflow-x: auto;
+    height: calc(100vh - 100px); /* Fill the remaining height */
+    background: #fff;
+}
+
+/* Remove the nth-child positioning since we're using absolute positioning with calculated tops */
+.roadmap-item {
+    position: absolute;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: .25rem;
+    padding: .75rem;
+    margin: 4px 0;
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    cursor: move;
+    min-width: 200px;
+    z-index: 2;
+    top: 0;
+    height: 80px !important; /* Force constant height */
+    transition: box-shadow .15s ease-in-out;
+    margin-top: 4px; /* Adjust top margin */
+    resize: none; /* Disable default resize */
+}
+
+/* Custom resize handles */
+.roadmap-resize-handle-left,
+.roadmap-resize-handle-right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    background-color: rgba(0,0,0,0.1);
+    cursor: ew-resize;
+    transition: background-color 0.2s;
+}
+
+.roadmap-resize-handle-left:hover,
+.roadmap-resize-handle-right:hover {
+    background-color: rgba(0,0,0,0.2);
+}
+
+.roadmap-resize-handle-left {
+    left: 0;
+}
+
+.roadmap-resize-handle-right {
+    right: 0;
+}
+
+/* Ensure resizing doesn't affect height */
+.ui-resizable-resizing {
+    z-index: 1000;
+    opacity: 0.8;
+    height: 80px !important;
+}
+
+/* Add styles for resize tooltip */
+.resize-tooltip {
+    position: absolute;
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 1000;
+    white-space: nowrap;
+    top: 100%; /* Position below the roadmap-item */
+    left: 0;
+    margin-top: 5px; /* Add some spacing */
+}
+
+.roadmap-item:hover {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+    opacity: 1;
+}
+
+.roadmap-item.no-start-date {
+    opacity: 0.8;
+    border-left-style: dashed;
+}
+
+.roadmap-item.no-end-date {
+    opacity: 0.8;
+    border-right-style: dashed;
+}
+
+.roadmap-item.no-dates {
+    opacity: 0.7;
+    border-style: dashed;
+    background-image: linear-gradient(45deg, rgba(0,0,0,0.05) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.05) 75%, transparent 75%, transparent);
+    background-size: 16px 16px;
+}
+
+.roadmap-item.no-start-date:hover {
+    opacity: 1;
+}
+
+.roadmap-item.no-start-date .roadmap-item-dates {
+    color: #856404;
+    background-color: #fff3cd;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+.roadmap-epic {
+    background-color: #cfe2ff;
+    border-left: 4px solid #0d6efd;
+    z-index: 3;
+}
+
+.roadmap-task {
+    background-color: #fff;
+    border-left: 4px solid #6c757d;
+}
+
+.roadmap-item-header {
+    font-weight: 500;
+    font-size: .875rem;
+    margin-bottom: .5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.roadmap-item-dates {
+    font-size: .75rem;
+    color: #6c757d;
+    margin-bottom: .5rem;
+}
+
+.roadmap-item-status {
+    display: inline-block;
+    padding: .25rem .5rem;
+    font-size: .75rem;
+    font-weight: 500;
+    border-radius: .25rem;
+}
+
+.status-Open {
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+.status-InProgress {
+    background-color: #cff4fc;
+    color: #055160;
+}
+
+.status-Done {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.roadmap-controls {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+/* Timeline visualization */
+.timeline-scale {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2em;
+    background: #fff;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+    display: flex;
+    z-index: 1030;
+    margin-bottom: 20px; /* Add space between scale and items */
+}
+
+.timeline-scale-marker {
+    min-width: 200px;
+    flex: 1;
+    text-align: center;
+    font-size: .875rem;
+    padding: .5rem;
+    border-right: 1px solid rgba(0,0,0,.125);
+    background: #fff;
+    white-space: nowrap;
+}
+
+.task-indent {
+    margin-left: 30px;
+}
+
+.timeline-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    pointer-events: none;
+    z-index: 1;
+    height: 100%; /* Extend grid to full height */
+}
+
+.timeline-grid-line {
+    min-width: 200px;
+    flex: 1;
+    border-right: 1px dashed rgba(0,0,0,.125);
+    height: 100%; /* Extend grid lines to full height */
+}
+
+.ui-draggable-dragging {
+    z-index: 1040;
+}
+
+.roadmap-project-header {
+    position: absolute;
+    left: 0;
+    padding: 10px;
+    margin: 5px 0;
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #495057;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    width: 100%;
+    border-left: 4px solid #0d6efd;
+    z-index: 4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.roadmap-collapse-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    padding: 0;
+    margin-left: 10px;
+}
+
+.roadmap-timeline-scale-container {
+    position: sticky;
+    top: 0;
+    height: 60px; /* Adjust height as needed */
+    width: fit-content;
+    min-width: 100%;
+    z-index: 100; /* Ensure it stays on top of other elements */
+    background-color: #fff; /* Ensure it has a background */
+}
+
+.roadmap-timeline {
+    position: relative;
+    padding: 1rem;
+    margin-top: 0;
+    width: fit-content;
+    min-width: 100%;
+    z-index: 2; /* Ensure timeline is above the grid */
+}

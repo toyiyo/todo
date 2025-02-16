@@ -34,8 +34,6 @@ namespace toyiyo.todo.Jobs
         public DateTime DueDate { get; protected set; }
         public User Owner { get; protected set; }
         public User Assignee { get; protected set; }
-        //todo: reintroduce members many to many relationship later
-        //public virtual ICollection<User> Members { get; protected set; }
         public Status JobStatus { get; protected set; }
         public JobLevel Level { get; protected set; }
         public Guid ParentId { get; protected set; }
@@ -43,6 +41,12 @@ namespace toyiyo.todo.Jobs
         public virtual int TenantId { get; set; }
         //our default ordering is by date created, give we don't have all the values in the DB, we are returning a default value in code
         public DateTime OrderByDate { get { return (_orderByDate == DateTime.MinValue) ? CreationTime : _orderByDate; } protected set { _orderByDate = value; } }
+
+        // Start date for roadmap visualization
+        public DateTime? StartDate { get; protected set; }
+    
+        // Dependencies collection
+        public virtual ICollection<Job> Dependencies { get; protected set; }
 
         /// <summary>
         /// We don't make constructor public and forcing to create events using <see cref="Create"/> method.
@@ -65,8 +69,9 @@ namespace toyiyo.todo.Jobs
         /// <param name="dueDate">The due date of the job (optional).</param>
         /// <param name="parentId">The ID of the parent job (optional).</param>
         /// <param name="jobLevel">The level of the job (optional). Defaults to task.  Options are Task, SubTask, Epic</param>
+        /// <param name="startDate">The start date of the job (optional).</param>
         /// <returns>The newly created job.</returns>
-        public static Job Create(Project project, string title, string description, User user, int tenantId, DateTime dueDate = default, Guid parentId = default, JobLevel jobLevel = 0)
+        public static Job Create(Project project, string title, string description, User user, int tenantId, DateTime dueDate = default, Guid parentId = default, JobLevel jobLevel = 0, DateTime? startDate = null)
         {
             if (user == null) { throw new ArgumentNullException(nameof(user)); }
             if (tenantId <= 0) { throw new ArgumentNullException(nameof(tenantId)); }
@@ -89,6 +94,7 @@ namespace toyiyo.todo.Jobs
             SetTitle(job, title, user);
             SetDescription(job, description, user);
             SetDueDate(job, dueDate, user);
+            SetStartDate(job, startDate, user);
             SetLevel(job, jobLevel, user);
             
             // Set parent last since it depends on the level being set
@@ -103,9 +109,17 @@ namespace toyiyo.todo.Jobs
         public static Job SetTitle(Job job, string title, User user)
         {
             //validate parameters
-            if (job == null || title == null || user == null)
+            if (job == null)
             {
-                throw new ArgumentNullException(nameof(job) + " " + nameof(title) + " " + nameof(user));
+                throw new ArgumentNullException(nameof(job));
+            }
+            if (title == null)
+            {
+                throw new ArgumentNullException(nameof(title));
+            }
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
             }
 
             job.Title = title;
@@ -128,9 +142,13 @@ namespace toyiyo.todo.Jobs
         public static Job SetDescription(Job job, string description, User user)
         {
             //validate parameters
-            if (job == null || user == null)
+            if (job == null)
             {
-                throw new ArgumentNullException(nameof(job) + " " + nameof(user));
+                throw new ArgumentNullException(nameof(job));
+            }
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
             }
 
             job.Description = description;
@@ -225,6 +243,103 @@ namespace toyiyo.todo.Jobs
             if (assignee != null && !assignee.IsActive) {throw new ArgumentOutOfRangeException(nameof(assignee), "assignee must be active");}
             if (job.JobStatus == Status.Done) { throw new ArgumentOutOfRangeException("Cannot assign a job that is done", nameof(job.JobStatus)); }
             job.Assignee = assignee; //allowing null assignee
+            SetLastModified(job, user);
+            return job;
+        }
+
+        public static Job SetStartDate(Job job, DateTime? startDate, User user)
+        {
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if (startDate.HasValue && startDate.Value > job.DueDate) 
+            { 
+                throw new ArgumentException("Start date must be before due date"); 
+            }
+
+            job.StartDate = startDate;
+            SetLastModified(job, user);
+            return job;
+        }
+
+        public static Job AddDependency(Job job, Job dependency, User user)
+        {
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (dependency == null) { throw new ArgumentNullException(nameof(dependency)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if (job.TenantId != dependency.TenantId) 
+            { 
+                throw new ArgumentException("Dependencies must be in the same tenant"); 
+            }
+
+            if (job.Dependencies == null)
+            {
+                job.Dependencies = new List<Job>();
+            }
+
+            if (HasCircularDependency(job, dependency))
+            {
+                throw new InvalidOperationException("Circular dependency detected");
+            }
+
+            if (!job.Dependencies.Contains(dependency))
+            {
+                job.Dependencies.Add(dependency);
+                SetLastModified(job, user);
+            }
+
+            return job;
+        }
+
+        private static bool HasCircularDependency(Job job, Job dependency)
+        {
+            if (job == null || dependency == null) return false;
+            if (job.Dependencies == null) return false;
+
+            var visited = new HashSet<Job>();
+            var stack = new Stack<Job>();
+            stack.Push(job);
+
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+                if (current.Dependencies == null) continue;
+
+                foreach (var dep in current.Dependencies)
+                {
+                    if (dep == dependency) return true;
+                    if (visited.Add(dep))
+                    {
+                        stack.Push(dep);
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public static Job RemoveDependency(Job job, Job dependency, User user)
+        {
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (dependency == null) { throw new ArgumentNullException(nameof(dependency)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+
+            if (job.Dependencies != null && job.Dependencies.Contains(dependency))
+            {
+                job.Dependencies.Remove(dependency);
+                SetLastModified(job, user);
+            }
+
+            return job;
+        }
+
+        public static Job SetDates(Job job, DateTime startDate, DateTime dueDate, User user)
+        {
+            if (job == null) { throw new ArgumentNullException(nameof(job)); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if (startDate > dueDate) { throw new ArgumentException("Start date must be before due date"); }
+
+            job.StartDate = startDate;
+            job.DueDate = dueDate;
             SetLastModified(job, user);
             return job;
         }

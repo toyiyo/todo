@@ -7,6 +7,7 @@ namespace toyiyo.todo.Jobs
     public class JobCreateInputDto
     {
         /// <summary>
+        /// Validates that the start date is not after the due date.
         /// The job's title, there is a max length of 500 characters
         /// </summary>
         [Required]
@@ -28,5 +29,25 @@ namespace toyiyo.todo.Jobs
 
         public Guid? ParentId { get; set;}
         public JobLevel Level { get; set; }
+        /// <summary>
+        /// Date when the job starts.  Start dates can't be set to the past.  Date is UTC
+        /// </summary>
+        [CustomValidation(typeof(JobCreateInputDto), nameof(ValidateStartDate))]
+        public DateTime? StartDate { get; set; }
+        /// <summary>
+        /// Validation method for start date
+        /// </summary>
+        /// <param name="startDate"></param>
+        /// <param name="validationContext"></param>
+        /// <returns></returns>
+        public static ValidationResult ValidateStartDate(DateTime? startDate, ValidationContext validationContext)
+        {
+            var instance = (JobCreateInputDto)validationContext.ObjectInstance;
+            if (startDate.HasValue && instance.DueDate.HasValue && startDate.Value > instance.DueDate.Value)
+            {
+                return new ValidationResult("Start date cannot be after due date");
+            }
+            return ValidationResult.Success;
+        }
     }
 }

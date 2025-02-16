@@ -42,7 +42,7 @@ namespace toyiyo.todo.Jobs
         {
             var tenant = await GetCurrentTenantAsync();
             var project = await _projectManager.Get(input.ProjectId);
-            var job = Job.Create(project, input.Title, input.Description, await GetCurrentUserAsync(), tenant.Id, input.DueDate ?? default, input.ParentId ?? default, input.Level);
+            var job = Job.Create(project, input.Title, input.Description, await GetCurrentUserAsync(), tenant.Id, input.DueDate ?? default, input.ParentId ?? default, input.Level, input.StartDate);
             await _jobManager.Create(job);
             return ObjectMapper.Map<JobDto>(job);
         }
@@ -245,6 +245,93 @@ namespace toyiyo.todo.Jobs
             }
             catch (Exception ex) { throw new UserFriendlyException(L("JobUpdateFailed"), ex.Message); }
 
+        }
+
+        public async Task<RoadmapViewDto> GetRoadmapView(DateTime startDate, DateTime endDate)
+        {
+            var input = new GetAllJobsInput
+            {
+                MaxResultCount = int.MaxValue,
+                Levels = new[] { JobLevel.Epic }
+            };
+
+            var jobs = await GetAll(input);
+            
+            // Include all epics that:
+            // 1. Have start OR end date within range
+            // 2. Have start date or due date at default value (will be placed at start of timeline)
+            // 3. Span across the range (start before, end after)
+            var filteredJobs = jobs.Items.Where(j => 
+                // No dates set (both at default)
+                (j.StartDate == default && j.DueDate == default) ||
+                // Only start date set (due date at default) and it's in range
+                (j.StartDate != default && j.DueDate == default && j.StartDate <= endDate) ||
+                // Only due date set (start date at default) and it's in range
+                (j.StartDate == default && j.DueDate != default && j.DueDate >= startDate) ||
+                // Both dates set and either:
+                // - Start date is in range
+                // - End date is in range
+                // - Dates span across the range
+                (j.StartDate != default && j.DueDate != default && (
+                    (j.StartDate <= endDate && j.StartDate >= startDate) ||
+                    (j.DueDate >= startDate && j.DueDate <= endDate) ||
+                    (j.StartDate <= startDate && j.DueDate >= endDate)
+                ))
+            ).ToList();
+
+            return new RoadmapViewDto
+            {
+                StartDate = startDate,
+                EndDate = endDate,
+                Jobs = filteredJobs
+            };
+        }
+
+        public async Task<JobDto> SetStartDate(Guid id, DateTime? startDate)
+        {
+            var job = await _jobManager.Get(id);
+            var currentUser = await GetCurrentUserAsync();
+
+            job = Job.SetStartDate(job, startDate, currentUser);
+            await _jobManager.Update(job);
+
+            return ObjectMapper.Map<JobDto>(job);
+        }
+
+        public async Task<JobDto> AddDependency(Guid jobId, Guid dependencyId)
+        {
+            var job = await _jobManager.Get(jobId);
+            var dependency = await _jobManager.Get(dependencyId);
+            var currentUser = await GetCurrentUserAsync();
+
+            job = Job.AddDependency(job, dependency, currentUser);
+            await _jobManager.Update(job);
+
+            return ObjectMapper.Map<JobDto>(job);
+        }
+
+        public async Task<JobDto> RemoveDependency(Guid jobId, Guid dependencyId)
+        {
+            var job = await _jobManager.Get(jobId);
+            var dependency = await _jobManager.Get(dependencyId);
+            var currentUser = await GetCurrentUserAsync();
+
+            job = Job.RemoveDependency(job, dependency, currentUser);
+            await _jobManager.Update(job);
+
+            return ObjectMapper.Map<JobDto>(job);
+        }
+
+        public async Task<JobDto> UpdateDates(Guid id, DateTime startDate, DateTime dueDate)
+        {
+            var job = await _jobManager.Get(id);
+            var currentUser = await GetCurrentUserAsync();
+
+            // Temporarily remove the validation to allow setting both dates
+            job = Job.SetDates(job, startDate, dueDate, currentUser);
+            await _jobManager.Update(job);
+
+            return ObjectMapper.Map<JobDto>(job);
         }
     }
 }
