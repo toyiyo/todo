@@ -34,8 +34,6 @@ namespace toyiyo.todo.Jobs
         public DateTime DueDate { get; protected set; }
         public User Owner { get; protected set; }
         public User Assignee { get; protected set; }
-        //todo: reintroduce members many to many relationship later
-        //public virtual ICollection<User> Members { get; protected set; }
         public Status JobStatus { get; protected set; }
         public JobLevel Level { get; protected set; }
         public Guid ParentId { get; protected set; }
@@ -111,9 +109,17 @@ namespace toyiyo.todo.Jobs
         public static Job SetTitle(Job job, string title, User user)
         {
             //validate parameters
-            if (job == null || title == null || user == null)
+            if (job == null)
             {
-                throw new ArgumentNullException(nameof(job) + " " + nameof(title) + " " + nameof(user));
+                throw new ArgumentNullException(nameof(job));
+            }
+            if (title == null)
+            {
+                throw new ArgumentNullException(nameof(title));
+            }
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
             }
 
             job.Title = title;
@@ -136,9 +142,13 @@ namespace toyiyo.todo.Jobs
         public static Job SetDescription(Job job, string description, User user)
         {
             //validate parameters
-            if (job == null || user == null)
+            if (job == null)
             {
-                throw new ArgumentNullException(nameof(job) + " " + nameof(user));
+                throw new ArgumentNullException(nameof(job));
+            }
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
             }
 
             job.Description = description;
@@ -266,6 +276,11 @@ namespace toyiyo.todo.Jobs
                 job.Dependencies = new List<Job>();
             }
 
+            if (HasCircularDependency(job, dependency))
+            {
+                throw new InvalidOperationException("Circular dependency detected");
+            }
+
             if (!job.Dependencies.Contains(dependency))
             {
                 job.Dependencies.Add(dependency);
@@ -273,6 +288,33 @@ namespace toyiyo.todo.Jobs
             }
 
             return job;
+        }
+
+        private static bool HasCircularDependency(Job job, Job dependency)
+        {
+            if (job == null || dependency == null) return false;
+            if (job.Dependencies == null) return false;
+
+            var visited = new HashSet<Job>();
+            var stack = new Stack<Job>();
+            stack.Push(job);
+
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+                if (current.Dependencies == null) continue;
+
+                foreach (var dep in current.Dependencies)
+                {
+                    if (dep == dependency) return true;
+                    if (visited.Add(dep))
+                    {
+                        stack.Push(dep);
+                    }
+                }
+            }
+
+            return false;
         }
 
         public static Job RemoveDependency(Job job, Job dependency, User user)
