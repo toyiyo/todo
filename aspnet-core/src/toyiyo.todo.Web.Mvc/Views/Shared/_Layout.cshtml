@@ -11,5 +11,30 @@
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" 
             integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" 
             crossorigin="anonymous"></script>
+    <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/lib/abp-web-resources/Abp/Framework/scripts/libs/abp.signalr-client.js"></script>
     // ...existing code...
+    @RenderSection("scripts", required: false)
+    <script>
+        // Initialize notification handlers
+        abp.event.on('abp.notifications.received', function (userNotification) {
+            abp.notifications.showUiNotifyForUserNotification(userNotification);
+            playNotificationSound();
+        });
+
+        // Register notification formatters
+        abp.notifications.messageFormatters['toyiyo.todo.Notifications.NotificationData.NoteMentionNotificationData'] = function (userNotification) {
+            var data = userNotification.notification.data;
+            return abp.utils.formatString('@L("NoteMentionNotification")', 
+                data.senderUsername,
+                data.jobTitle,
+                data.noteContent);
+        };
+
+        function playNotificationSound() {
+            var audio = new Audio('/sounds/notification.mp3');
+            audio.play();
+        }
+    </script>
 </body>
+</html>

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using toyiyo.todo.EntityFrameworkCore;
@@ -11,9 +12,10 @@ using toyiyo.todo.EntityFrameworkCore;
 namespace toyiyo.todo.Migrations
 {
     [DbContext(typeof(todoDbContext))]
-    partial class todoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250220043806_Notes")]
+    partial class Notes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1841,57 +1843,6 @@ namespace toyiyo.todo.Migrations
                     b.ToTable("AbpTenants");
                 });
 
-            modelBuilder.Entity("toyiyo.todo.Notes.Note", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long?>("CreatorUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("DeleterUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("JobId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long?>("LastModifierUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid?>("ParentNoteId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatorUserId");
-
-                    b.HasIndex("JobId");
-
-                    b.HasIndex("ParentNoteId");
-
-                    b.ToTable("Notes");
-                });
-
             modelBuilder.Entity("toyiyo.todo.Projects.Project", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2217,29 +2168,6 @@ namespace toyiyo.todo.Migrations
                     b.Navigation("LastModifierUser");
                 });
 
-            modelBuilder.Entity("toyiyo.todo.Notes.Note", b =>
-                {
-                    b.HasOne("toyiyo.todo.Authorization.Users.User", "Author")
-                        .WithMany()
-                        .HasForeignKey("CreatorUserId");
-
-                    b.HasOne("toyiyo.todo.Jobs.Job", "Job")
-                        .WithMany()
-                        .HasForeignKey("JobId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("toyiyo.todo.Notes.Note", "ParentNote")
-                        .WithMany("Replies")
-                        .HasForeignKey("ParentNoteId");
-
-                    b.Navigation("Author");
-
-                    b.Navigation("Job");
-
-                    b.Navigation("ParentNote");
-                });
-
             modelBuilder.Entity("Abp.Application.Features.EditionFeatureSetting", b =>
                 {
                     b.HasOne("Abp.Application.Editions.Edition", "Edition")
@@ -2314,11 +2242,6 @@ namespace toyiyo.todo.Migrations
             modelBuilder.Entity("toyiyo.todo.Jobs.Job", b =>
                 {
                     b.Navigation("Dependencies");
-                });
-
-            modelBuilder.Entity("toyiyo.todo.Notes.Note", b =>
-                {
-                    b.Navigation("Replies");
                 });
 #pragma warning restore 612, 618
         }

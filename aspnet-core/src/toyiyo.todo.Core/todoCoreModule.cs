@@ -15,6 +15,7 @@ using toyiyo.todo.Configuration;
 using toyiyo.todo.Email;
 using toyiyo.todo.Localization;
 using toyiyo.todo.MultiTenancy;
+using toyiyo.todo.Notifications;
 using toyiyo.todo.Timing;
 
 namespace toyiyo.todo
@@ -25,6 +26,7 @@ namespace toyiyo.todo
         public override void PreInitialize()
         {
             Configuration.ReplaceService<IEmailSender, SendGridEmailSender>();
+            Configuration.Notifications.Providers.Add<TodoNotificationProvider>();
             Configuration.Auditing.IsEnabledForAnonymousUsers = true;
 
             // Declare entity types
