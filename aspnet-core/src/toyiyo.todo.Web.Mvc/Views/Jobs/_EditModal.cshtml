@@ -116,21 +116,13 @@
     @await Html.PartialAsync("~/Views/Shared/Modals/_ModalFooterWithSaveAndCancel.cshtml")
 </form>
 
-<!-- Add Tribute.js for mentions -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tributejs/5.1.3/tribute.min.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tributejs/5.1.3/tribute.min.js"></script>
-
-<!-- Add required libraries -->
+<!-- Only keep marked.js here since we moved Tribute.js to layout -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
 <script type="text/javascript">
-    // Wait for libraries to load
+    // Remove Tribute check since it's now in layout
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof marked === 'undefined') {
             console.error('Marked library not loaded');
-            return;
-        }
-        if (typeof Sortable === 'undefined') {
-            console.error('Sortable library not loaded');
             return;
         }
 

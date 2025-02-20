@@ -263,7 +263,7 @@
         });
     }
 
-    // Update createNoteElement to use jQuery's text() for safe HTML encoding
+    // Update createNoteElement to handle nested replies
     function createNoteElement(note) {
         var $note = $('<div/>', {
             class: 'note mb-3',
@@ -290,6 +290,19 @@
 
         $header.append($authorInfo, $actions);
         $note.append($header, $content);
+
+        // Add replies section if there are replies
+        if (note.replies && note.replies.length > 0) {
+            var $repliesSection = $('<div/>', {
+                class: 'replies-section ml-4 mt-2'
+            });
+
+            note.replies.forEach(reply => {
+                $repliesSection.append(createNoteElement(reply));
+            });
+
+            $note.append($repliesSection);
+        }
 
         return $note;
     }
@@ -525,56 +538,61 @@
         }
     }
 
-    function initializeMentions() {
-        const tribute = new Tribute({
-            trigger: '@',
-            values: function (text, cb) {
-                const userLookupService = abp.services.app.userLookup;
-                userLookupService.searchUsers(text).done(function(users) {
-                    const menuItems = users.map(user => ({
-                        key: user.userName,
-                        value: user.displayName,
-                        email: user.emailAddress
-                    }));
-                    cb(menuItems);
-                });
-            },
-            menuItemTemplate: function (item) {
-                return `<span class="user-mention">
-                    <strong>${item.original.key}</strong>
-                    <small>${item.original.value}</small>
-                </span>`;
-            },
-            selectTemplate: function (item) {
-                return `@${item.original.key}`;
-            },
-            noMatchTemplate: function () {
-                return '<span style="visibility: hidden;"></span>';
-            },
-            searchOpts: {
-                pre: '',
-                post: '',
-                skip: true
-            }
-        });
-
-        // Attach to note textarea
-        tribute.attach(document.getElementById('noteContent'));
+    // Update the initializeMentions function with a retry mechanism
+    function initializeMentions(retryCount = 0) {
+        const maxRetries = 5;
         
-        // Attach to reply textareas as they're created
-        $(document).on('focus', '.reply-form textarea', function() {
-            if (!this.tribute) {
-                tribute.attach(this);
+        if (!window.isTributeLoaded || typeof Tribute === 'undefined') {
+            if (retryCount < maxRetries) {
+                console.log(`Tribute not loaded, retrying... (${retryCount + 1}/${maxRetries})`);
+                setTimeout(() => initializeMentions(retryCount + 1), 200);
+                return;
             }
-        });
+            console.error('Failed to load Tribute after multiple attempts');
+            return;
+        }
+
+        try {
+            const tribute = new Tribute({
+                // ...existing tribute config...
+            });
+
+            // Attach to note textarea and any existing reply textareas
+            const noteContent = document.getElementById('noteContent');
+            if (noteContent && !noteContent.tribute) {
+                tribute.attach(noteContent);
+                console.log('Tribute attached to noteContent');
+            }
+            
+            $('.reply-form textarea').each(function() {
+                if (!this.tribute) {
+                    tribute.attach(this);
+                    console.log('Tribute attached to reply textarea');
+                }
+            });
+            
+            // Attach to new reply textareas as they're created
+            $(document).on('focus', '.reply-form textarea', function() {
+                if (!this.tribute) {
+                    tribute.attach(this);
+                    console.log('Tribute attached to new reply textarea');
+                }
+            });
+
+            console.log('Mentions initialized successfully');
+        } catch (error) {
+            console.error('Error initializing mentions:', error);
+        }
     }
 
     // Update document ready handler
     $(document).ready(function() {
+        console.log('Document ready, initializing components...');
+        
         initializeSignalR();
         initializeNotes();
         initializeMentions();
-        
+
         // Remove duplicate event handlers
         $('.add-note-button').off('click').on('click', function(e) {
             e.preventDefault();

@@ -2,6 +2,7 @@
 <head>
     // ...existing code...
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.css" />
     // ...existing code...
 </head>
 
@@ -11,6 +12,11 @@
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" 
             integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" 
             crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.min.js"></script>
+    <script>
+        // Add a global variable to track Tribute availability
+        window.isTributeLoaded = true;
+    </script>
     <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
     <script src="~/lib/abp-web-resources/Abp/Framework/scripts/libs/abp.signalr-client.js"></script>
     // ...existing code...
@@ -22,13 +28,27 @@
             playNotificationSound();
         });
 
-        // Register notification formatters
-        abp.notifications.messageFormatters['toyiyo.todo.Notifications.NotificationData.NoteMentionNotificationData'] = function (userNotification) {
+        // Update notification formatter registration
+        abp.notifications.messageFormatters['Abp.Notifications.LocalizableMessageNotificationData'] = function(userNotification) {
+            return abp.localization.localize(
+                userNotification.notification.data.message.name,
+                userNotification.notification.data.message.sourceName
+            );
+        };
+
+        abp.notifications.messageFormatters['toyiyo.todo.Notifications.NoteMentionNotificationData'] = function(userNotification) {
             var data = userNotification.notification.data;
-            return abp.utils.formatString('@L("NoteMentionNotification")', 
-                data.senderUsername,
-                data.jobTitle,
-                data.noteContent);
+            return abp.localization.localize(
+                'UserMentionedNotification',
+                'todo',
+                [data.senderUsername, data.jobTitle]
+            );
+        };
+
+        // Register default formatter
+        abp.notifications.messageFormatters['default'] = function(userNotification) {
+            console.log('Notification data:', userNotification);
+            return userNotification.notification.data.message || 'No message available';
         };
 
         function playNotificationSound() {
