@@ -233,8 +233,8 @@
         let _currentPage = 1;
         const _pageSize = 10;
 
+        // Remove the cancel-reply event handler
         $(document).on('click', '.reply-button', handleReplyButtonClick);
-        $(document).on('click', '.cancel-reply', handleCancelReplyClick);
         $(document).on('click', '.delete-button', handleDeleteButtonClick);
         $(document).on('click', '.edit-button', handleEditButtonClick);
 
@@ -255,9 +255,16 @@
             console.log('Notes loaded:', result); // Debug
             const $notesList = $('#notesList');
             $notesList.empty();
+            
+            // Sort notes by creation time if needed
+            result.items.sort((a, b) => new Date(a.creationTime) - new Date(b.creationTime));
+            
             result.items.forEach(note => {
-                const $noteElement = createNoteElement(note);
-                $notesList.append($noteElement);
+                // Only process parent notes
+                if (!note.parentNoteId) {
+                    const $noteElement = createNoteElement(note);
+                    $notesList.append($noteElement);
+                }
             });
         }).always(function () {
             abp.ui.clearBusy($notesContainer);
@@ -292,59 +299,106 @@
         $header.append($authorInfo, $actions);
         $note.append($header, $content);
 
-        // Add replies section if there are replies
-        if (note.replies && note.replies.length > 0) {
+        // Only show thread section for parent notes (notes without a parentNoteId)
+        if (!note.parentNoteId) {
+            // Create thread container
+            var $threadContainer = $('<div/>', {
+                class: 'thread-container mt-2',
+                // Only hide if there are no replies
+                style: note.replies && note.replies.length > 0 ? '' : 'display: none;'
+            });
+
             var $repliesSection = $('<div/>', {
-                class: 'replies-section pl-4 mt-2 border-left'  // Added pl-4 for padding-left and border-left
+                class: 'replies-section pl-4 border-left'
             });
 
-            note.replies.forEach(reply => {
-                $repliesSection.append(createNoteElement(reply));
-            });
+            // If note has replies, add them to the thread
+            if (note.replies && note.replies.length > 0) {
+                note.replies.forEach(reply => {
+                    $repliesSection.append(createReplyElement(reply));
+                });
+            }
 
-            $note.append($repliesSection);
+            // Create persistent reply form at the bottom of thread
+            const $replyForm = createReplyForm();
+            $replyForm.addClass('mt-3'); // Add some spacing above the form
+
+            $threadContainer.append($repliesSection, $replyForm);
+            $note.append($threadContainer);
         }
 
         return $note;
     }
 
-    // Add these functions after the createNoteElement function
+    function createReplyElement(reply) {
+        var $reply = $('<div/>', {
+            class: 'reply mb-2',
+            'data-note-id': reply.id
+        });
+
+        var $header = $('<div/>', {
+            class: 'reply-header d-flex justify-content-between align-items-center'
+        });
+
+        var $authorInfo = $('<div/>');
+        $('<strong/>').text(reply.authorName).appendTo($authorInfo);
+        $('<small/>', {
+            class: 'text-muted ml-2'
+        }).text(moment(reply.creationTime).fromNow()).appendTo($authorInfo);
+
+        var $actions = $('<div/>', {
+            class: 'reply-actions'
+        }).html(getActionsHtml(reply));
+
+        var $content = $('<div/>', {
+            class: 'reply-content'
+        }).html(formatNoteContent(reply.content));
+
+        $header.append($authorInfo, $actions);
+        $reply.append($header, $content);
+
+        return $reply;
+    }
+
     function handleReplyButtonClick(e) {
         e.preventDefault();
         e.stopPropagation();
 
         const $note = $(this).closest('.note');
-        const $replyForm = $(`
-            <div class="reply-form mt-2">
-                <textarea class="form-control" rows="2" placeholder="${l('WriteReplyHere')}"></textarea>
-                <div class="mt-2">
-                    <button type="button" class="btn btn-primary btn-sm submit-reply">${l('Reply')}</button>
-                    <button type="button" class="btn btn-secondary btn-sm cancel-reply">${l('Cancel')}</button>
-                </div>
-            </div>
-        `);
-
-        // Remove existing reply form if any
-        $note.find('.reply-form').remove();
-
-        // Add new reply form
-        $note.append($replyForm);
-        $replyForm.find('textarea').focus();
+        const $threadContainer = $note.find('.thread-container');
+        
+        // Toggle thread container visibility
+        $threadContainer.toggle();
+        
+        // Focus on the reply textarea when showing thread
+        if ($threadContainer.is(':visible')) {
+            $threadContainer.find('.reply-form textarea').focus();
+        }
 
         return false;
     }
 
-    function handleCancelReplyClick() {
-        $(this).closest('.reply-form').remove();
+    // New helper function to create consistent reply forms
+    function createReplyForm() {
+        return $(`
+            <div class="reply-form">
+                <textarea class="form-control" rows="2" placeholder="${l('WriteReplyHere')}"></textarea>
+                <div class="mt-2">
+                    <button type="button" class="btn btn-primary btn-sm submit-reply">${l('Reply')}</button>
+                </div>
+            </div>
+        `);
     }
 
+    // Update submit reply handler to keep the form
     $(document).on('click', '.submit-reply', function (e) {
         e.preventDefault();
         e.stopPropagation();
 
         const $replyForm = $(this).closest('.reply-form');
         const $note = $replyForm.closest('.note');
-        const content = $replyForm.find('textarea').val();
+        const $textarea = $replyForm.find('textarea');
+        const content = $textarea.val();
 
         if (!content) {
             abp.notify.warn(l('PleaseEnterReply'));
@@ -362,11 +416,16 @@
 
         _noteService.create(noteData)
             .done(function (result) {
-                const $replyElement = createNoteElement(result);
-                // Add the reply before the reply form
-                $replyForm.before($replyElement);
-                // Remove the reply form
-                $replyForm.remove();
+                const $replyElement = createReplyElement(result);
+                const $repliesSection = $note.find('.replies-section');
+                
+                // Add the new reply before the reply form
+                $repliesSection.append($replyElement);
+                
+                // Clear the textarea but keep the form
+                $textarea.val('');
+                $textarea.focus();
+                
                 abp.notify.success(l('ReplySaved'));
             })
             .fail(function () {
@@ -411,9 +470,12 @@
     function getActionsHtml(note) {
         let currentUserId = abp.session.userId;
         let isAuthor = note.authorId === currentUserId;
-
         let actions = [];
-        actions.push('<button class="btn btn-sm btn-link reply-button">Reply</button>');
+
+        // Only show reply button for parent notes (notes without a parentNoteId)
+        if (!note.parentNoteId) {
+            actions.push('<button class="btn btn-sm btn-link reply-button">Reply</button>');
+        }
 
         if (isAuthor) {
             actions.push('<button class="btn btn-sm btn-link edit-button">Edit</button>');
@@ -426,21 +488,34 @@
     function handleDeleteButtonClick(e) {
         e.preventDefault();
         e.stopPropagation();
-        const $note = $(this).closest('.note');
-        const noteId = $note.data('note-id');
-
+        
+        // Find the closest element with note-id that's either a .note or .reply
+        const $noteElement = $(this).closest('[data-note-id]');
+        const noteId = $noteElement.data('note-id');
+        
         abp.message.confirm(
             l('DeleteNoteConfirmationMessage'),
             l('AreYouSure'),
             function (isConfirmed) {
                 if (isConfirmed) {
                     const _noteService = abp.services.app.note;
-                    abp.ui.setBusy($note);
+                    abp.ui.setBusy($noteElement);
 
                     _noteService.delete(noteId)
                         .done(function () {
-                            $note.fadeOut(function () {
+                            // If this is a reply, just remove the reply element
+                            // If it's a parent note, remove the entire note
+                            $noteElement.fadeOut(function () {
                                 $(this).remove();
+                                
+                                // If this was the last reply, hide the thread container
+                                if ($noteElement.hasClass('reply')) {
+                                    const $threadContainer = $noteElement.closest('.thread-container');
+                                    const $remainingReplies = $threadContainer.find('.reply');
+                                    if ($remainingReplies.length === 0) {
+                                        $threadContainer.hide();
+                                    }
+                                }
                             });
                             abp.notify.success(l('NoteDeleted'));
                         })
@@ -448,7 +523,7 @@
                             abp.notify.error(l('ErrorDeletingNote'));
                         })
                         .always(function () {
-                            abp.ui.clearBusy($note);
+                            abp.ui.clearBusy($noteElement);
                         });
                 }
             }
@@ -459,22 +534,26 @@
         e.preventDefault();
         e.stopPropagation();
 
-        const $note = $(this).closest('.note');
+        // Find the closest element with note-id that's either a .note or .reply
+        const $noteElement = $(this).closest('[data-note-id]');
+        // Find the specific content element within the current note/reply scope
+        const $content = $noteElement.children('.note-content, .reply-content');
         
         // If already editing, return
-        if ($note.find('.edit-form').length > 0) {
+        if ($content.find('.edit-form').length > 0) {
             return;
         }
 
-        const noteId = $note.data('note-id');
-        const initialContent = $note.find('.note-content').text().trim();
+        const noteId = $noteElement.data('note-id');
+        // Get only this specific content's text, avoiding nested content
+        const initialContent = $content.clone()    // Clone to avoid modifying original
+            .children('.thread-container').remove()  // Remove thread container from clone
+            .end()                                  // Go back to original element
+            .text().trim();                         // Get text content
 
-        // Hide original content while editing
-        $note.find('.note-content').hide();
-
-        // Create an inline edit form
+        // Create an inline edit form that replaces the content
         const $editForm = $(`
-            <div class="edit-form mt-2">
+            <div class="edit-form">
                 <textarea class="form-control" rows="2">${initialContent}</textarea>
                 <div class="mt-2">
                     <button type="button" class="btn btn-primary btn-sm save-edit">Save</button>
@@ -483,27 +562,30 @@
             </div>
         `);
 
-        // Remove any existing handlers before adding new ones
-        $note.off('click.noteEdit', '.save-edit, .cancel-edit');
+        // Store original content
+        $content.data('original-content', initialContent);
+        // Hide the content and show edit form
+        $content.hide().after($editForm);
 
         // Handle cancel
-        $note.on('click.noteEdit', '.cancel-edit', function() {
+        $editForm.on('click', '.cancel-edit', function() {
             cleanup();
         });
 
         // Handle save
-        $note.on('click.noteEdit', '.save-edit', function() {
+        $editForm.on('click', '.save-edit', function() {
             const updatedContent = $editForm.find('textarea').val();
             if (!updatedContent) {
                 abp.notify.warn(l('PleaseEnterNote'));
                 return;
             }
+
             const _noteService = abp.services.app.note;
             abp.ui.setBusy($editForm);
 
             _noteService.update(noteId, updatedContent)
                 .done(function() {
-                    $note.find('.note-content').html(formatNoteContent(updatedContent)).show();
+                    $content.html(formatNoteContent(updatedContent)).show();
                     cleanup();
                     abp.notify.success(l('NoteUpdated'));
                 })
@@ -517,12 +599,11 @@
         });
 
         function cleanup() {
+            $content.show();
             $editForm.remove();
-            $note.find('.note-content').show();
-            $note.off('click.noteEdit', '.save-edit, .cancel-edit');
         }
 
-        $note.append($editForm);
+        // Focus on the textarea
         $editForm.find('textarea').focus();
     }
 
@@ -595,7 +676,8 @@
             .done(function (result) {
                 $textarea.val('');
                 var $noteElement = createNoteElement(result);
-                $('#notesList').prepend($noteElement);
+                // Change from prepend to append for consistency
+                $('#notesList').append($noteElement);
                 abp.notify.success(l('NoteSaved'));
             })
             .fail(function (error) {

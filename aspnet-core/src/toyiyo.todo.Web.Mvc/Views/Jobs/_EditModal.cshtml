@@ -111,27 +111,32 @@
                         <a class="nav-link active" id="subtasks-tab" data-toggle="tab" href="#subtasks" role="tab"
                             aria-controls="subtasks" aria-selected="true">@L("Subtasks")</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="notes-tab" data-toggle="tab" href="#notes" role="tab"
+                            aria-controls="notes" aria-selected="false">@L("Notes")</a>
+                    </li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="subtasks" role="tabpanel" aria-labelledby="subtasks-tab">
                         @await Html.PartialAsync("~/Views/Shared/Components/_AddJobByTitle.cshtml", new
-                                                JobCreateInputDto { Level = JobLevel.SubTask })
+                        JobCreateInputDto { Level = JobLevel.SubTask })
                         @await Html.PartialAsync("_JobSubtasks",
-                                                (List<toyiyo.todo.Web.Models.Jobs.EditJobSubTaskModalViewModel>)ViewBag.SubTasks)
+                        (List<toyiyo.todo.Web.Models.Jobs.EditJobSubTaskModalViewModel>)ViewBag.SubTasks)
+                    </div>
+                    <div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="notes-tab">
+                        <div class="notes-section mt-4">
+                            <form id="addNoteForm" class="mb-3" onsubmit="return false;">
+                                <div class="form-group">
+                                    <textarea id="noteContent" class="form-control" rows="2" placeholder="@L("AddNoteHint")"></textarea>
+                                </div>
+                                <button type="button" class="btn btn-primary add-note-button">@L("AddNote")</button>
+                            </form>
+                            <div id="notesList">
+                                <!-- Notes will be dynamically added here -->
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="notes-section mt-4">
-            <h4>@L("Notes")</h4>
-            <form id="addNoteForm" class="mb-3" onsubmit="return false;">
-                <div class="form-group">
-                    <textarea id="noteContent" class="form-control" rows="2" placeholder="@L("AddNoteHint")"></textarea>
-                </div>
-                <button type="button" class="btn btn-primary add-note-button">@L("AddNote")</button>
-            </form>
-            <div id="notesList">
-                <!-- Notes will be dynamically added here -->
             </div>
         </div>
     </div>
