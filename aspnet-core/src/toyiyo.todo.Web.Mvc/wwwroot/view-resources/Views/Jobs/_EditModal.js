@@ -460,11 +460,14 @@
         e.stopPropagation();
 
         const $note = $(this).closest('.note');
+        
+        // If already editing, return
+        if ($note.find('.edit-form').length > 0) {
+            return;
+        }
+
         const noteId = $note.data('note-id');
         const initialContent = $note.find('.note-content').text().trim();
-
-        // Remove any existing edit form
-        $note.find('.edit-form').remove();
 
         // Hide original content while editing
         $note.find('.note-content').hide();
@@ -480,17 +483,16 @@
             </div>
         `);
 
-        $note.append($editForm);
-        $note.find('textarea').focus();
+        // Remove any existing handlers before adding new ones
+        $note.off('click.noteEdit', '.save-edit, .cancel-edit');
 
         // Handle cancel
-        $note.off('click', '.cancel-edit').on('click', '.cancel-edit', function () {
-            $editForm.remove();
-            $note.find('.note-content').show();
+        $note.on('click.noteEdit', '.cancel-edit', function() {
+            cleanup();
         });
 
         // Handle save
-        $note.off('click', '.save-edit').on('click', '.save-edit', function () {
+        $note.on('click.noteEdit', '.save-edit', function() {
             const updatedContent = $editForm.find('textarea').val();
             if (!updatedContent) {
                 abp.notify.warn(l('PleaseEnterNote'));
@@ -500,19 +502,28 @@
             abp.ui.setBusy($editForm);
 
             _noteService.update(noteId, updatedContent)
-                .done(function () {
+                .done(function() {
                     $note.find('.note-content').html(formatNoteContent(updatedContent)).show();
-                    $editForm.remove();
+                    cleanup();
                     abp.notify.success(l('NoteUpdated'));
                 })
-                .fail(function (error) {
+                .fail(function(error) {
                     console.error('Update error:', error);
                     abp.notify.error(l('ErrorUpdatingNote'));
                 })
-                .always(function () {
+                .always(function() {
                     abp.ui.clearBusy($editForm);
                 });
         });
+
+        function cleanup() {
+            $editForm.remove();
+            $note.find('.note-content').show();
+            $note.off('click.noteEdit', '.save-edit, .cancel-edit');
+        }
+
+        $note.append($editForm);
+        $editForm.find('textarea').focus();
     }
 
     $('#addNoteForm').on('submit', function (e) {
