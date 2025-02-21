@@ -217,3 +217,104 @@ abp.notifications.messageFormatters['toyiyo.todo.Notifications.NoteMentionNotifi
     );
 };
 ```
+
+### Notification System Architecture
+
+The application uses ASP.NET Boilerplate's notification system with the following components:
+
+1. **Notification Definition**
+```csharp
+public class TodoNotificationProvider : NotificationProvider
+{
+    public override void SetNotifications(INotificationDefinitionContext context)
+    {
+        context.Manager.Add(
+            new NotificationDefinition(
+                "Note.Mention",
+                displayName: new LocalizableString("NoteMentionNotificationDefinition", "todo"),
+                permissionDependency: null
+            )
+        );
+    }
+}
+```
+
+2. **Notification Data Types**
+```csharp
+[Serializable]
+public class NoteMentionNotificationData : NotificationData
+{
+    public string Message { get; set; }
+    public string JobTitle { get; set; }
+    public string SenderUsername { get; set; }
+
+    public NoteMentionNotificationData(string message, string jobTitle, string senderUsername)
+    {
+        Message = message;
+        JobTitle = jobTitle;
+        SenderUsername = senderUsername;
+    }
+}
+```
+
+3. **Publishing Notifications**
+```csharp
+public async Task NotifyMention(string message, string jobTitle, UserIdentifier targetUserId)
+{
+    await _notificationPublisher.PublishAsync(
+        "Note.Mention",
+        new NoteMentionNotificationData(message, jobTitle, AbpSession.GetUserName()),
+        userIds: new[] { targetUserId }
+    );
+}
+```
+
+4. **Client-Side Integration**
+```javascript
+// Register notification formatter
+abp.notifications.messageFormatters['toyiyo.todo.Notifications.NotificationData.NoteMentionNotificationData'] = 
+    function (userNotification) {
+        var data = userNotification.notification.data;
+        var message = data.properties ? data.properties.Message : null;
+        return message || 'You have been mentioned in a note';
+    };
+
+// Listen for notifications
+abp.event.on('abp.notifications.received', function (userNotification) {
+    abp.notifications.showUiNotifyForUserNotification(userNotification);
+});
+```
+
+### Key Notification Rules
+
+1. **Notification Types**:
+   - Define clear notification names (e.g., "Note.Mention")
+   - Use proper notification data classes
+   - Register notification definitions in the module initializer
+
+2. **Client Integration**:
+   - Register formatters for each notification type
+   - Use consistent naming across backend and frontend
+   - Handle notification data structure correctly
+
+3. **Data Structure**:
+```javascript
+// Example notification object structure
+{
+    "userId": 2,
+    "state": 0,
+    "notification": {
+        "notificationName": "Note.Mention",
+        "data": {
+            "properties": {
+                "Message": "@username mentioned you",
+                "JobTitle": "Task title",
+                "SenderUsername": "sender"
+            },
+            "type": "toyiyo.todo.Notifications.NotificationData.NoteMentionNotificationData"
+        },
+        "severity": 0,
+        "creationTime": "2024-02-21T15:06:58.917627Z"
+    }
+}
+```
