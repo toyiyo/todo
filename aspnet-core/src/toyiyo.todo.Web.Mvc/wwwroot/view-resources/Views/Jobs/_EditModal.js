@@ -295,7 +295,7 @@
         // Add replies section if there are replies
         if (note.replies && note.replies.length > 0) {
             var $repliesSection = $('<div/>', {
-                class: 'replies-section ml-4 mt-2'
+                class: 'replies-section pl-4 mt-2 border-left'  // Added pl-4 for padding-left and border-left
             });
 
             note.replies.forEach(reply => {
