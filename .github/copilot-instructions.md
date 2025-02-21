@@ -157,3 +157,63 @@ public class JobsController : todoControllerBase
    - Be thin
    - Only handle HTTP concerns
    - Delegate to application services
+
+# Frontend Configuration
+
+## Bundle Configuration
+The application uses libman for client-side library management and a custom bundling system for optimizing frontend assets.
+
+### Key Libraries
+- Tribute.js: For @mentions functionality
+- Marked: For markdown rendering
+- SignalR: For real-time notifications
+- JQuery UI: For UI interactions
+- DataTables: For interactive tables
+
+### Bundle Structure
+```json
+{
+  "shared-layout.min.css": [
+    "libs/font-awesome/css/all.min.css",
+    "libs/tributejs/tribute.css",
+    "libs/admin-lte/dist/css/adminlte.min.css",
+    "libs/datatables/*.css",
+    "css/style.css"
+  ],
+  "shared-layout.min.js": [
+    "libs/jquery/jquery.js",
+    "libs/jquery-ui/jquery-ui.min.js",
+    "libs/bootstrap/dist/js/bootstrap.bundle.js",
+    "libs/datatables/*.js",
+    "libs/tributejs/tribute.min.js",
+    "libs/marked/marked.min.js",
+    "libs/signalr/*.js",
+    "js/main.js"
+  ]
+}
+```
+
+### Library Management Rules
+1. All third-party libraries should be managed through libman.json
+2. CDN dependencies should be avoided - use local files for reliability
+3. Bundle configurations should be maintained in bundleconfig.json
+4. Development environment uses individual files, production uses minified bundles
+
+### Script Loading Order
+1. Core dependencies (jQuery, Bootstrap)
+2. UI libraries (AdminLTE, DataTables)
+3. Feature libraries (Tribute.js, Marked)
+4. Application-specific code
+
+### Notification System Integration
+```javascript
+abp.notifications.messageFormatters['toyiyo.todo.Notifications.NoteMentionNotificationData'] = 
+  function (userNotification) {
+    var data = userNotification.notification.data;
+    return abp.localization.localize(
+      'UserMentionedNotification',
+      'todo',
+      [data.senderUsername, data.jobTitle]
+    );
+};
+```

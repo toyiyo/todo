@@ -41,6 +41,7 @@
       "wwwroot/libs-ext/famfamfam-flags/dist/sprite/famfamfam-flags.min.css",
       "wwwroot/libs/icheck-bootstrap/icheck-bootstrap.css",
       "wwwroot/libs/toastr/toastr.css",
+      "wwwroot/libs/tributejs/tribute.css",
       "wwwroot/libs/admin-lte/dist/css/adminlte.min.css",
       "wwwroot/libs/datatables/css/dataTables.bootstrap4.min.css",
       "wwwroot/libs/datatables/css/responsive.bootstrap4.min.css",
@@ -87,6 +88,8 @@
       "wwwroot/libs/push.js/push.js",
       "wwwroot/js/abp.dataTable.js",
       "wwwroot/js/main.js",
+      "wwwroot/libs/tributejs/tribute.min.js",
+      "wwwroot/libs/marked/marked.min.js",
       "wwwroot/view-resources/Views/Shared/_Layout.js"
     ]
   },
