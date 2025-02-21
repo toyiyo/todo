@@ -236,6 +236,7 @@
         $(document).on('click', '.reply-button', handleReplyButtonClick);
         $(document).on('click', '.cancel-reply', handleCancelReplyClick);
         $(document).on('click', '.delete-button', handleDeleteButtonClick);
+        $(document).on('click', '.edit-button', handleEditButtonClick);
 
         loadNotes(_currentPage);
     }
@@ -245,7 +246,7 @@
         const _noteService = abp.services.app.note;
         const $notesContainer = $('#notesContainer');
         abp.ui.setBusy($notesContainer);
-        
+
         _noteService.getAll({
             jobId: $('#Id').val(), // Use the correct ID selector
             maxResultCount: 10,
@@ -258,7 +259,7 @@
                 const $noteElement = createNoteElement(note);
                 $notesList.append($noteElement);
             });
-        }).always(function() {
+        }).always(function () {
             abp.ui.clearBusy($notesContainer);
         });
     }
@@ -311,7 +312,7 @@
     function handleReplyButtonClick(e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         const $note = $(this).closest('.note');
         const $replyForm = $(`
             <div class="reply-form mt-2">
@@ -322,14 +323,14 @@
                 </div>
             </div>
         `);
-        
+
         // Remove existing reply form if any
         $note.find('.reply-form').remove();
-        
+
         // Add new reply form
         $note.append($replyForm);
         $replyForm.find('textarea').focus();
-        
+
         return false;
     }
 
@@ -337,30 +338,30 @@
         $(this).closest('.reply-form').remove();
     }
 
-    $(document).on('click', '.submit-reply', function(e) {
+    $(document).on('click', '.submit-reply', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         const $replyForm = $(this).closest('.reply-form');
         const $note = $replyForm.closest('.note');
         const content = $replyForm.find('textarea').val();
-        
+
         if (!content) {
             abp.notify.warn(l('PleaseEnterReply'));
             return;
         }
-        
+
         const _noteService = abp.services.app.note;
         const noteData = {
             jobId: $('#Id').val(),
             parentNoteId: $note.data('note-id'),
             content: content
         };
-        
+
         abp.ui.setBusy($replyForm);
-        
+
         _noteService.create(noteData)
-            .done(function(result) {
+            .done(function (result) {
                 const $replyElement = createNoteElement(result);
                 // Add the reply before the reply form
                 $replyForm.before($replyElement);
@@ -368,10 +369,10 @@
                 $replyForm.remove();
                 abp.notify.success(l('ReplySaved'));
             })
-            .fail(function() {
+            .fail(function () {
                 abp.notify.error(l('ErrorSavingReply'));
             })
-            .always(function() {
+            .always(function () {
                 abp.ui.clearBusy($replyForm);
             });
     });
@@ -379,13 +380,13 @@
     function refreshNotesList() {
         var $notesList = $('#notesList');
         $notesList.empty();
-        
+
         _noteService.getAll({
             jobId: $('#JobId').val(),
             maxResultCount: 10,
             skipCount: 0
-        }).done(function(result) {
-            result.items.forEach(function(note) {
+        }).done(function (result) {
+            result.items.forEach(function (note) {
                 var $noteElement = createNoteElement(note);
                 $notesList.append($noteElement);
             });
@@ -398,7 +399,7 @@
                 console.warn('Marked library not available, falling back to plain text');
                 return $('<div/>').text(content).html();
             }
-            
+
             const escapedContent = $('<div/>').text(content).html();
             return marked.parse(escapedContent);
         } catch (error) {
@@ -408,43 +409,45 @@
     }
 
     function getActionsHtml(note) {
-        var currentUserId = abp.session.userId;
-        var isAuthor = note.creatorUserId === currentUserId;
-        
-        var actions = [];
+        let currentUserId = abp.session.userId;
+        let isAuthor = note.authorId === currentUserId;
+
+        let actions = [];
         actions.push('<button class="btn btn-sm btn-link reply-button">Reply</button>');
-        
+
         if (isAuthor) {
             actions.push('<button class="btn btn-sm btn-link edit-button">Edit</button>');
             actions.push('<button class="btn btn-sm btn-link delete-button">Delete</button>');
         }
-        
+
         return actions.join('');
     }
 
-    function handleDeleteButtonClick() {
+    function handleDeleteButtonClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
         const $note = $(this).closest('.note');
         const noteId = $note.data('note-id');
-        
+
         abp.message.confirm(
             l('DeleteNoteConfirmationMessage'),
             l('AreYouSure'),
-            function(isConfirmed) {
+            function (isConfirmed) {
                 if (isConfirmed) {
                     const _noteService = abp.services.app.note;
                     abp.ui.setBusy($note);
-                    
+
                     _noteService.delete(noteId)
-                        .done(function() {
-                            $note.fadeOut(function() {
+                        .done(function () {
+                            $note.fadeOut(function () {
                                 $(this).remove();
                             });
                             abp.notify.success(l('NoteDeleted'));
                         })
-                        .fail(function() {
+                        .fail(function () {
                             abp.notify.error(l('ErrorDeletingNote'));
                         })
-                        .always(function() {
+                        .always(function () {
                             abp.ui.clearBusy($note);
                         });
                 }
@@ -452,28 +455,88 @@
         );
     }
 
-    $('#addNoteForm').on('submit', function(e) {
+    function handleEditButtonClick(e) {
         e.preventDefault();
-        var $form = $(this);
-        var content = $form.find('textarea').val();
-        
+        e.stopPropagation();
+
+        const $note = $(this).closest('.note');
+        const noteId = $note.data('note-id');
+        const initialContent = $note.find('.note-content').text().trim();
+
+        // Remove any existing edit form
+        $note.find('.edit-form').remove();
+
+        // Hide original content while editing
+        $note.find('.note-content').hide();
+
+        // Create an inline edit form
+        const $editForm = $(`
+            <div class="edit-form mt-2">
+                <textarea class="form-control" rows="2">${initialContent}</textarea>
+                <div class="mt-2">
+                    <button type="button" class="btn btn-primary btn-sm save-edit">Save</button>
+                    <button type="button" class="btn btn-secondary btn-sm cancel-edit">Cancel</button>
+                </div>
+            </div>
+        `);
+
+        $note.append($editForm);
+        $note.find('textarea').focus();
+
+        // Handle cancel
+        $note.off('click', '.cancel-edit').on('click', '.cancel-edit', function () {
+            $editForm.remove();
+            $note.find('.note-content').show();
+        });
+
+        // Handle save
+        $note.off('click', '.save-edit').on('click', '.save-edit', function () {
+            const updatedContent = $editForm.find('textarea').val();
+            if (!updatedContent) {
+                abp.notify.warn(l('PleaseEnterNote'));
+                return;
+            }
+            const _noteService = abp.services.app.note;
+            abp.ui.setBusy($editForm);
+
+            _noteService.update(noteId, updatedContent)
+                .done(function () {
+                    $note.find('.note-content').html(formatNoteContent(updatedContent)).show();
+                    $editForm.remove();
+                    abp.notify.success(l('NoteUpdated'));
+                })
+                .fail(function (error) {
+                    console.error('Update error:', error);
+                    abp.notify.error(l('ErrorUpdatingNote'));
+                })
+                .always(function () {
+                    abp.ui.clearBusy($editForm);
+                });
+        });
+    }
+
+    $('#addNoteForm').on('submit', function (e) {
+        e.preventDefault();
+        let $form = $(this);
+        let content = $form.find('textarea').val();
+
         if (!content) return;
-        
+
         _noteService.create({
             jobId: $('#JobId').val(),
             content: content
-        }).done(function() {
+        }).done(function () {
             $form.find('textarea').val('');
             refreshNotesList();
         });
     });
 
     // Replace the existing note form submit handler with these two handlers
-    $('.add-note-button').click(function() {
+    $('.add-note-button').click(function () {
         handleAddNote();
     });
 
-    $('#addNoteForm textarea').keydown(function(e) {
+    $('#addNoteForm textarea').keydown(function (e) {
         if (e.ctrlKey && e.keyCode === 13) {  // Ctrl + Enter
             handleAddNote();
         }
@@ -498,37 +561,37 @@
         const $textarea = $('#noteContent');
         const content = $textarea.val();
         const jobId = $('#Id').val();
-        
+
         // Prevent double submission
         if ($form.data('submitting')) {
             return;
         }
-        
+
         if (!content) {
             abp.notify.warn(l('PleaseEnterNote'));
             return;
         }
-        
+
         $form.data('submitting', true);
         abp.ui.setBusy($form);
-        
-        var noteData = {
+
+        let noteData = {
             jobId: jobId,
             content: content
         };
 
         _noteService.create(noteData)
-            .done(function(result) {
+            .done(function (result) {
                 $textarea.val('');
                 var $noteElement = createNoteElement(result);
                 $('#notesList').prepend($noteElement);
                 abp.notify.success(l('NoteSaved'));
             })
-            .fail(function(error) {
+            .fail(function (error) {
                 console.error('Error creating note:', error);
                 abp.notify.error(l('ErrorSavingNote'));
             })
-            .always(function() {
+            .always(function () {
                 abp.ui.clearBusy($form);
                 $form.data('submitting', false);
             });
@@ -541,7 +604,7 @@
                 trigger: '@',
                 values: function (text, cb) {
                     const userLookupService = abp.services.app.userLookup;
-                    userLookupService.searchUsers(text).done(function(users) {
+                    userLookupService.searchUsers(text).done(function (users) {
                         const menuItems = users.map(user => ({
                             key: user.userName,
                             value: user.displayName,
@@ -565,7 +628,7 @@
                 searchOpts: {
                     pre: '',
                     post: '',
-                    skip: true, 
+                    skip: true,
                     limit: 10
                 }
             });
@@ -576,16 +639,16 @@
                 tribute.attach(noteContent);
                 console.log('Tribute attached to noteContent');
             }
-            
-            $('.reply-form textarea').each(function() {
+
+            $('.reply-form textarea').each(function () {
                 if (!this.tribute) {
                     tribute.attach(this);
                     console.log('Tribute attached to reply textarea');
                 }
             });
-            
+
             // Attach to new reply textareas as they're created
-            $(document).on('focus', '.reply-form textarea', function() {
+            $(document).on('focus', '.reply-form textarea', function () {
                 if (!this.tribute) {
                     tribute.attach(this);
                     console.log('Tribute attached to new reply textarea');
@@ -597,18 +660,18 @@
     }
 
     // Update document ready handler
-    $(document).ready(function() {
+    $(document).ready(function () {
         console.log('Document ready, initializing components...');
         initializeNotes();
         initializeMentions();
 
         // Remove duplicate event handlers
-        $('.add-note-button').off('click').on('click', function(e) {
+        $('.add-note-button').off('click').on('click', function (e) {
             e.preventDefault();
             handleAddNote();
         });
 
-        $('#noteContent').off('keydown').on('keydown', function(e) {
+        $('#noteContent').off('keydown').on('keydown', function (e) {
             if (e.ctrlKey && e.keyCode === 13) {
                 e.preventDefault();
                 handleAddNote();

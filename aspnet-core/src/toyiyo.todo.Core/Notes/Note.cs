@@ -82,6 +82,25 @@ namespace toyiyo.todo.Notes
             SetLastModified(note, user);
             return note;
         }
+
+        public static Note Delete(Note note, User user)
+        {
+            if (note == null) throw new ArgumentNullException(nameof(note));
+            if (user == null) throw new ArgumentNullException(nameof(user));
+
+            // Only the author can delete the note
+            if (note.CreatorUserId != user.Id)
+            {
+                throw new UnauthorizedAccessException("Only the creator of the note can delete it.");
+            }
+
+            note.IsDeleted = true;
+            note.DeletionTime = Clock.Now;
+            note.DeleterUserId = user.Id;
+
+            return note;
+        }
+
         private static void SetLastModified(Note note, User user)
         {
             note.LastModificationTime = Clock.Now;

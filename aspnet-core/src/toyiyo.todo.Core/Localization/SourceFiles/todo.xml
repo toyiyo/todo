@@ -179,5 +179,9 @@
     <text name="DeleteNoteConfirmationMessage">Are you sure you want to delete this note?</text>
     <text name="NoteDeleted">Note deleted successfully</text>
     <text name="ErrorDeletingNote">Error deleting note</text>
+    <text name="Notes">Notes</text>
+    <text name="AddNote">Add Note</text>
+    <text name="NoteUpdated">Note updated successfully</text>
+    <text name="AddNoteHint">Add a note to this job</text>
   </texts>
 </localizationDictionary>
