@@ -479,6 +479,18 @@
         }
     });
 
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof marked === 'undefined') {
+            console.error('Marked library not loaded');
+            return;
+        }
+
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            sanitize: true
+        });
+    });
     function handleAddNote() {
         const _noteService = abp.services.app.note;
         const $modal = $('#JobEditModal');
@@ -539,22 +551,39 @@
     }
 
     // Update the initializeMentions function with a retry mechanism
-    function initializeMentions(retryCount = 0) {
-        const maxRetries = 5;
-        
-        if (!window.isTributeLoaded || typeof Tribute === 'undefined') {
-            if (retryCount < maxRetries) {
-                console.log(`Tribute not loaded, retrying... (${retryCount + 1}/${maxRetries})`);
-                setTimeout(() => initializeMentions(retryCount + 1), 200);
-                return;
-            }
-            console.error('Failed to load Tribute after multiple attempts');
-            return;
-        }
-
+    function initializeMentions() {
         try {
             const tribute = new Tribute({
-                // ...existing tribute config...
+                trigger: '@',
+                values: function (text, cb) {
+                    const userLookupService = abp.services.app.userLookup;
+                    userLookupService.searchUsers(text).done(function(users) {
+                        const menuItems = users.map(user => ({
+                            key: user.userName,
+                            value: user.displayName,
+                            email: user.emailAddress
+                        }));
+                        cb(menuItems);
+                    });
+                },
+                menuItemTemplate: function (item) {
+                    return `<span class="user-mention">
+                        <strong>${item.original.key}</strong>
+                        <small>${item.original.value}</small>
+                    </span>`;
+                },
+                selectTemplate: function (item) {
+                    return `@${item.original.key}`;
+                },
+                noMatchTemplate: function () {
+                    return '<span style="visibility: hidden;"></span>';
+                },
+                searchOpts: {
+                    pre: '',
+                    post: '',
+                    skip: true, 
+                    limit: 10
+                }
             });
 
             // Attach to note textarea and any existing reply textareas
@@ -578,8 +607,6 @@
                     console.log('Tribute attached to new reply textarea');
                 }
             });
-
-            console.log('Mentions initialized successfully');
         } catch (error) {
             console.error('Error initializing mentions:', error);
         }

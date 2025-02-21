@@ -1,25 +1,19 @@
 <!-- Add these in the head section -->
+
 <head>
-    // ...existing code...
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.css" />
-    // ...existing code...
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tributejs/5.1.3/tribute.css" integrity="sha512-GnwBnXd+ZGO9CdP343MUr0jCcJXCr++JVtQRnllexRW2IDq4Zvrh/McTQjooAKnSUbXZ7wamp7AQSweTnfMVoA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
 <!-- Add these just before the closing body tag, after jQuery but before your application scripts -->
+
 <body>
-    // ...existing code...
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" 
-            integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" 
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tributejs@5.1.3/dist/tribute.min.js"></script>
-    <script>
-        // Add a global variable to track Tribute availability
-        window.isTributeLoaded = true;
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tributejs/5.1.3/tribute.min.js" integrity="sha512-KJYWC7RKz/Abtsu1QXd7VJ1IJua7P7GTpl3IKUqfa21Otg2opvRYmkui/CXBC6qeDYCNlQZ7c+7JfDXnKdILUA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.6/marked.min.js" integrity="sha512-rvRITpPeEKe4hV9M8XntuXX6nuohzqdR5O3W6nhjTLwkrx0ZgBQuaK4fv5DdOWzs2IaXsGt5h0+nyp9pEuoTXg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"
+        integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
     <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
     <script src="~/lib/abp-web-resources/Abp/Framework/scripts/libs/abp.signalr-client.js"></script>
-    // ...existing code...
     @RenderSection("scripts", required: false)
     <script>
         // Initialize notification handlers
@@ -29,14 +23,14 @@
         });
 
         // Update notification formatter registration
-        abp.notifications.messageFormatters['Abp.Notifications.LocalizableMessageNotificationData'] = function(userNotification) {
+        abp.notifications.messageFormatters['Abp.Notifications.LocalizableMessageNotificationData'] = function (userNotification) {
             return abp.localization.localize(
                 userNotification.notification.data.message.name,
                 userNotification.notification.data.message.sourceName
             );
         };
 
-        abp.notifications.messageFormatters['toyiyo.todo.Notifications.NoteMentionNotificationData'] = function(userNotification) {
+        abp.notifications.messageFormatters['toyiyo.todo.Notifications.NoteMentionNotificationData'] = function (userNotification) {
             var data = userNotification.notification.data;
             return abp.localization.localize(
                 'UserMentionedNotification',
@@ -46,7 +40,7 @@
         };
 
         // Register default formatter
-        abp.notifications.messageFormatters['default'] = function(userNotification) {
+        abp.notifications.messageFormatters['default'] = function (userNotification) {
             console.log('Notification data:', userNotification);
             return userNotification.notification.data.message || 'No message available';
         };
@@ -57,4 +51,5 @@
         }
     </script>
 </body>
+
 </html>
