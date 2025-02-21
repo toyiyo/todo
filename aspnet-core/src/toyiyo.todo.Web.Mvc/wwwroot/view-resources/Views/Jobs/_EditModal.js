@@ -534,22 +534,6 @@
             });
     }
 
-    // Update connection handling
-    function initializeSignalR() {
-        try {
-            // Use ABP's built-in SignalR integration
-            abp.signalr.connect();
-            
-            // Listen for notifications
-            abp.event.on('abp.notifications.received', function (notification) {
-                console.log('Notification received:', notification);
-                abp.notifications.showUiNotifyForUserNotification(notification);
-            });
-        } catch (err) {
-            console.error('Error initializing SignalR:', err);
-        }
-    }
-
     // Update the initializeMentions function with a retry mechanism
     function initializeMentions() {
         try {
@@ -615,8 +599,6 @@
     // Update document ready handler
     $(document).ready(function() {
         console.log('Document ready, initializing components...');
-        
-        initializeSignalR();
         initializeNotes();
         initializeMentions();
 

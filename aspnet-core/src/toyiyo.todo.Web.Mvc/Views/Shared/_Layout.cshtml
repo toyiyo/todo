@@ -11,52 +11,36 @@
         integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
     <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
     <script src="~/lib/abp-web-resources/Abp/Framework/scripts/libs/abp.signalr-client.js"></script>
+    <script src="~/js/signalr-manager.js"></script>
     @RenderSection("scripts", required: false)
     <script>
-        // Initialize notification handlers
+        // Ensure formatters exist
+        abp.notifications.messageFormatters = abp.notifications.messageFormatters || {};
+
+        // Register formatter
+        abp.notifications.messageFormatters['toyiyo.todo.Notifications.NotificationData.NoteMentionNotificationData'] = 
+            function (userNotification) {
+                console.log('Formatter called with:', userNotification);
+                return userNotification.notification.data.properties.Message;
+            };
+
+        // Clear old event handlers to avoid conflict
+        abp.event.off('abp.notifications.received');
+
+        // Register notification event handler
         abp.event.on('abp.notifications.received', function (userNotification) {
-            console.log('Notification received:', userNotification);
+            console.log('Raw notification data:', {
+                type: userNotification.notification.data.type,
+                properties: userNotification.notification.data.properties,
+                fullNotification: userNotification
+            });
             abp.notifications.showUiNotifyForUserNotification(userNotification);
-            playNotificationSound();
         });
 
-        // Update notification formatters
-        abp.notifications.messageFormatters['Abp.Notifications.LocalizableMessageNotificationData'] = function (userNotification) {
-            return abp.localization.localize(
-                userNotification.notification.data.message.name,
-                userNotification.notification.data.message.sourceName
-            );
-        };
-
-        // Update notification formatters with correct data structure handling
-        abp.notifications.messageFormatters['toyiyo.todo.Notifications.NotificationData.NoteMentionNotificationData'] = function (userNotification) {
-            console.log('Formatting mention notification:', userNotification);
-            var data = userNotification.notification.data;
-            
-            // Extract message from properties
-            var message = data.properties ? data.properties.Message : 'No message';
-            
-            return message || 'You have been mentioned in a note';
-        };
-
-        // Fallback formatter
-        abp.notifications.messageFormatters['default'] = function (userNotification) {
-            console.log('Using default formatter for:', userNotification);
-            var data = userNotification.notification.data;
-            
-            if (data.properties && data.properties.Message) {
-                return data.properties.Message;
-            }
-            
-            return userNotification.notification.notificationName || 'New notification';
-        };
-
-        function playNotificationSound() {
-            var audio = new Audio('/sounds/notification.mp3');
-            audio.play().catch(function(error) {
-                console.log('Error playing notification sound:', error);
-            });
-        }
+        // Initialize SignalR connection
+        $(document).ready(function () {
+            app.signalr.connect();
+        });
     </script>
 </body>
 
