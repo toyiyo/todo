@@ -1,6 +1,6 @@
-var app = app || {};
+let app = app || {};
 (function () {
-    var _isConnected = false;
+    let _isConnected = false;
 
     app.signalr = {
         connect: function () {

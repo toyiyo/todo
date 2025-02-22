@@ -6,19 +6,57 @@ using toyiyo.todo.Notes;
 
 namespace toyiyo.todo.Notes.Dto
 {
+    /// <summary>
+    /// Data Transfer Object (DTO) for Note entity.
+    /// </summary>
     [AutoMap(typeof(Note))]
     public class NoteDto : EntityDto<Guid>
     {
+        /// <summary>
+        /// Gets or sets the content of the note.
+        /// </summary>
         public string Content { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Job ID associated with the note.
+        /// </summary>
         public Guid JobId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ID of the parent note, if any.
+        /// </summary>
         public Guid? ParentNoteId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the creation time of the note.
+        /// </summary>
         public DateTime CreationTime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the author of the note.
+        /// </summary>
         public string AuthorName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the email of the author of the note.
+        /// </summary>
         public string AuthorEmail { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ID of the author of the note.
+        /// </summary>
         public long? AuthorId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the list of replies to the note.
+        /// </summary>
         public List<NoteDto> Replies { get; set; } = new List<NoteDto>();
 
-        public void CreateMapping(IMapperConfigurationExpression configuration)
+        /// <summary>
+        /// Creates the mapping configuration for Note to NoteDto.
+        /// </summary>
+        /// <param name="configuration">The AutoMapper configuration expression.</param>
+        public static void CreateMapping(IMapperConfigurationExpression configuration)
         {
             configuration.CreateMap<Note, NoteDto>()
                 .ForMember(dto => dto.AuthorId, opt => opt.MapFrom(n => n.CreatorUserId))
