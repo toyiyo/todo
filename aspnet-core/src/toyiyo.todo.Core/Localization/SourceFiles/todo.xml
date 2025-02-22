@@ -184,5 +184,6 @@
     <text name="NoteUpdated">Note updated successfully</text>
     <text name="AddNoteHint">Add a note to this job</text>
     <text name="NoteSaved">Note Saved</text>
+    <text name="PleaseEnterReply">Please enter a reply</text>
   </texts>
 </localizationDictionary>
