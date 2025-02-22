@@ -205,6 +205,10 @@
       "files": [
         "marked.min.js"
       ]
+    },
+    {
+      "library": "dompurify@3.2.3",
+      "destination": "wwwroot/libs/dompurify"
     }
   ]
 }

@@ -385,11 +385,14 @@
 
     // New helper function to create consistent reply forms
     function createReplyForm() {
+        const placeholder = escapeHtml(l('WriteReplyHere'));
+        const replyText = escapeHtml(l('Reply'));
+        
         return $(`
             <div class="reply-form">
-                <textarea class="form-control" rows="2" placeholder="${l('WriteReplyHere')}"></textarea>
+                <textarea class="form-control" rows="2" placeholder="${placeholder}"></textarea>
                 <div class="mt-2">
-                    <button type="button" class="btn btn-primary btn-sm submit-reply">${l('Reply')}</button>
+                    <button type="button" class="btn btn-primary btn-sm submit-reply">${replyText}</button>
                 </div>
             </div>
         `);
@@ -464,12 +467,35 @@
                 return $('<div/>').text(content).html();
             }
 
-            const escapedContent = $('<div/>').text(content).html();
-            return marked.parse(escapedContent);
+            // Configure marked with security options
+            marked.setOptions({
+                breaks: true,
+                gfm: true,
+                headerIds: false, // Disable header IDs to prevent XSS
+                mangle: false,    // Disable mangle to prevent XSS
+                sanitize: true,   // Enable sanitization
+                silent: true      // Don't throw errors on invalid markup
+            });
+
+            // Sanitize input before passing to marked
+            const sanitizedContent = DOMPurify.sanitize(content);
+            const markedContent = marked.parse(sanitizedContent);
+            
+            // Sanitize output after markdown processing
+            return DOMPurify.sanitize(markedContent, {
+                ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'code', 'pre'],
+                ALLOWED_ATTR: [] // No attributes allowed
+            });
         } catch (error) {
             console.error('Error formatting note content:', error);
-            return $('<div/>').text(content).html();
+            return $('<div/>').text(content).html(); // Fallback to plain text
         }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     function getActionsHtml(note) {
@@ -481,16 +507,17 @@
         if (!note.parentNoteId) {
             const replyCount = note.replies ? note.replies.length : 0;
             const replyText = replyCount === 0 
-                ? l('Reply') 
-                : `${replyCount} ${replyCount === 1 ? l('Reply') : l('Replies')}`;
+                ? escapeHtml(l('Reply'))
+                : `${replyCount} ${escapeHtml(replyCount === 1 ? l('Reply') : l('Replies'))}`;
+            
             actions.push(`<button class="btn btn-sm btn-link reply-button">
                 ${replyText} <i class="fas fa-chevron-${note.replies && note.replies.length > 0 ? 'up' : 'down'}"></i>
             </button>`);
         }
 
         if (isAuthor) {
-            actions.push('<button class="btn btn-sm btn-link edit-button">Edit</button>');
-            actions.push('<button class="btn btn-sm btn-link delete-button">Delete</button>');
+            actions.push(`<button class="btn btn-sm btn-link edit-button">${escapeHtml(l('Edit'))}</button>`);
+            actions.push(`<button class="btn btn-sm btn-link delete-button">${escapeHtml(l('Delete'))}</button>`);
         }
 
         return actions.join('');

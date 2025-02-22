@@ -90,6 +90,7 @@
       "wwwroot/js/main.js",
       "wwwroot/libs/tributejs/tribute.min.js",
       "wwwroot/libs/marked/marked.min.js",
+      "wwwroot/libs/dompurify/dist/purify.min.js",
       "wwwroot/view-resources/Views/Shared/_Layout.js"
     ]
   },
