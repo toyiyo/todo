@@ -63,6 +63,7 @@ namespace toyiyo.todo.Notes
             return query;
         }
 
+        [UnitOfWork]
         public async Task<Note> Create(Note inputNote)
         {
             return await _noteRepository.InsertAsync(inputNote);

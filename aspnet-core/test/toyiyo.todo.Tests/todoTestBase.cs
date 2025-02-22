@@ -205,7 +205,10 @@ namespace toyiyo.todo.Tests
         protected async Task<User> GetCurrentUserAsync()
         {
             var userId = AbpSession.GetUserId();
-            return await UsingDbContext(context => context.Users.SingleAsync(u => u.Id == userId));
+            return await UsingDbContext(context => 
+                context.Users
+                    .AsNoTracking()  // Add this line to prevent change tracking
+                    .SingleAsync(u => u.Id == userId));
         }
 
         /// <summary>
@@ -215,7 +218,10 @@ namespace toyiyo.todo.Tests
         protected async Task<Tenant> GetCurrentTenantAsync()
         {
             var tenantId = AbpSession.GetTenantId();
-            return await UsingDbContext(context => context.Tenants.SingleAsync(t => t.Id == tenantId));
+            return await UsingDbContext(context => 
+                context.Tenants
+                    .AsNoTracking()  // Add this line to prevent change tracking
+                    .SingleAsync(t => t.Id == tenantId));
         }
     }
 }
