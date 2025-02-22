@@ -2,8 +2,7 @@
 
 # Repository Description
 
-description: |
-  Toyiyo Todo Application is a modern project management tool built with ASP.NET Core and ASP.NET Boilerplate framework. Following Domain-Driven Design (DDD) principles, it implements a complete n-layer architecture with clear separation of concerns.
+Toyiyo Todo Application is a modern project management tool built with ASP.NET Core and ASP.NET Boilerplate framework. Following Domain-Driven Design (DDD) principles, it implements a complete n-layer architecture with clear separation of concerns.
 
 # Architecture Overview
 
@@ -318,3 +317,143 @@ abp.event.on('abp.notifications.received', function (userNotification) {
     }
 }
 ```
+
+# Testing Guidelines
+
+## Test Project Setup
+1. Create a new Class Library project under `aspnet-core/test` directory.
+2. Add the following NuGet packages:
+   - `Abp.TestBase`: Provides base classes for testing ABP based projects.
+   - `Abp.EntityFrameworkCore`: For Entity Framework Core integration.
+   - `Effort.EFCore`: For creating an in-memory database.
+   - `xunit`: The testing framework.
+   - `xunit.runner.visualstudio`: To run tests in Visual Studio.
+   - `Shouldly`: For easy-to-read assertions.
+
+## Base Test Class
+Create a base test class to initialize the ABP system and set up an in-memory database:
+```csharp
+public abstract class TodoTestBase : AbpIntegratedTestBase<TodoTestModule>
+{
+    protected TodoTestBase()
+    {
+        UsingDbContext(context => new TodoInitialDataBuilder().Build(context));
+    }
+
+    protected override void PreInitialize()
+    {
+        LocalIocManager.IocContainer.Register(
+            Component.For<DbConnection>()
+                .UsingFactoryMethod(Effort.DbConnectionFactory.CreateTransient)
+                .LifestyleSingleton()
+        );
+
+        base.PreInitialize();
+    }
+
+    public void UsingDbContext(Action<TodoDbContext> action)
+    {
+        using (var context = LocalIocManager.Resolve<TodoDbContext>())
+        {
+            context.DisableAllFilters();
+            action(context);
+            context.SaveChanges();
+        }
+    }
+
+    public T UsingDbContext<T>(Func<TodoDbContext, T> func)
+    {
+        T result;
+
+        using (var context = LocalIocManager.Resolve<TodoDbContext>())
+        {
+            context.DisableAllFilters();
+            result = func(context);
+            context.SaveChanges();
+        }
+
+        return result;
+    }
+}
+```
+
+## Test Module
+Create a test module to define dependencies:
+```csharp
+[DependsOn(
+    typeof(TodoDataModule),
+    typeof(TodoApplicationModule),
+    typeof(AbpTestBaseModule)
+)]
+public class TodoTestModule : AbpModule
+{
+}
+```
+
+## Initial Data Builder
+Create an initial data builder to seed the database:
+```csharp
+public class TodoInitialDataBuilder
+{
+    public void Build(TodoDbContext context)
+    {
+        context.Users.AddOrUpdate(
+            u => u.UserName,
+            new User { UserName = "admin" },
+            new User { UserName = "user1" }
+        );
+        context.SaveChanges();
+
+        context.Projects.AddOrUpdate(
+            p => p.Name,
+            new Project { Name = "Project 1" },
+            new Project { Name = "Project 2" }
+        );
+        context.SaveChanges();
+    }
+}
+```
+
+## Example Test
+Create a test class to test application services:
+```csharp
+public class JobAppService_Tests : TodoTestBase
+{
+    private readonly IJobAppService _jobAppService;
+
+    public JobAppService_Tests()
+    {
+        _jobAppService = LocalIocManager.Resolve<IJobAppService>();
+    }
+
+    [Fact]
+    public void Should_Create_New_Jobs()
+    {
+        var initialJobCount = UsingDbContext(context => context.Jobs.Count());
+        var project = UsingDbContext(context => context.Projects.First());
+
+        _jobAppService.Create(new JobCreateInputDto
+        {
+            ProjectId = project.Id,
+            Title = "New Job",
+            Description = "Job Description"
+        });
+
+        UsingDbContext(context =>
+        {
+            context.Jobs.Count().ShouldBe(initialJobCount + 1);
+            context.Jobs.FirstOrDefault(j => j.Title == "New Job").ShouldNotBeNull();
+        });
+    }
+}
+```
+
+## Running Tests
+1. Open Visual Studio Test Explorer by selecting `TEST\Windows\Test Explorer`.
+2. Click 'Run All' to execute all tests in the solution.
+
+## Best Practices
+- Use `UsingDbContext` methods to interact with the database.
+- Follow the Arrange-Act-Assert pattern in test methods.
+- Use `Shouldly` for assertions to improve readability.
+- Ensure tests are isolated and do not depend on each other.
