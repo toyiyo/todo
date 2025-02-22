@@ -227,11 +227,7 @@
 
     // Notes handling
     function initializeNotes() {
-        const _noteService = abp.services.app.note;
-        const _$notesContainer = $('#notesContainer');
-        const _$addNoteForm = $('#addNoteForm');
         let _currentPage = 1;
-        const _pageSize = 10;
 
         // Remove the cancel-reply event handler
         $(document).on('click', '.reply-button', handleReplyButtonClick);
