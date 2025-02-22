@@ -18,12 +18,12 @@ namespace toyiyo.todo.Notes.Dto
         public long? AuthorId { get; set; }
         public List<NoteDto> Replies { get; set; } = new List<NoteDto>();
 
-        public void CreateMapping(Profile profile)
+        public void CreateMapping(IMapperConfigurationExpression configuration)
         {
-            profile.CreateMap<Note, NoteDto>()
-                .ForMember(dto => dto.AuthorId, x => x.MapFrom(n => n.CreatorUserId))
-                .ForMember(dto => dto.AuthorEmail, x => x.MapFrom(n => n.Author.EmailAddress))
-                .ForMember(dto => dto.AuthorName, x => x.MapFrom(n => n.Author.UserName));
+            configuration.CreateMap<Note, NoteDto>()
+                .ForMember(dto => dto.AuthorId, opt => opt.MapFrom(n => n.CreatorUserId))
+                .ForMember(dto => dto.AuthorEmail, opt => opt.MapFrom(n => n.Author != null ? n.Author.EmailAddress : null))
+                .ForMember(dto => dto.AuthorName, opt => opt.MapFrom(n => n.Author != null ? n.Author.UserName : null));
         }
     }
 
