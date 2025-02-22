@@ -65,10 +65,15 @@ public class JobAppService : todoAppServiceBase, IJobAppService
 {
     private readonly IJobManager _jobManager;
     private readonly IProjectManager _projectManager;
+    private readonly IProjectAppService _projectAppService;
     
     public async Task<JobDto> Create(JobCreateInputDto input)
     {
-        var project = await _projectManager.Get(input.ProjectId);
+        // Don't create projects directly - use ProjectAppService
+        var project = await _projectAppService.Create(new CreateProjectInputDto 
+        { 
+            Title = "test project" 
+        });
         var job = Job.Create(
             project, 
             input.Title,
@@ -445,6 +450,89 @@ public class JobAppService_Tests : TodoTestBase
             context.Jobs.FirstOrDefault(j => j.Title == "New Job").ShouldNotBeNull();
         });
     }
+
+    [Fact]
+    public async Task Should_Do_Something()
+    {
+        // Arrange
+        var currentUser = await GetCurrentUserAsync();
+        var currentTenant = await GetCurrentTenantAsync();
+        
+        var project = await _projectAppService.Create(new CreateProjectInputDto 
+        { 
+            Title = "test project" 
+        });
+        
+        var job = await _jobAppService.Create(new JobCreateInputDto 
+        { 
+            ProjectId = project.Id, 
+            Title = "test job", 
+            Description = "test job" 
+        });
+
+        // Act
+        var result = await _myService.DoSomething(job.Id);
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Status.ShouldBe(expectedStatus);
+    }
+
+    [Fact]
+    public async Task Should_Assign_Job_To_User()
+    {
+        // Arrange
+        var project = await _projectAppService.Create(new CreateProjectInputDto 
+        { 
+            Title = "test project" 
+        });
+        
+        var job = await _jobAppService.Create(new JobCreateInputDto 
+        { 
+            ProjectId = project.Id, 
+            Title = "test job" 
+        });
+
+        var assigneeUser = await GetUserByUserNameAsync("username");
+
+        // Act
+        await _jobAppService.AssignJob(new AssignJobInputDto
+        {
+            JobId = job.Id,
+            UserId = assigneeUser.Id
+        });
+
+        // Assert
+        var updatedJob = await _jobAppService.Get(job.Id);
+        updatedJob.AssigneeId.ShouldBe(assigneeUser.Id);
+    }
+
+    [Fact]
+    public async Task Should_Change_Job_Status()
+    {
+        // Arrange
+        var project = await _projectAppService.Create(new CreateProjectInputDto 
+        { 
+            Title = "test" 
+        });
+        
+        var job = await _jobAppService.Create(new JobCreateInputDto 
+        { 
+            ProjectId = project.Id, 
+            Title = "test job" 
+        });
+
+        // Act
+        await _jobAppService.SetJobStatus(new JobSetStatusInputDto
+        {
+            Id = job.Id,
+            JobStatus = Status.Done
+        });
+
+        // Assert
+        var updatedJob = await _jobAppService.Get(job.Id);
+        updatedJob.Status.ShouldBe(Status.Done);
+    }
 }
 ```
 
@@ -456,4 +544,22 @@ public class JobAppService_Tests : TodoTestBase
 - Use `UsingDbContext` methods to interact with the database.
 - Follow the Arrange-Act-Assert pattern in test methods.
 - Use `Shouldly` for assertions to improve readability.
-- Ensure tests are isolated and do not depend on each other.
+- Ensure tests are isolated and do not depend on each other
+- Never use new Job() or new Project() directly
+- Always use application services to create entities
+- Use GetCurrentUserAsync() and GetCurrentTenantAsync()
+- Login as tenant admin in constructor
+- Clean up test data in Dispose if needed
+- Use meaningful test data names (e.g., "test project", "test job")
+- Include both positive and negative test cases
+- Test authorization rules
+- Use Shouldly for assertions
+- Follow Arrange-Act-Assert pattern
+- Common Pitfalls to Avoid
+
+- Don't create entities with new keyword
+- Don't manipulate protected setters
+- Don't bypass application services
+- Don't create users manually
+- Don't skip tenant context
+- Don't use hardcoded IDs

@@ -59,6 +59,10 @@ namespace toyiyo.todo.Notes
                 TenantId = job.TenantId,
                 ParentNote = parentNote,
                 ParentNoteId = parentNote?.Id,
+                CreatorUserId = author.Id,
+                LastModifierUserId = author.Id,
+                CreationTime = Clock.Now,
+                LastModificationTime = Clock.Now,
                 Replies = new HashSet<Note>()
             };
             SetLastModified(note, author);
