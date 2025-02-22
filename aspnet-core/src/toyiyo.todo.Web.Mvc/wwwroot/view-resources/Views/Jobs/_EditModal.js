@@ -245,7 +245,7 @@
 
         _noteService.getAll({
             jobId: $('#Id').val(), // Use the correct ID selector
-            maxResultCount: 10,
+            maxResultCount: 100,
             skipCount: (page - 1) * 10
         }).done(function (result) {
             console.log('Notes loaded:', result); // Debug
@@ -446,7 +446,7 @@
 
         _noteService.getAll({
             jobId: $('#JobId').val(),
-            maxResultCount: 10,
+            maxResultCount: 100,
             skipCount: 0
         }).done(function (result) {
             result.items.forEach(function (note) {
