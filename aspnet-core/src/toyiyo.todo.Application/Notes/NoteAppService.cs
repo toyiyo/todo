@@ -94,13 +94,13 @@ namespace toyiyo.todo.Notes
             return ObjectMapper.Map<NoteDto>(updatedNote);
         }
 
-        private List<string> ExtractMentions(string content)
+        private static List<string> ExtractMentions(string content)
         {
             var mentions = new List<string>();
             var words = content.Split(' ');
             foreach (var word in words)
             {
-                if (word.StartsWith("@"))
+                if (word.StartsWith('@'))
                 {
                     mentions.Add(word.Substring(1));
                 }
