@@ -141,14 +141,11 @@ namespace toyiyo.todo.Notes
                 new ParallelOptions { MaxDegreeOfParallelism = 3 }, // Limit concurrent operations
                 async (user, token) =>
                 {
+                    var message = note.Content.Length > 50 ? note.Content.Substring(0, 50) + "..." : note.Content;
                     await _notificationPublisher.PublishAsync(
                         "Note.Mention",
-                        new NoteMentionNotificationData(
-                            currentUser.UserName,
-                            job.Title,
-                            note.Content,
-                            job.Id,
-                            note.Id
+                        new MessageNotificationData(
+                            $"@{currentUser.UserName} mentioned you in a comment on the job '{job.Title}' {message}"
                         ),
                         userIds: new[] { new UserIdentifier(user.TenantId, user.Id) }
                     );

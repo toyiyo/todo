@@ -12,7 +12,6 @@
     <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
     <script src="~/lib/abp-web-resources/Abp/Framework/scripts/libs/abp.signalr-client.js"></script>
     <script src="~/js/signalr-manager.js"></script>
-    @RenderSection("scripts", required: false)
     <script>
         // Ensure formatters exist
         abp.notifications.messageFormatters = abp.notifications.messageFormatters || {};
@@ -42,6 +41,7 @@
             app.signalr.connect();
         });
     </script>
+    @RenderSection("scripts", required: false)
 </body>
 
 </html>
