@@ -65,24 +65,60 @@ namespace toyiyo.todo.Notes.Dto
         }
     }
 
+/// <summary>
+/// Input DTO for creating a new note.
+/// </summary>
     public class CreateNoteInput
     {
+        /// <summary>
+        /// Gets or sets the content of the note.
+        /// </summary>
         public string Content { get; set; }
+        /// <summary>
+        /// Gets or sets the Job ID associated with the note.
+        /// </summary>
         public Guid JobId { get; set; }
+        /// <summary>
+        /// Gets or sets the ID of the parent note, if any.
+        /// </summary>
         public Guid? ParentNoteId { get; set; }
     }
 
+    /// <summary>
+    /// Input DTO for getting all notes for a specific job.
+    /// </summary>
     public class GetNotesInput
     {
+        /// <summary>
+        /// Gets or sets the Job ID associated with the note.
+        /// </summary>
         public Guid JobId { get; set; }
+        /// <summary>
+        /// Gets or sets the keyword to filter notes by content.
+        /// </summary>
         public string Keyword { get; set; }
+        /// <summary>
+        ///     Gets or sets the maximum number of results to return.
+        /// </summary>
         public int MaxResultCount { get; set; }
+        /// <summary>
+        ///    Gets or sets the number of results to skip.
+        /// </summary>
         public int SkipCount { get; set; }
     }
 
+    /// <summary>
+    /// Input DTO for updating an existing note.
+    /// </summary>
     public class UpdateNoteInput
     {
+        /// <summary>
+        /// Gets or sets the ID of the note to update.
+        /// </summary>
         public Guid Id { get; set; }
+        /// <summary>
+        /// Gets or sets the new content of the note.
+        /// </summary>
         public string Content { get; set; }
     }
 }
