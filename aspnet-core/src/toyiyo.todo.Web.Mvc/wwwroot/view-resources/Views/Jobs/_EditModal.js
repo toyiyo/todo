@@ -364,11 +364,16 @@
         e.preventDefault();
         e.stopPropagation();
 
-        const $note = $(this).closest('.note');
+        const $button = $(this);
+        const $note = $button.closest('.note');
         const $threadContainer = $note.find('.thread-container');
+        const $icon = $button.find('i');
         
         // Toggle thread container visibility
         $threadContainer.toggle();
+        
+        // Toggle chevron direction
+        $icon.toggleClass('fa-chevron-down fa-chevron-up');
         
         // Focus on the reply textarea when showing thread
         if ($threadContainer.is(':visible')) {
@@ -474,7 +479,13 @@
 
         // Only show reply button for parent notes (notes without a parentNoteId)
         if (!note.parentNoteId) {
-            actions.push('<button class="btn btn-sm btn-link reply-button">Reply</button>');
+            const replyCount = note.replies ? note.replies.length : 0;
+            const replyText = replyCount === 0 
+                ? l('Reply') 
+                : `${replyCount} ${replyCount === 1 ? l('Reply') : l('Replies')}`;
+            actions.push(`<button class="btn btn-sm btn-link reply-button">
+                ${replyText} <i class="fas fa-chevron-${note.replies && note.replies.length > 0 ? 'up' : 'down'}"></i>
+            </button>`);
         }
 
         if (isAuthor) {
