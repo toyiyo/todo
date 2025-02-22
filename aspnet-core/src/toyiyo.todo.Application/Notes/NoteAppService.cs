@@ -4,21 +4,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
-using Abp.Domain.Repositories;
-using Abp.Linq.Extensions;
-using Abp.Runtime.Session;
 using Abp.Notifications;
 using Microsoft.EntityFrameworkCore;
 using toyiyo.todo.Authorization;
 using toyiyo.todo.Authorization.Users;
 using toyiyo.todo.Jobs;
 using toyiyo.todo.Notes.Dto;
-using toyiyo.todo.Notifications;
 using toyiyo.todo.Notifications.NotificationData;
 using Abp;
 
 namespace toyiyo.todo.Notes
 {
+    /// <summary>
+    /// Application service for managing notes.
+    /// </summary>
     [AbpAuthorize(PermissionNames.Pages_Jobs)]
     public class NoteAppService : todoAppServiceBase, INoteAppService
     {
@@ -36,6 +35,11 @@ namespace toyiyo.todo.Notes
             _notificationPublisher = notificationPublisher;
         }
 
+        /// <summary>
+        /// Creates a new note.
+        /// </summary>
+        /// <param name="input">The input containing note details.</param>
+        /// <returns>The created note DTO.</returns>
         public async Task<NoteDto> CreateAsync(CreateNoteInput input)
         {
             var job = await _jobManager.Get(input.JobId);
@@ -60,10 +64,10 @@ namespace toyiyo.todo.Notes
         }
 
         /// <summary>
-        /// Gets all notes for a specific job with optional filtering and pagination
+        /// Gets all notes for a specific job with optional filtering and pagination.
         /// </summary>
-        /// <param name="input">Input parameters containing JobId, Keyword and paging information</param>
-        /// <returns>Paged list of notes</returns>
+        /// <param name="input">Input parameters containing JobId, Keyword and paging information.</param>
+        /// <returns>Paged list of notes.</returns>
         public async Task<PagedResultDto<NoteDto>> GetAllAsync(GetNotesInput input)
         {
             var managerInput = new GetAllNotesInput
@@ -80,11 +84,21 @@ namespace toyiyo.todo.Notes
             return new PagedResultDto<NoteDto>(totalCount, ObjectMapper.Map<List<NoteDto>>(notes));
         }
 
+        /// <summary>
+        /// Deletes a note by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the note to delete.</param>
         public async Task DeleteAsync(Guid id)
         {
             await _noteManager.Delete(id, await GetCurrentUserAsync());
         }
 
+        /// <summary>
+        /// Updates the content of a note.
+        /// </summary>
+        /// <param name="id">The ID of the note to update.</param>
+        /// <param name="content">The new content of the note.</param>
+        /// <returns>The updated note DTO.</returns>
         public async Task<NoteDto> UpdateAsync(Guid id, string content)
         {
             var note = await _noteManager.Get(id);
@@ -94,18 +108,18 @@ namespace toyiyo.todo.Notes
             return ObjectMapper.Map<NoteDto>(updatedNote);
         }
 
-        private List<string> ExtractMentions(string content)
+        /// <summary>
+        /// Extracts mentioned usernames from the note content.
+        /// </summary>
+        /// <param name="content">The content of the note.</param>
+        /// <returns>List of mentioned usernames.</returns>
+        private static List<string> ExtractMentions(string content)
         {
-            var mentions = new List<string>();
-            var words = content.Split(' ');
-            foreach (var word in words)
-            {
-                if (word.StartsWith("@"))
-                {
-                    mentions.Add(word.Substring(1));
-                }
-            }
-            return mentions;
+            return content
+            .Split(' ')
+            .Where(word => word.StartsWith('@'))
+            .Select(word => word.Substring(1))
+            .ToList();
         }
 
         /// <summary>

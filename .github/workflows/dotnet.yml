@@ -41,7 +41,7 @@ jobs:
         GoogleClietSecret: ${{ secrets.DEFAULT_PASSWORD_FOR_TEST }}
         StripeAPIKeyProduction: ${{ secrets.STRIPE_API_KEY_DEBUG}}
       run: |
-        dotnet tool install --global dotnet-coverage
+        dotnet tool install --global dotnet-coverage --version 17.12.4
         dotnet-coverage collect 'dotnet test aspnet-core/toyiyo.todo.sln' -f xml  -o 'coverage.xml'
     - name: Upload coverage results
       uses: actions/upload-artifact@v4

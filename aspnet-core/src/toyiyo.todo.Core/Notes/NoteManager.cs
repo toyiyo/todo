@@ -63,6 +63,7 @@ namespace toyiyo.todo.Notes
             return query;
         }
 
+        [UnitOfWork]
         public async Task<Note> Create(Note inputNote)
         {
             return await _noteRepository.InsertAsync(inputNote);
@@ -77,12 +78,9 @@ namespace toyiyo.todo.Notes
         {
             var note = await Get(id);
             if (note == null) throw new ArgumentNullException(nameof(id));
-            
-            // Only creator can delete their notes
-            if (note.CreatorUserId != user.Id)
-            {
-                throw new UnauthorizedAccessException("Only the creator can delete their notes");
-            }
+
+            // Call the domain logic to perform validations
+            note = Note.Delete(note, user);
 
             await _noteRepository.DeleteAsync(note);
         }
