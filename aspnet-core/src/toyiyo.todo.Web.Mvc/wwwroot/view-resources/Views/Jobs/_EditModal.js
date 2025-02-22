@@ -522,50 +522,61 @@
 
         return actions.join('');
     }
-
+    
+    // Use in your event handler
     function handleDeleteButtonClick(e) {
         e.preventDefault();
         e.stopPropagation();
         
-        // Find the closest element with note-id that's either a .note or .reply
         const $noteElement = $(this).closest('[data-note-id]');
         const noteId = $noteElement.data('note-id');
         
-        abp.message.confirm(
-            l('DeleteNoteConfirmationMessage'),
-            l('AreYouSure'),
-            function (isConfirmed) {
-                if (isConfirmed) {
-                    const _noteService = abp.services.app.note;
-                    abp.ui.setBusy($noteElement);
+        confirmAndDeleteNote(noteId, $noteElement);
+    }
 
-                    _noteService.delete(noteId)
-                        .done(function () {
-                            // If this is a reply, just remove the reply element
-                            // If it's a parent note, remove the entire note
-                            $noteElement.fadeOut(function () {
-                                $(this).remove();
-                                
-                                // If this was the last reply, hide the thread container
-                                if ($noteElement.hasClass('reply')) {
-                                    const $threadContainer = $noteElement.closest('.thread-container');
-                                    const $remainingReplies = $threadContainer.find('.reply');
-                                    if ($remainingReplies.length === 0) {
-                                        $threadContainer.hide();
-                                    }
-                                }
-                            });
-                            abp.notify.success(l('NoteDeleted'));
-                        })
-                        .fail(function () {
-                            abp.notify.error(l('ErrorDeletingNote'));
-                        })
-                        .always(function () {
-                            abp.ui.clearBusy($noteElement);
-                        });
+    function handleNoteDeletion(noteId, $noteElement) {
+        const _noteService = abp.services.app.note;
+        abp.ui.setBusy($noteElement);
+    
+        _noteService.delete(noteId)
+            .done(() => onDeleteSuccess($noteElement))
+            .fail(() => abp.notify.error(l('ErrorDeletingNote')))
+            .always(() => abp.ui.clearBusy($noteElement));
+    }
+    
+    function onDeleteSuccess($noteElement) {
+        $noteElement.fadeOut(() => {
+            $noteElement.remove();
+            handleThreadVisibility($noteElement);
+        });
+        abp.notify.success(l('NoteDeleted'));
+    }
+    
+    function handleThreadVisibility($noteElement) {
+        if (!$noteElement.hasClass('reply')) {
+            return;
+        }
+    
+        const $threadContainer = $noteElement.closest('.thread-container');
+        const $remainingReplies = $threadContainer.find('.reply');
+        
+        if ($remainingReplies.length === 0) {
+            $threadContainer.hide();
+        }
+    }
+    
+    function confirmAndDeleteNote(noteId, $noteElement) {
+        const confirmOptions = {
+            message: l('DeleteNoteConfirmationMessage'),
+            title: l('AreYouSure'),
+            callback: (isConfirmed) => {
+                if (isConfirmed) {
+                    handleNoteDeletion(noteId, $noteElement);
                 }
             }
-        );
+        };
+    
+        abp.message.confirm(confirmOptions.message, confirmOptions.title, confirmOptions.callback);
     }
 
     function handleEditButtonClick(e) {
