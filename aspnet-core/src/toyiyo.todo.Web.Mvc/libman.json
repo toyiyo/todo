@@ -200,13 +200,6 @@
       ]
     },
     {
-      "library": "marked@15.0.6",
-      "destination": "wwwroot/libs/marked",
-      "files": [
-        "marked.min.js"
-      ]
-    },
-    {
       "library": "dompurify@3.2.3",
       "destination": "wwwroot/libs/dompurify"
     }

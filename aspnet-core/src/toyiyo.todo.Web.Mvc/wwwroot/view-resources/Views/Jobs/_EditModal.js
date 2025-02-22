@@ -458,29 +458,25 @@
 
     function formatNoteContent(content) {
         try {
-            if (typeof marked === 'undefined') {
-                console.warn('Marked library not available, falling back to plain text');
-                return $('<div/>').text(content).html();
-            }
+            // Convert line breaks to <br> tags
+            let formattedContent = content
+                .replace(/\n/g, '<br>')
+                // Convert URLs to links
+                .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
+                // Convert **text** to bold
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                // Convert *text* to italic
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                // Convert `code` to code blocks
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                // Convert basic lists
+                .replace(/^- (.+)$/gm, '<li>$1</li>')
+                .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
 
-            // Configure marked with security options
-            marked.setOptions({
-                breaks: true,
-                gfm: true,
-                headerIds: false, // Disable header IDs to prevent XSS
-                mangle: false,    // Disable mangle to prevent XSS
-                sanitize: true,   // Enable sanitization
-                silent: true      // Don't throw errors on invalid markup
-            });
-
-            // Sanitize input before passing to marked
-            const sanitizedContent = DOMPurify.sanitize(content);
-            const markedContent = marked.parse(sanitizedContent);
-
-            // Sanitize output after markdown processing
-            return DOMPurify.sanitize(markedContent, {
-                ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'code', 'pre'],
-                ALLOWED_ATTR: [] // No attributes allowed
+            // Sanitize the final HTML
+            return DOMPurify.sanitize(formattedContent, {
+                ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'ul', 'li', 'code', 'a'],
+                ALLOWED_ATTR: ['href', 'target'] // Only allow href and target attributes for links
             });
         } catch (error) {
             console.error('Error formatting note content:', error);
@@ -679,18 +675,6 @@
         }
     });
 
-    document.addEventListener('DOMContentLoaded', function () {
-        if (typeof marked === 'undefined') {
-            console.error('Marked library not loaded');
-            return;
-        }
-
-        marked.setOptions({
-            breaks: true,
-            gfm: true,
-            sanitize: true
-        });
-    });
     function handleAddNote() {
         const _noteService = abp.services.app.note;
         const $modal = $('#JobEditModal');
