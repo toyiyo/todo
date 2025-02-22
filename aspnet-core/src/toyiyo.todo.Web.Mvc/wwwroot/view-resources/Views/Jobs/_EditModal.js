@@ -2,7 +2,7 @@
 
     const Editor = toastui.Editor;
     const _$getLinkButton = $('.btn-pane-get-link');
-    var _debounceTimer = null;
+    let _debounceTimer = null;
     const _$subtaskForm = $('#subtasks #AddByTitle');
 
     document.getElementById("dueDate").setAttribute("min", new Date().toJSON().split('T')[0]);
@@ -15,7 +15,7 @@
         previewStyle: 'vertical'
     });
 
-    var _jobService = abp.services.app.job,
+    let _jobService = abp.services.app.job,
         l = abp.localization.getSource('todo'),
         _$modal = $('#JobEditModal'),
         _$form = _$modal.find('form');
@@ -29,7 +29,7 @@
 
         //serialization works for input types, the description is a div so that we can have markdown functionality.  
         //We need to get the div contents and manually add them to the job object
-        var job = _$form.serializeFormToObject();
+        let job = _$form.serializeFormToObject();
         job.description = editor.getMarkdown();
         job.dueDate = moment(job.dueDate).endOf('day').utc();
         job.assigneeId = _$form.find('#assigneeSelect').val();;
@@ -60,7 +60,7 @@
             clearTimeout(_debounceTimer);
         }
         _debounceTimer = setTimeout(function () {
-            var job = _$form.serializeFormToObject();
+            let job = _$form.serializeFormToObject();
             job.description = editor.getMarkdown();
             _jobService.setDescription(job);
         }, 700);
@@ -136,23 +136,23 @@
     });
     //show hide subtask input field
     $('table').on('click', '.subtask-text', function () {
-        var $text = $(this);
-        var $input = $text.next('.subtask-input');
+        let $text = $(this);
+        let $input = $text.next('.subtask-input');
         $text.addClass('d-none');
         $input.removeClass('d-none');
         $input.focus();
     });
 
     $('table').on('blur', '.subtask-input', function () {
-        var $input = $(this);
-        var $text = $input.prev('.subtask-text');
+        let $input = $(this);
+        let $text = $input.prev('.subtask-text');
         $input.addClass('d-none');
         $text.removeClass('d-none');
         $text.text($input.val());
     });
     //add subtask to UI when subtask is created
     function addSubtaskToTable(subtask) {
-        var $row = $(`
+        let $row = $(`
         <tr>
             <td>
                 <input type="checkbox" class="subtask-checkbox" data-subtask-id="${subtask.id}" ${subtask.jobStatusId === 2 ? 'checked' : ''} />
@@ -273,26 +273,26 @@
 
     // Update createNoteElement to handle nested replies
     function createNoteElement(note) {
-        var $note = $('<div/>', {
+        let $note = $('<div/>', {
             class: 'note mb-3',
             'data-note-id': note.id
         });
 
-        var $header = $('<div/>', {
+        let $header = $('<div/>', {
             class: 'note-header d-flex justify-content-between align-items-center'
         });
 
-        var $authorInfo = $('<div/>');
+        let $authorInfo = $('<div/>');
         $('<strong/>').text(note.authorName).appendTo($authorInfo);
         $('<small/>', {
             class: 'text-muted ml-2'
         }).text(moment(note.creationTime).fromNow()).appendTo($authorInfo);
 
-        var $actions = $('<div/>', {
+        let $actions = $('<div/>', {
             class: 'note-actions'
         }).html(getActionsHtml(note));
 
-        var $content = $('<div/>', {
+        let $content = $('<div/>', {
             class: 'note-content'
         }).html(formatNoteContent(note.content));
 
@@ -302,13 +302,13 @@
         // Only show thread section for parent notes (notes without a parentNoteId)
         if (!note.parentNoteId) {
             // Create thread container
-            var $threadContainer = $('<div/>', {
+            let $threadContainer = $('<div/>', {
                 class: 'thread-container mt-2',
                 // Only hide if there are no replies
                 style: note.replies && note.replies.length > 0 ? '' : 'display: none;'
             });
 
-            var $repliesSection = $('<div/>', {
+            let $repliesSection = $('<div/>', {
                 class: 'replies-section pl-4 border-left'
             });
 
@@ -331,26 +331,26 @@
     }
 
     function createReplyElement(reply) {
-        var $reply = $('<div/>', {
+        let $reply = $('<div/>', {
             class: 'reply mb-2',
             'data-note-id': reply.id
         });
 
-        var $header = $('<div/>', {
+        let $header = $('<div/>', {
             class: 'reply-header d-flex justify-content-between align-items-center'
         });
 
-        var $authorInfo = $('<div/>');
+        let $authorInfo = $('<div/>');
         $('<strong/>').text(reply.authorName).appendTo($authorInfo);
         $('<small/>', {
             class: 'text-muted ml-2'
         }).text(moment(reply.creationTime).fromNow()).appendTo($authorInfo);
 
-        var $actions = $('<div/>', {
+        let $actions = $('<div/>', {
             class: 'reply-actions'
         }).html(getActionsHtml(reply));
 
-        var $content = $('<div/>', {
+        let $content = $('<div/>', {
             class: 'reply-content'
         }).html(formatNoteContent(reply.content));
 
@@ -445,7 +445,7 @@
     });
 
     function refreshNotesList() {
-        var $notesList = $('#notesList');
+        let $notesList = $('#notesList');
         $notesList.empty();
 
         _noteService.getAll({
@@ -454,7 +454,7 @@
             skipCount: 0
         }).done(function (result) {
             result.items.forEach(function (note) {
-                var $noteElement = createNoteElement(note);
+                let $noteElement = createNoteElement(note);
                 $notesList.append($noteElement);
             });
         });
@@ -713,7 +713,7 @@
         _noteService.create(noteData)
             .done(function (result) {
                 $textarea.val('');
-                var $noteElement = createNoteElement(result);
+                let $noteElement = createNoteElement(result);
                 // Change from prepend to append for consistency
                 $('#notesList').append($noteElement);
                 abp.notify.success(l('NoteSaved'));
