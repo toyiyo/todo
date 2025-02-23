@@ -70,12 +70,32 @@
         _$form.find('input[type=text]:first').focus();
     });
 
+    function cleanupEventHandlers() {
+        // Remove all event handlers for reply-related actions
+        $(document).off('click', '.reply-button');
+        $(document).off('click', '.delete-button');
+        $(document).off('click', '.edit-button');
+        $(document).off('click', '.submit-reply');
+        $(document).off('focus', '.reply-form textarea');
+        
+        // Clean up Tribute instances
+        $('.reply-form textarea, #noteContent').each(function() {
+            if (this.tribute) {
+                this.tribute.detach(this);
+            }
+        });
+    }
+
     _$modal.on('hidden.bs.modal', function () {
         //when the modal is hidden, change the url history to the listing page
         const projectId = $('#ProjectId').val();
         const nextUrl = '/projects/' + projectId + '/jobs/';
         const nextTitle = 'jobs';
         const nextState = { additionalInformation: 'jobs' };
+        
+        // Clean up before hiding
+        cleanupEventHandlers();
+        
         // This will create a new entry in the browser's history, without reloading
         window.history.pushState(nextState, nextTitle, nextUrl);
     });
@@ -229,10 +249,11 @@
     function initializeNotes() {
         let _currentPage = 1;
 
-        // Remove the cancel-reply event handler
-        $(document).on('click', '.reply-button', handleReplyButtonClick);
-        $(document).on('click', '.delete-button', handleDeleteButtonClick);
-        $(document).on('click', '.edit-button', handleEditButtonClick);
+        // Clean up existing handlers before adding new ones
+        cleanupEventHandlers();
+
+        // Attach all note-related event handlers
+        attachNoteEventHandlers();
 
         loadNotes(_currentPage);
     }
@@ -365,10 +386,12 @@
         const $threadContainer = $note.find('.thread-container');
         const $icon = $button.find('i');
 
-        // Toggle thread container visibility
-        $threadContainer.toggle();
+        // Toggle all other thread containers closed
+        $('.thread-container').not($threadContainer).hide();
+        $('.reply-button i').not($icon).removeClass('fa-chevron-up').addClass('fa-chevron-down');
 
-        // Toggle chevron direction
+        // Toggle current thread container
+        $threadContainer.toggle();
         $icon.toggleClass('fa-chevron-down fa-chevron-up');
 
         // Focus on the reply textarea when showing thread
@@ -425,6 +448,9 @@
 
                 // Add the new reply before the reply form
                 $repliesSection.append($replyElement);
+                
+                // Update reply counter
+                updateReplyCounter($note);
 
                 // Clear the textarea but keep the form
                 $textarea.val('');
@@ -537,9 +563,14 @@
     }
 
     function onDeleteSuccess($noteElement) {
+        const $parentNote = $noteElement.closest('.note');
         $noteElement.fadeOut(() => {
             $noteElement.remove();
             handleThreadVisibility($noteElement);
+            // Update counter if this was a reply
+            if ($parentNote.length && $noteElement.hasClass('reply')) {
+                updateReplyCounter($parentNote);
+            }
         });
         abp.notify.success(l('NoteDeleted'));
     }
@@ -575,24 +606,18 @@
         e.preventDefault();
         e.stopPropagation();
 
-        // Find the closest element with note-id that's either a .note or .reply
         const $noteElement = $(this).closest('[data-note-id]');
-        // Find the specific content element within the current note/reply scope
         const $content = $noteElement.children('.note-content, .reply-content');
-
+        
         // If already editing, return
-        if ($content.find('.edit-form').length > 0) {
+        if ($noteElement.find('.edit-form').length > 0) {
             return;
         }
 
         const noteId = $noteElement.data('note-id');
-        // Get only this specific content's text, avoiding nested content
-        const initialContent = $content.clone()    // Clone to avoid modifying original
-            .children('.thread-container').remove()  // Remove thread container from clone
-            .end()                                  // Go back to original element
-            .text().trim();                         // Get text content
+        const initialContent = $content.text().trim();
 
-        // Create an inline edit form that replaces the content
+        // Create an inline edit form
         const $editForm = $(`
             <div class="edit-form">
                 <textarea class="form-control" rows="2">${initialContent}</textarea>
@@ -603,14 +628,17 @@
             </div>
         `);
 
-        // Store original content
-        $content.data('original-content', initialContent);
-        // Hide the content and show edit form
-        $content.hide().after($editForm);
+        // Store original content and hide it
+        $content.hide();
+        
+        // Remove any existing edit forms before adding new one
+        $noteElement.find('.edit-form').remove();
+        $content.after($editForm);
 
         // Handle cancel
         $editForm.on('click', '.cancel-edit', function () {
-            cleanup();
+            $content.show();
+            $editForm.remove();
         });
 
         // Handle save
@@ -627,7 +655,7 @@
             _noteService.update(noteId, updatedContent)
                 .done(function () {
                     $content.html(formatNoteContent(updatedContent)).show();
-                    cleanup();
+                    $editForm.remove();
                     abp.notify.success(l('NoteUpdated'));
                 })
                 .fail(function (error) {
@@ -638,11 +666,6 @@
                     abp.ui.clearBusy($editForm);
                 });
         });
-
-        function cleanup() {
-            $content.show();
-            $editForm.remove();
-        }
 
         // Focus on the textarea
         $editForm.find('textarea').focus();
@@ -762,9 +785,15 @@
     }
 
     function attachTributeToElement(tribute, element) {
-        if (element && !element.tribute) {
+        if (!element || element.tribute) {
+            return; // Skip if element doesn't exist or already has Tribute
+        }
+        
+        try {
             tribute.attach(element);
             console.log(`Tribute attached to ${element.id || 'textarea'}`);
+        } catch (error) {
+            console.error('Error attaching Tribute:', error);
         }
     }
 
@@ -794,9 +823,74 @@
         }
     }
 
+    function updateReplyCounter($note) {
+        const $replyButton = $note.find('.reply-button');
+        const replyCount = $note.find('.replies-section .reply').length;
+        const replyText = replyCount === 0
+            ? escapeHtml(l('Reply'))
+            : `${replyCount} ${escapeHtml(replyCount === 1 ? l('Reply') : l('Replies'))}`;
+        
+        $replyButton.html(`${replyText} <i class="fas fa-chevron-${$note.find('.thread-container').is(':visible') ? 'up' : 'down'}"></i>`);
+    }
+
+    function attachNoteEventHandlers() {
+        $(document).on('click', '.reply-button', handleReplyButtonClick);
+        $(document).on('click', '.delete-button', handleDeleteButtonClick);
+        $(document).on('click', '.edit-button', handleEditButtonClick);
+        $(document).on('click', '.submit-reply', handleSubmitReply);
+    }
+
+    function handleSubmitReply(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const $replyForm = $(this).closest('.reply-form');
+        const $note = $replyForm.closest('.note');
+        const $textarea = $replyForm.find('textarea');
+        const content = $textarea.val();
+
+        if (!content) {
+            abp.notify.warn(l('PleaseEnterReply'));
+            return;
+        }
+
+        const _noteService = abp.services.app.note;
+        const noteData = {
+            jobId: $('#Id').val(),
+            parentNoteId: $note.data('note-id'),
+            content: content
+        };
+
+        abp.ui.setBusy($replyForm);
+
+        _noteService.create(noteData)
+            .done(function (result) {
+                const $replyElement = createReplyElement(result);
+                const $repliesSection = $note.find('.replies-section');
+
+                $repliesSection.append($replyElement);
+                updateReplyCounter($note);
+                
+                $textarea.val('');
+                $textarea.focus();
+
+                abp.notify.success(l('ReplySaved'));
+            })
+            .fail(function () {
+                abp.notify.error(l('ErrorSavingReply'));
+            })
+            .always(function () {
+                abp.ui.clearBusy($replyForm);
+            });
+    }
+
     // Update document ready handler
     $(document).ready(function () {
         console.log('Document ready, initializing components...');
+        
+        // Clean up any existing handlers and Tribute instances
+        cleanupEventHandlers();
+        
         initializeNotes();
         initializeMentions();
 
