@@ -365,10 +365,12 @@
         const $threadContainer = $note.find('.thread-container');
         const $icon = $button.find('i');
 
-        // Toggle thread container visibility
-        $threadContainer.toggle();
+        // Toggle all other thread containers closed
+        $('.thread-container').not($threadContainer).hide();
+        $('.reply-button i').not($icon).removeClass('fa-chevron-up').addClass('fa-chevron-down');
 
-        // Toggle chevron direction
+        // Toggle current thread container
+        $threadContainer.toggle();
         $icon.toggleClass('fa-chevron-down fa-chevron-up');
 
         // Focus on the reply textarea when showing thread
@@ -425,6 +427,9 @@
 
                 // Add the new reply before the reply form
                 $repliesSection.append($replyElement);
+                
+                // Update reply counter
+                updateReplyCounter($note);
 
                 // Clear the textarea but keep the form
                 $textarea.val('');
@@ -537,9 +542,14 @@
     }
 
     function onDeleteSuccess($noteElement) {
+        const $parentNote = $noteElement.closest('.note');
         $noteElement.fadeOut(() => {
             $noteElement.remove();
             handleThreadVisibility($noteElement);
+            // Update counter if this was a reply
+            if ($parentNote.length && $noteElement.hasClass('reply')) {
+                updateReplyCounter($parentNote);
+            }
         });
         abp.notify.success(l('NoteDeleted'));
     }
@@ -575,24 +585,18 @@
         e.preventDefault();
         e.stopPropagation();
 
-        // Find the closest element with note-id that's either a .note or .reply
         const $noteElement = $(this).closest('[data-note-id]');
-        // Find the specific content element within the current note/reply scope
         const $content = $noteElement.children('.note-content, .reply-content');
-
+        
         // If already editing, return
-        if ($content.find('.edit-form').length > 0) {
+        if ($noteElement.find('.edit-form').length > 0) {
             return;
         }
 
         const noteId = $noteElement.data('note-id');
-        // Get only this specific content's text, avoiding nested content
-        const initialContent = $content.clone()    // Clone to avoid modifying original
-            .children('.thread-container').remove()  // Remove thread container from clone
-            .end()                                  // Go back to original element
-            .text().trim();                         // Get text content
+        const initialContent = $content.text().trim();
 
-        // Create an inline edit form that replaces the content
+        // Create an inline edit form
         const $editForm = $(`
             <div class="edit-form">
                 <textarea class="form-control" rows="2">${initialContent}</textarea>
@@ -603,14 +607,17 @@
             </div>
         `);
 
-        // Store original content
-        $content.data('original-content', initialContent);
-        // Hide the content and show edit form
-        $content.hide().after($editForm);
+        // Store original content and hide it
+        $content.hide();
+        
+        // Remove any existing edit forms before adding new one
+        $noteElement.find('.edit-form').remove();
+        $content.after($editForm);
 
         // Handle cancel
         $editForm.on('click', '.cancel-edit', function () {
-            cleanup();
+            $content.show();
+            $editForm.remove();
         });
 
         // Handle save
@@ -627,7 +634,7 @@
             _noteService.update(noteId, updatedContent)
                 .done(function () {
                     $content.html(formatNoteContent(updatedContent)).show();
-                    cleanup();
+                    $editForm.remove();
                     abp.notify.success(l('NoteUpdated'));
                 })
                 .fail(function (error) {
@@ -638,11 +645,6 @@
                     abp.ui.clearBusy($editForm);
                 });
         });
-
-        function cleanup() {
-            $content.show();
-            $editForm.remove();
-        }
 
         // Focus on the textarea
         $editForm.find('textarea').focus();
@@ -792,6 +794,16 @@
             console.error('Error initializing mentions:', error);
             abp.notify.error('Failed to initialize mentions functionality');
         }
+    }
+
+    function updateReplyCounter($note) {
+        const $replyButton = $note.find('.reply-button');
+        const replyCount = $note.find('.replies-section .reply').length;
+        const replyText = replyCount === 0
+            ? escapeHtml(l('Reply'))
+            : `${replyCount} ${escapeHtml(replyCount === 1 ? l('Reply') : l('Replies'))}`;
+        
+        $replyButton.html(`${replyText} <i class="fas fa-chevron-${$note.find('.thread-container').is(':visible') ? 'up' : 'down'}"></i>`);
     }
 
     // Update document ready handler
