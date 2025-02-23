@@ -70,12 +70,32 @@
         _$form.find('input[type=text]:first').focus();
     });
 
+    function cleanupEventHandlers() {
+        // Remove all event handlers for reply-related actions
+        $(document).off('click', '.reply-button');
+        $(document).off('click', '.delete-button');
+        $(document).off('click', '.edit-button');
+        $(document).off('click', '.submit-reply');
+        $(document).off('focus', '.reply-form textarea');
+        
+        // Clean up Tribute instances
+        $('.reply-form textarea, #noteContent').each(function() {
+            if (this.tribute) {
+                this.tribute.detach(this);
+            }
+        });
+    }
+
     _$modal.on('hidden.bs.modal', function () {
         //when the modal is hidden, change the url history to the listing page
         const projectId = $('#ProjectId').val();
         const nextUrl = '/projects/' + projectId + '/jobs/';
         const nextTitle = 'jobs';
         const nextState = { additionalInformation: 'jobs' };
+        
+        // Clean up before hiding
+        cleanupEventHandlers();
+        
         // This will create a new entry in the browser's history, without reloading
         window.history.pushState(nextState, nextTitle, nextUrl);
     });
@@ -229,10 +249,11 @@
     function initializeNotes() {
         let _currentPage = 1;
 
-        // Remove the cancel-reply event handler
-        $(document).on('click', '.reply-button', handleReplyButtonClick);
-        $(document).on('click', '.delete-button', handleDeleteButtonClick);
-        $(document).on('click', '.edit-button', handleEditButtonClick);
+        // Clean up existing handlers before adding new ones
+        cleanupEventHandlers();
+
+        // Attach all note-related event handlers
+        attachNoteEventHandlers();
 
         loadNotes(_currentPage);
     }
@@ -764,9 +785,15 @@
     }
 
     function attachTributeToElement(tribute, element) {
-        if (element && !element.tribute) {
+        if (!element || element.tribute) {
+            return; // Skip if element doesn't exist or already has Tribute
+        }
+        
+        try {
             tribute.attach(element);
             console.log(`Tribute attached to ${element.id || 'textarea'}`);
+        } catch (error) {
+            console.error('Error attaching Tribute:', error);
         }
     }
 
@@ -806,9 +833,64 @@
         $replyButton.html(`${replyText} <i class="fas fa-chevron-${$note.find('.thread-container').is(':visible') ? 'up' : 'down'}"></i>`);
     }
 
+    function attachNoteEventHandlers() {
+        $(document).on('click', '.reply-button', handleReplyButtonClick);
+        $(document).on('click', '.delete-button', handleDeleteButtonClick);
+        $(document).on('click', '.edit-button', handleEditButtonClick);
+        $(document).on('click', '.submit-reply', handleSubmitReply);
+    }
+
+    function handleSubmitReply(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const $replyForm = $(this).closest('.reply-form');
+        const $note = $replyForm.closest('.note');
+        const $textarea = $replyForm.find('textarea');
+        const content = $textarea.val();
+
+        if (!content) {
+            abp.notify.warn(l('PleaseEnterReply'));
+            return;
+        }
+
+        const _noteService = abp.services.app.note;
+        const noteData = {
+            jobId: $('#Id').val(),
+            parentNoteId: $note.data('note-id'),
+            content: content
+        };
+
+        abp.ui.setBusy($replyForm);
+
+        _noteService.create(noteData)
+            .done(function (result) {
+                const $replyElement = createReplyElement(result);
+                const $repliesSection = $note.find('.replies-section');
+
+                $repliesSection.append($replyElement);
+                updateReplyCounter($note);
+                
+                $textarea.val('');
+                $textarea.focus();
+
+                abp.notify.success(l('ReplySaved'));
+            })
+            .fail(function () {
+                abp.notify.error(l('ErrorSavingReply'));
+            })
+            .always(function () {
+                abp.ui.clearBusy($replyForm);
+            });
+    }
+
     // Update document ready handler
     $(document).ready(function () {
         console.log('Document ready, initializing components...');
+        
+        // Clean up any existing handlers and Tribute instances
+        cleanupEventHandlers();
+        
         initializeNotes();
         initializeMentions();
 
