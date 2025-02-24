@@ -14,13 +14,17 @@ using toyiyo.todo.EntityFrameworkCore;
 using toyiyo.todo.EntityFrameworkCore.Seed.Host;
 using toyiyo.todo.EntityFrameworkCore.Seed.Tenants;
 using toyiyo.todo.MultiTenancy;
+using toyiyo.todo.Identity;
 
 namespace toyiyo.todo.Tests
 {
     public abstract class todoTestBase : AbpIntegratedTestBase<todoTestModule>
     {
+        protected readonly UserManager _userManager;
+ 
         protected todoTestBase()
         {
+            _userManager = LocalIocManager.Resolve<UserManager>();
             void NormalizeDbContext(todoDbContext context)
             {
                 context.EntityChangeEventHelper = NullEntityChangeEventHelper.Instance;
@@ -222,6 +226,33 @@ namespace toyiyo.todo.Tests
                 context.Tenants
                     .AsNoTracking()  // Add this line to prevent change tracking
                     .SingleAsync(t => t.Id == tenantId));
+        }
+
+        protected async Task<User> CreateUserAndLogin(string userName, string emailAddress, string password)
+        {
+            var user = new User
+            {
+                TenantId = AbpSession.TenantId,
+                UserName = userName,
+                Surname = userName,
+                Name = userName,
+                EmailAddress = emailAddress,
+                IsEmailConfirmed = true
+            };
+            user.Password = _userManager.PasswordHasher.HashPassword(user, password);
+
+            user.Password = _userManager.PasswordHasher.HashPassword(user, password);
+            var result = await _userManager.CreateAsync(user, password);
+            if (!result.Succeeded)
+            {
+                throw new Exception("User creation failed: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+
+            await _userManager.SetLockoutEnabledAsync(user, false);
+            var signInManager = LocalIocManager.Resolve<SignInManager>();
+            await signInManager.SignInAsync(user, isPersistent: false);
+
+            return user;
         }
     }
 }

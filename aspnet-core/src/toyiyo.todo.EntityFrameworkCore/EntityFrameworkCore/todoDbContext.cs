@@ -8,6 +8,7 @@ using toyiyo.todo.Projects;
 using toyiyo.todo.Jobs;
 using toyiyo.todo.Invitations;
 using toyiyo.todo.Notes;
+using toyiyo.todo.Notifications;
 
 namespace toyiyo.todo.EntityFrameworkCore
 {
@@ -19,6 +20,7 @@ namespace toyiyo.todo.EntityFrameworkCore
         public DbSet<UserInvitation> UserInvitations { get; set; }
         public DbSet<JobImage> JobImages { get; set; }
         public DbSet<Note> Notes { get; set; }
+        public DbSet<NotificationPreference> NotificationPreferences { get; set; }
 
         public todoDbContext(DbContextOptions<todoDbContext> options)
             : base(options)
