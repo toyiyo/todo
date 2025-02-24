@@ -253,17 +253,39 @@
   }
 
   function calculateNewDates(leftPosition, dayWidth, timelineStart, job) {
+    // Calculate new start date based on position
     const daysOffset = Math.round(leftPosition / dayWidth);
     const newStartDate = new Date(timelineStart);
     newStartDate.setDate(newStartDate.getDate() + daysOffset);
 
+    // Initialize end date
     let newEndDate;
-    if (job.exactStartDate && job.exactEndDate) {
-      const originalDuration = job.exactEndDate.getTime() - job.exactStartDate.getTime();
-      newEndDate = new Date(newStartDate.getTime() + originalDuration);
+    
+    if (job.exactStartDate && job.exactEndDate && 
+        !isNaN(job.exactStartDate.getTime()) && !isNaN(job.exactEndDate.getTime())) {
+        // If we have both valid dates, maintain the original duration
+        const originalDuration = job.exactEndDate.getTime() - job.exactStartDate.getTime();
+        newEndDate = new Date(newStartDate.getTime() + originalDuration);
     } else {
-      newEndDate = new Date(newStartDate);
-      newEndDate.setMonth(newEndDate.getMonth() + 3);
+        // For items with no dates or partial dates, set end date to 1 month after start
+        newEndDate = new Date(newStartDate);
+        newEndDate.setMonth(newStartDate.getMonth() + 1);
+    }
+
+    // Ensure dates are in the current year or later
+    const currentYear = new Date().getFullYear();
+    if (newStartDate.getFullYear() < currentYear) {
+        newStartDate.setFullYear(currentYear);
+    }
+    if (newEndDate.getFullYear() < currentYear) {
+        newEndDate.setFullYear(currentYear);
+    }
+
+    // Ensure end date is always after start date by at least one month
+    if (newEndDate <= newStartDate || 
+        (newEndDate.getTime() - newStartDate.getTime()) < (30 * 24 * 60 * 60 * 1000)) {
+        newEndDate = new Date(newStartDate);
+        newEndDate.setMonth(newStartDate.getMonth() + 1);
     }
 
     return { newStartDate, newEndDate };
