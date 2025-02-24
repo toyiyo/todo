@@ -35,9 +35,20 @@ namespace toyiyo.todo.Notifications
             };
         }
 
-        public void Toggle(bool enabled)
+        public void Toggle(bool enabled, long userId)
         {
+            if (userId <= 0)
+            {
+                throw new ArgumentException("UserId must be greater than 0", nameof(userId));
+            }
+
+            if (userId != UserId)
+            {
+                throw new InvalidOperationException("Cannot toggle preference for another user.");
+            }
+
             IsEnabled = enabled;
+            LastModifierUserId = userId;
             LastModificationTime = Clock.Now;
         }
     }

@@ -240,8 +240,6 @@ namespace toyiyo.todo.Tests
                 IsEmailConfirmed = true
             };
             user.Password = _userManager.PasswordHasher.HashPassword(user, password);
-
-            user.Password = _userManager.PasswordHasher.HashPassword(user, password);
             var result = await _userManager.CreateAsync(user, password);
             if (!result.Succeeded)
             {
