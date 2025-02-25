@@ -33,7 +33,7 @@ namespace toyiyo.todo.Tests.Notifications
             var preference = NotificationPreference.Create(1, NotificationType.UserMention, NotificationChannel.Email);
             
             // Act
-            preference.Toggle(false);
+            preference.Toggle(false, 1);
 
             // Assert
             preference.IsEnabled.ShouldBeFalse();

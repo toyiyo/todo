@@ -53,12 +53,12 @@ namespace toyiyo.todo.Notifications
             if (preference == null)
             {
                 preference = NotificationPreference.Create(userId, input.NotificationType, input.Channel);
-                preference.Toggle(input.IsEnabled);
+                preference.Toggle(input.IsEnabled, userId);
                 await _notificationPreferenceManager.Create(preference);
             }
             else
             {
-                preference.Toggle(input.IsEnabled);
+                preference.Toggle(input.IsEnabled, userId);
                 await _notificationPreferenceManager.Update(preference);
             }
 
