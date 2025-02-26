@@ -11,5 +11,6 @@
         public const string Pages_Jobs = "Pages.Jobs";
         public const string Pages_Company_Profile = "Pages.Company.Profile";
         public const string Pages_Subscription = "Pages.Subscription";
+        public const string Pages_Administration_HangfireDashboard = "Pages.Administration.HangfireDashboard";
     }
 }

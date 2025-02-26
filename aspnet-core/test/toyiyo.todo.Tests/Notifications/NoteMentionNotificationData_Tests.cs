@@ -15,17 +15,15 @@ namespace toyiyo.todo.Tests.Notifications
             var jobTitle = "Test Job";
             var noteContent = "This is a test note.";
             var jobId = Guid.NewGuid();
-            var noteId = Guid.NewGuid();
 
             // Act
-            var notificationData = new NoteMentionNotificationData(senderUsername, jobTitle, noteContent, jobId, noteId);
+            var notificationData = new NoteMentionNotificationData(senderUsername, jobTitle, noteContent, jobId);
 
             // Assert
             notificationData.SenderUsername.ShouldBe(senderUsername);
             notificationData.JobTitle.ShouldBe(jobTitle);
             notificationData.NoteContent.ShouldBe(noteContent);
             notificationData.JobId.ShouldBe(jobId);
-            notificationData.NoteId.ShouldBe(noteId);
         }
     }
 }

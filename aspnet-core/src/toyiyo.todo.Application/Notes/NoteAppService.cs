@@ -10,8 +10,8 @@ using toyiyo.todo.Authorization;
 using toyiyo.todo.Authorization.Users;
 using toyiyo.todo.Jobs;
 using toyiyo.todo.Notes.Dto;
-using toyiyo.todo.Notifications.NotificationData;
-using Abp;
+using Abp.Events.Bus;
+using toyiyo.todo.Notifications.Events;
 
 namespace toyiyo.todo.Notes
 {
@@ -23,16 +23,17 @@ namespace toyiyo.todo.Notes
     {
         private readonly INoteManager _noteManager;
         private readonly IJobManager _jobManager;
-        private readonly INotificationPublisher _notificationPublisher;
+        private readonly IEventBus _eventBus;
 
-        public NoteAppService(
+        public NoteAppService (
             INoteManager noteManager,
-            IJobManager jobManager,
-            INotificationPublisher notificationPublisher)
+            IEventBus eventBus,
+            IJobManager jobManager)
+
         {
             _noteManager = noteManager;
+            _eventBus = eventBus;
             _jobManager = jobManager;
-            _notificationPublisher = notificationPublisher;
         }
 
         /// <summary>
@@ -136,20 +137,17 @@ namespace toyiyo.todo.Notes
                 .Where(u => mentions.Contains(u.UserName))
                 .ToListAsync();
 
-            // Using Parallel.ForEachAsync (requires .NET 6+)
-            await Parallel.ForEachAsync(users, 
-                new ParallelOptions { MaxDegreeOfParallelism = 3 }, // Limit concurrent operations
-                async (user, token) =>
-                {
-                    var message = note.Content.Length > 50 ? note.Content.Substring(0, 50) + "..." : note.Content;
-                    await _notificationPublisher.PublishAsync(
-                        "Note.Mention",
-                        new MessageNotificationData(
-                            $"@{currentUser.UserName} mentioned you in a comment on the job '{job.Title}' {message}"
-                        ),
-                        userIds: new[] { new UserIdentifier(user.TenantId, user.Id) }
-                    );
-                });
+            // Trigger domain event instead of directly sending notification
+            foreach (var user in users)
+            {
+                await _eventBus.TriggerAsync(new UserMentionedEvent(
+                    user.Id,
+                    currentUser.UserName,
+                    job.Title,
+                    note.Content,
+                    job.Id
+                ));
+            }
         }
     }
 }
