@@ -67,12 +67,15 @@ namespace toyiyo.todo.Web.Startup
 
             services.AddSignalR();
 
+            // Configure Hangfire with retry attempts
             services.AddHangfire(config =>
             {
                 config.UsePostgreSqlStorage(Environment.GetEnvironmentVariable("ToyiyoDb"), new PostgreSqlStorageOptions
                 {
-                    SchemaName = "hangfire"
-                });
+                    SchemaName = "hangfire",
+                    PrepareSchemaIfNecessary = true // This will create tables
+                })
+                .UseFilter(new AutomaticRetryAttribute { Attempts = 3 });
             });
 
             services.AddHangfireServer();

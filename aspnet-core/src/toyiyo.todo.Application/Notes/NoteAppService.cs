@@ -137,7 +137,6 @@ namespace toyiyo.todo.Notes
                 .Where(u => mentions.Contains(u.UserName))
                 .ToListAsync();
 
-            // Trigger domain event instead of directly sending notification
             foreach (var user in users)
             {
                 await _eventBus.TriggerAsync(new UserMentionedEvent(
@@ -145,7 +144,8 @@ namespace toyiyo.todo.Notes
                     currentUser.UserName,
                     job.Title,
                     note.Content,
-                    job.Id
+                    job.Id,
+                    user.EmailAddress // Pass email address in event
                 ));
             }
         }

@@ -9,6 +9,7 @@ using toyiyo.todo.Notifications.Events;
 using toyiyo.todo.Notifications.NotificationData;
 using toyiyo.todo.Notifications.Jobs;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace toyiyo.todo.Notifications.Handlers
 {
@@ -20,17 +21,20 @@ namespace toyiyo.todo.Notifications.Handlers
         private readonly IRepository<NotificationPreference, long> _preferenceRepository;
         private readonly IAbpSession _session;
         private readonly IBackgroundJobManager _backgroundJobManager;
+        private readonly ILogger<UserMentionNotificationHandler> _logger;
 
         public UserMentionNotificationHandler(
             INotificationPublisher notificationPublisher,
             IAbpSession session,
             IBackgroundJobManager backgroundJobManager,
-            IRepository<NotificationPreference, long> preferenceRepository)
+            IRepository<NotificationPreference, long> preferenceRepository,
+            ILogger<UserMentionNotificationHandler> logger)
         {
             _notificationPublisher = notificationPublisher;
             _session = session;
             _backgroundJobManager = backgroundJobManager;
             _preferenceRepository = preferenceRepository;
+            _logger = logger;
         }
 
         public async Task HandleEventAsync(UserMentionedEvent eventData)
@@ -62,17 +66,26 @@ namespace toyiyo.todo.Notifications.Handlers
             }
 
             // Send email notification if enabled
-            if (emailPref?.IsEnabled == true)
+            try
             {
-                await _backgroundJobManager.EnqueueAsync<EmailSendingJob, EmailSendingArgs>(
-                    new EmailSendingArgs
-                    {
-                        UserId = eventData.MentionedUserId,
-                        TenantId = _session.TenantId,
-                        Subject = "You were mentioned in a note",
-                        Body = $"@{eventData.MentionedByUsername} mentioned you in job '{eventData.JobTitle}'"
-                    }
-                );
+                if (emailPref?.IsEnabled == true)
+                {
+                    await _backgroundJobManager.EnqueueAsync<EmailSendingJob, EmailSendingArgs>(
+                        new EmailSendingArgs
+                        {
+                            UserId = eventData.MentionedUserId,
+                            TenantId = _session.TenantId,
+                            Subject = $"You were mentioned in a note in {eventData.JobTitle}",
+                            Body = $"@{eventData.MentionedByUsername} mentioned you in job '{eventData.JobTitle}'",
+                            EmailAddress = eventData.UserEmail // Use email from event
+                        }
+                    );
+                }
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "Failed to enqueue email notification job");
+                throw;
             }
         }
     }
