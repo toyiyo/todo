@@ -8,6 +8,7 @@ using Abp.Runtime.Session;
 using toyiyo.todo.Notifications.Events;
 using toyiyo.todo.Notifications.NotificationData;
 using toyiyo.todo.Notifications.Jobs;
+using System.Linq;
 
 namespace toyiyo.todo.Notifications.Handlers
 {
@@ -34,16 +35,14 @@ namespace toyiyo.todo.Notifications.Handlers
 
         public async Task HandleEventAsync(UserMentionedEvent eventData)
         {
-            // Get user's preferences for both channels
-            var emailPref = await _preferenceRepository.FirstOrDefaultAsync(p =>
+            // Get user's preferences for both channels in one query
+            var userPreferences = await _preferenceRepository.GetAllListAsync(p =>
                 p.UserId == (int)eventData.MentionedUserId &&
                 p.NotificationType == NotificationType.UserMention &&
-                p.Channel == NotificationChannel.Email);
+                (p.Channel == NotificationChannel.Email || p.Channel == NotificationChannel.InApp));
 
-            var inAppPref = await _preferenceRepository.FirstOrDefaultAsync(p =>
-                p.UserId == (int)eventData.MentionedUserId &&
-                p.NotificationType == NotificationType.UserMention &&
-                p.Channel == NotificationChannel.InApp);
+            var emailPref = userPreferences.FirstOrDefault(p => p.Channel == NotificationChannel.Email);
+            var inAppPref = userPreferences.FirstOrDefault(p => p.Channel == NotificationChannel.InApp);
 
             var notificationData = new NoteMentionNotificationData(
                 $"@{eventData.MentionedByUsername} mentioned you in job '{eventData.JobTitle}'",
@@ -56,8 +55,8 @@ namespace toyiyo.todo.Notifications.Handlers
             if (inAppPref?.IsEnabled == true)
             {
                 await _notificationPublisher.PublishAsync(
-                    NotificationTypes.UserMentioned,
-                    notificationData,
+                    notificationName: NotificationTypes.UserMentioned,
+                    data: notificationData,
                     userIds: new[] { new Abp.UserIdentifier(_session.TenantId, eventData.MentionedUserId) }
                 );
             }
@@ -65,12 +64,11 @@ namespace toyiyo.todo.Notifications.Handlers
             // Send email notification if enabled
             if (emailPref?.IsEnabled == true)
             {
-                // Use background job for email sending
                 await _backgroundJobManager.EnqueueAsync<EmailSendingJob, EmailSendingArgs>(
                     new EmailSendingArgs
                     {
                         UserId = eventData.MentionedUserId,
-                        TenantId = _session.TenantId,  // Add this
+                        TenantId = _session.TenantId,
                         Subject = "You were mentioned in a note",
                         Body = $"@{eventData.MentionedByUsername} mentioned you in job '{eventData.JobTitle}'"
                     }
