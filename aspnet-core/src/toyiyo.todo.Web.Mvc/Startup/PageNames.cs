@@ -11,5 +11,6 @@
         public const string Subscriptions = "Subscriptions";
         public const string Invitations = "Invitations";
         public const string Roadmap = "Roadmap";
+        public const string Contacts = "Contacts";
     }
 }

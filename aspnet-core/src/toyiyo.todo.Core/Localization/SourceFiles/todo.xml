@@ -186,5 +186,14 @@
     <text name="NoteSaved">Note Saved</text>
     <text name="PleaseEnterReply">Please enter a reply</text>
     <text name="PleaseEnterNote">Please enter a note</text>
+    <text name="Contacts" value="Contacts" />
+    <text name="CreateNewContact" value="Create New Contact" />
+    <text name="ContactDetails" value="Contact Details" />
+    <text name="EditContact" value="Edit Contact" />
+    <text name="ContactName" value="Name" />
+    <text name="ContactEmail" value="Email" />
+    <text name="ContactPhone" value="Phone" />
+    <text name="ContactCompany" value="Company" />
+    <text name="ContactNotes" value="Notes" />
   </texts>
 </localizationDictionary>

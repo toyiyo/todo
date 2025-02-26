@@ -8,6 +8,7 @@ using toyiyo.todo.Projects;
 using toyiyo.todo.Jobs;
 using toyiyo.todo.Invitations;
 using toyiyo.todo.Notes;
+using toyiyo.todo.Contacts;
 
 namespace toyiyo.todo.EntityFrameworkCore
 {
@@ -19,6 +20,7 @@ namespace toyiyo.todo.EntityFrameworkCore
         public DbSet<UserInvitation> UserInvitations { get; set; }
         public DbSet<JobImage> JobImages { get; set; }
         public DbSet<Note> Notes { get; set; }
+        public DbSet<Contact> Contacts { get; set; }
 
         public todoDbContext(DbContextOptions<todoDbContext> options)
             : base(options)
@@ -38,6 +40,16 @@ namespace toyiyo.todo.EntityFrameworkCore
                 .HasOne(ui => ui.InvitedBy)
                 .WithMany()
                 .HasForeignKey(ui => ui.InvitedByUserId);
+
+            modelBuilder.Entity<Contact>(b =>
+            {
+                b.ToTable("Contacts");
+                b.Property(e => e.Name).IsRequired().HasMaxLength(256);
+                b.Property(e => e.Email).IsRequired().HasMaxLength(256);
+                b.Property(e => e.PhoneNumber).HasMaxLength(32);
+                b.Property(e => e.Company).HasMaxLength(256);
+                b.Property(e => e.Notes).HasMaxLength(2000);
+            });
         }
     }
 }

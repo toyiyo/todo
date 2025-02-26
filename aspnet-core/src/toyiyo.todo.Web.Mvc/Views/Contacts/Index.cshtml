@@ -1,0 +1,35 @@
+@using toyiyo.todo.Web.Startup
+@{
+    ViewBag.Title = L("Contacts");
+    ViewBag.CurrentPageName = PageNames.Contacts;
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">@L("Contacts")</h3>
+        <div class="card-tools">
+            <a href="@Url.Action("Create")" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> @L("CreateNewContact")
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="ContactsTable" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>@L("Name")</th>
+                    <th>@L("Email")</th>
+                    <th>@L("PhoneNumber")</th>
+                    <th>@L("Company")</th>
+                    <th>@L("Actions")</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section scripts {
+    <environment names="Development">
+        <script src="~/view-resources/Views/Contacts/Index.js"></script>
+    </environment>
+}
