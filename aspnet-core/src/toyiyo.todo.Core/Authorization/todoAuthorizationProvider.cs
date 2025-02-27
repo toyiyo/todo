@@ -17,6 +17,8 @@ namespace toyiyo.todo.Authorization
             context.CreatePermission(PermissionNames.Pages_Jobs, L("Jobs"), multiTenancySides: MultiTenancySides.Tenant);
             context.CreatePermission(PermissionNames.Pages_Company_Profile, L("CompanyProfile"), multiTenancySides: MultiTenancySides.Tenant);
             context.CreatePermission(PermissionNames.Pages_Subscription, L("Subscription"), multiTenancySides: MultiTenancySides.Tenant);
+            context.CreatePermission(PermissionNames.Pages_Administration_HangfireDashboard, L("HangfireDashboard"), multiTenancySides: MultiTenancySides.Host);
+
         }
 
         private static ILocalizableString L(string name)

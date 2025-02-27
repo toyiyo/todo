@@ -186,5 +186,16 @@
     <text name="NoteSaved">Note Saved</text>
     <text name="PleaseEnterReply">Please enter a reply</text>
     <text name="PleaseEnterNote">Please enter a note</text>
+    <text name="NotificationType_UserMention">User Mention</text>
+    <text name="NotificationChannel_Email">Email</text>
+    <text name="NotificationChannel_InApp">In-App</text>
+    <text name="NotificationPreferences">Notification Preferences</text>
+    <text name="ManageYourNotifications">Manage Your Notifications</text>
+    <text name="NotificationType">Notification Type</text>
+    <text name="EmailNotifications">Email Notifications</text>
+    <text name="InAppNotifications">In-App Notifications</text>
+    <text name="NotificationPreferencesSaved">Notification preferences saved successfully</text>
+    <text name="ErrorSavingPreferences">Error saving notification preferences</text>
+    <text name="HangfireDashboard">Hangfire Dashboard</text>
   </texts>
 </localizationDictionary>

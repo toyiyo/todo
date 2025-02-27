@@ -20,7 +20,10 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
 using Abp.Timing;
 using Microsoft.AspNetCore.HttpOverrides;
-using Sentry.AspNetCore;
+using Hangfire;
+using Hangfire.PostgreSql;
+using Abp.Hangfire;
+using toyiyo.todo.Authorization;
 
 namespace toyiyo.todo.Web.Startup
 {
@@ -65,6 +68,26 @@ namespace toyiyo.todo.Web.Startup
 
             services.AddSignalR();
 
+            // Configure Hangfire with retry attempts
+            services.AddHangfire(config =>
+            {
+                var connectionString = Environment.GetEnvironmentVariable("NEON_DB");
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException("NEON_DB connection string is not configured");
+                }
+
+                config.UsePostgreSqlStorage(connectionString, new PostgreSqlStorageOptions
+                {
+                    SchemaName = "hangfire",
+                    PrepareSchemaIfNecessary = true // We handle this manually above
+                })
+                .UseFilter(new AutomaticRetryAttribute { Attempts = 3 });
+            });
+
+            services.AddHangfireServer();
+
+
             // Configure Abp and Dependency Injection
             return services.AddAbp<todoWebMvcModule>(
                 // Configure Log4Net logging
@@ -108,6 +131,12 @@ namespace toyiyo.todo.Web.Startup
 
             app.UseAuthentication();
 
+            // Add Hangfire dashboard before authorization
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization = new[] { new AbpHangfireAuthorizationFilter(PermissionNames.Pages_Administration_HangfireDashboard) }
+            });
+
             app.UseJwtTokenMiddleware();
 
             app.UseAuthorization();
@@ -117,6 +146,7 @@ namespace toyiyo.todo.Web.Startup
                 endpoints.MapHub<AbpCommonHub>("/signalr");
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("defaultWithArea", "{area}/{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapHangfireDashboard();
             });
         }
     }

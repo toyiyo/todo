@@ -1,0 +1,81 @@
+@using toyiyo.todo.Notifications
+@using toyiyo.todo.Notifications.Dto
+@using static toyiyo.todo.Notifications.NotificationChannel
+@model NotificationPreferencesDto
+
+@section scripts {
+    <script src="~/view-resources/Views/NotificationPreferences/Index.js"></script>
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <h1>@L("NotificationPreferences")</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="mb-4">@L("ManageYourNotifications")</h3>
+                        
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>@L("NotificationType")</th>
+                                        <th>@L("EmailNotifications")</th>
+                                        <th>@L("InAppNotifications")</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        var groupedPreferences = Model.Items
+                                            .GroupBy(p => p.NotificationType)
+                                            .ToDictionary(
+                                                g => g.Key,
+                                                g => g.ToDictionary(p => p.Channel, p => p)
+                                            );
+
+                                        foreach (var type in groupedPreferences)
+                                        {
+                                            <tr>
+                                                <td>@type.Value.First().Value.DisplayName</td>
+                                                <td>
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input notification-toggle"
+                                                               id="email_@(type.Key)"
+                                                               data-type="@(type.Key)"
+                                                               data-channel="Email"
+                                                               @(type.Value[NotificationChannel.Email].IsEnabled ? "checked" : "")>
+                                                        <label class="custom-control-label" for="email_@(type.Key)"></label>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input notification-toggle"
+                                                               id="inapp_@(type.Key)"
+                                                               data-type="@(type.Key)"
+                                                               data-channel="InApp"
+                                                               @(type.Value[NotificationChannel.InApp].IsEnabled ? "checked" : "")>
+                                                        <label class="custom-control-label" for="inapp_@(type.Key)"></label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
