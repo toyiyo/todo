@@ -23,7 +23,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Abp.Hangfire;
-using Npgsql;
+using toyiyo.todo.Authorization;
 
 namespace toyiyo.todo.Web.Startup
 {
@@ -134,7 +134,7 @@ namespace toyiyo.todo.Web.Startup
             // Add Hangfire dashboard before authorization
             app.UseHangfireDashboard("/hangfire", new DashboardOptions
             {
-                Authorization = new[] { new AbpHangfireAuthorizationFilter() }
+                Authorization = new[] { new AbpHangfireAuthorizationFilter(PermissionNames.Pages_Administration_HangfireDashboard) }
             });
 
             app.UseJwtTokenMiddleware();

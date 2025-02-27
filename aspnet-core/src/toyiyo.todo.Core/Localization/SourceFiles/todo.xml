@@ -196,5 +196,6 @@
     <text name="InAppNotifications">In-App Notifications</text>
     <text name="NotificationPreferencesSaved">Notification preferences saved successfully</text>
     <text name="ErrorSavingPreferences">Error saving notification preferences</text>
+    <text name="HangfireDashboard">Hangfire Dashboard</text>
   </texts>
 </localizationDictionary>
