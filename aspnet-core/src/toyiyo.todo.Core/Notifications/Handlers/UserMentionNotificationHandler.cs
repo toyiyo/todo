@@ -60,7 +60,7 @@ namespace toyiyo.todo.Notifications.Handlers
             {
                 await _notificationPublisher.PublishAsync(
                     notificationName: NotificationTypes.UserMentioned,
-                    data: notificationData,
+                    data: new MessageNotificationData(notificationData.Message),
                     userIds: new[] { new Abp.UserIdentifier(_session.TenantId, eventData.MentionedByUserId) }
                 );
             }
@@ -75,7 +75,7 @@ namespace toyiyo.todo.Notifications.Handlers
                         {
                             UserId = eventData.MentionedUserId,
                             TenantId = _session.TenantId,
-                            Subject = $"You were mentioned in a job titled{eventData.JobTitle}",
+                            Subject = $"You were mentioned in a job titled {eventData.JobTitle}",
                             Body = notificationData.Message,
                             EmailAddress = eventData.MentionedEmail // Use email from event
                         }
