@@ -89,6 +89,54 @@ export SenderDisplayName="[ValidatedSenderNameInSendgrid]"
 4. **Access the Application**:
     - Open your browser and navigate to `https://localhost:5001`.
 
+### Email & Notification Configuration
+
+#### Email Setup
+
+The application uses SendGrid for sending transactional emails. To configure email functionality:
+
+1. **SendGrid Configuration**
+   - Create a SendGrid account at [SendGrid.com](https://sendgrid.com)
+   - Create an API key with email sending permissions
+   - Verify your sender email address in SendGrid
+   - Set the following environment variables:
+     ```bash
+     export SendGridApiKey="your_sendgrid_api_key"
+     export FromTransactionalEmail="your_verified_sender@domain.com"
+     export SenderDisplayName="Your App Name"
+     ```
+
+2. **Email Templates**
+   - Login to SendGrid
+   - Go to Email API → Dynamic Templates
+   - Create templates for:
+     - Welcome emails
+     - Notification emails
+     - Password reset emails
+
+#### Real-time Notifications
+
+The application uses SignalR for real-time notifications and ASP.NET Boilerplate's notification system:
+
+1. **Notification Types**
+   - User mentions (@username)
+   - Task assignments
+   - Due date reminders
+   - Status changes
+
+2. **Configuration**
+   - Notifications are enabled by default
+   - Users can manage their notification preferences in account settings
+   - Email notifications are sent for important events when users are offline
+
+3. **How It Works**
+   - Real-time updates via SignalR
+   - Browser notifications for active users
+
+4. **Custom Notification Rules**
+   - Configure notification frequency in user settings
+   - Choose between email, in-app, or both notification types
+
 ## 📚 Project Structure
 
 ### Domain Layer

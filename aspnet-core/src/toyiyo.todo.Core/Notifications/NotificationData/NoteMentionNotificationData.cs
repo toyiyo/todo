@@ -8,18 +8,16 @@ namespace toyiyo.todo.Notifications.NotificationData
     {
         public string SenderUsername { get; set; }
         public string JobTitle { get; set; }
-        public string NoteContent { get; set; }
+        public string NotificationMessage { get; set; }
         public Guid JobId { get; set; }
-        public Guid NoteId { get; set; }
 
-        public NoteMentionNotificationData(string senderUsername, string jobTitle, string noteContent, Guid jobId, Guid noteId) 
-            : base(noteContent)
+        public NoteMentionNotificationData(string senderUsername, string jobTitle, string notificationMessage, Guid jobId) 
+            : base(notificationMessage)
         {
             SenderUsername = senderUsername;
             JobTitle = jobTitle;
-            NoteContent = noteContent;
+            NotificationMessage = notificationMessage;
             JobId = jobId;
-            NoteId = noteId;
         }
     }
 }

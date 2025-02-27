@@ -14,14 +14,6 @@ namespace toyiyo.todo.Notifications
                     permissionDependency: null
                 )
             );
-
-            context.Manager.Add(
-                new NotificationDefinition(
-                    NotificationTypes.NoteReply,
-                    displayName: new LocalizableString("NoteReplyNotification", "todo"),
-                    permissionDependency: null
-                )
-            );
         }
     }
 }
