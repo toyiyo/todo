@@ -30,21 +30,39 @@ namespace toyiyo.todo.Tests.Notifications
         public void Should_Toggle_Preference()
         {
             // Arrange
+            var userId = 1;
             var preference = NotificationPreference.Create(1, NotificationType.UserMention, NotificationChannel.Email);
             
-            // Act
-            preference.Toggle(false, 1);
-
-            // Assert
+            // Act & Assert
+            preference.Toggle(false, userId);
             preference.IsEnabled.ShouldBeFalse();
+            preference.LastModifierUserId.ShouldBe(userId);
+
+            preference.Toggle(true, userId);
+            preference.IsEnabled.ShouldBeTrue();
+            preference.LastModifierUserId.ShouldBe(userId);
         }
 
-        [Fact]
-        public void Should_Not_Create_With_Invalid_UserId()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public void Should_Not_Create_With_Invalid_UserId(int invalidUserId)
         {
             // Act & Assert
             Should.Throw<ArgumentException>(() =>
-                NotificationPreference.Create(0, NotificationType.UserMention, NotificationChannel.Email)
+                NotificationPreference.Create(invalidUserId, NotificationType.UserMention, NotificationChannel.Email)
+            );
+        }
+
+        [Fact]
+        public void Should_Not_Toggle_With_Invalid_UserId()
+        {
+            // Arrange
+            var preference = NotificationPreference.Create(1, NotificationType.UserMention, NotificationChannel.Email);
+
+            // Act & Assert
+            Should.Throw<ArgumentException>(() =>
+                preference.Toggle(false, 0)
             );
         }
     }
