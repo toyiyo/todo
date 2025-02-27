@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Abp.Hangfire;
+using Npgsql;
 
 namespace toyiyo.todo.Web.Startup
 {
@@ -70,10 +71,16 @@ namespace toyiyo.todo.Web.Startup
             // Configure Hangfire with retry attempts
             services.AddHangfire(config =>
             {
-                config.UsePostgreSqlStorage(Environment.GetEnvironmentVariable("ToyiyoDb"), new PostgreSqlStorageOptions
+                var connectionString = Environment.GetEnvironmentVariable("NEON_DB");
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException("NEON_DB connection string is not configured");
+                }
+
+                config.UsePostgreSqlStorage(connectionString, new PostgreSqlStorageOptions
                 {
                     SchemaName = "hangfire",
-                    PrepareSchemaIfNecessary = true // This will create tables
+                    PrepareSchemaIfNecessary = true // We handle this manually above
                 })
                 .UseFilter(new AutomaticRetryAttribute { Attempts = 3 });
             });

@@ -1,25 +1,28 @@
 using System;
+using Abp;
 using Abp.Events.Bus;
 
 namespace toyiyo.todo.Notifications.Events
 {
     public class UserMentionedEvent : EventData
     {
+        public string MentionedEmail { get; }
         public long MentionedUserId { get; }
-        public string MentionedByUsername { get; }
+        public string MentionedByEmail { get; }
+        public long MentionedByUserId { get; }
         public string JobTitle { get; }
-        public string NoteContent { get; }
+        public string Content { get; }
         public Guid JobId { get; }
-        public string UserEmail { get; }
 
-        public UserMentionedEvent(long mentionedUserId, string mentionedByUsername, string jobTitle, string noteContent, Guid jobId, string userEmail)
+        public UserMentionedEvent(string mentionedEmail, long mentionedUserId, string mentionedByUsername, long mentionedByUserId, string jobTitle, string content, Guid jobId)
         {
+            MentionedEmail = mentionedEmail;
             MentionedUserId = mentionedUserId;
-            MentionedByUsername = mentionedByUsername;
+            MentionedByEmail = mentionedByUsername;
+            MentionedByUserId = mentionedByUserId;
             JobTitle = jobTitle;
-            NoteContent = noteContent;
+            Content = content;
             JobId = jobId;
-            UserEmail = userEmail;
         }
     }
 }

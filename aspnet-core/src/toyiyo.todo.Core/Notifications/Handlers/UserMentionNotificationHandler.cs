@@ -41,7 +41,7 @@ namespace toyiyo.todo.Notifications.Handlers
         {
             // Get user's preferences for both channels in one query
             var userPreferences = await _preferenceRepository.GetAllListAsync(p =>
-                p.UserId == (int)eventData.MentionedUserId &&
+                p.UserId == eventData.MentionedByUserId &&
                 p.NotificationType == NotificationType.UserMention &&
                 (p.Channel == NotificationChannel.Email || p.Channel == NotificationChannel.InApp));
 
@@ -49,9 +49,9 @@ namespace toyiyo.todo.Notifications.Handlers
             var inAppPref = userPreferences.FirstOrDefault(p => p.Channel == NotificationChannel.InApp);
 
             var notificationData = new NoteMentionNotificationData(
-                $"@{eventData.MentionedByUsername} mentioned you in job '{eventData.JobTitle}'",
+                eventData.MentionedByEmail,
                 eventData.JobTitle,
-                eventData.MentionedByUsername,
+                $"@{eventData.MentionedByEmail} mentioned you in job '{eventData.JobTitle}'",
                 eventData.JobId
             );
 
@@ -61,7 +61,7 @@ namespace toyiyo.todo.Notifications.Handlers
                 await _notificationPublisher.PublishAsync(
                     notificationName: NotificationTypes.UserMentioned,
                     data: notificationData,
-                    userIds: new[] { new Abp.UserIdentifier(_session.TenantId, eventData.MentionedUserId) }
+                    userIds: new[] { new Abp.UserIdentifier(_session.TenantId, eventData.MentionedByUserId) }
                 );
             }
 
@@ -75,9 +75,9 @@ namespace toyiyo.todo.Notifications.Handlers
                         {
                             UserId = eventData.MentionedUserId,
                             TenantId = _session.TenantId,
-                            Subject = $"You were mentioned in a note in {eventData.JobTitle}",
-                            Body = $"@{eventData.MentionedByUsername} mentioned you in job '{eventData.JobTitle}'",
-                            EmailAddress = eventData.UserEmail // Use email from event
+                            Subject = $"You were mentioned in a job titled{eventData.JobTitle}",
+                            Body = notificationData.Message,
+                            EmailAddress = eventData.MentionedEmail // Use email from event
                         }
                     );
                 }

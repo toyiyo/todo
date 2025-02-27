@@ -140,12 +140,13 @@ namespace toyiyo.todo.Notes
             foreach (var user in users)
             {
                 await _eventBus.TriggerAsync(new UserMentionedEvent(
+                    user.EmailAddress,
                     user.Id,
                     currentUser.UserName,
+                    currentUser.Id,
                     job.Title,
                     note.Content,
-                    job.Id,
-                    user.EmailAddress // Pass email address in event
+                    job.Id
                 ));
             }
         }

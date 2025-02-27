@@ -22,7 +22,7 @@ namespace toyiyo.todo.Tests.Notifications
             // Assert
             notificationData.SenderUsername.ShouldBe(senderUsername);
             notificationData.JobTitle.ShouldBe(jobTitle);
-            notificationData.NoteContent.ShouldBe(noteContent);
+            notificationData.NotificationMessage.ShouldBe(noteContent);
             notificationData.JobId.ShouldBe(jobId);
         }
     }
