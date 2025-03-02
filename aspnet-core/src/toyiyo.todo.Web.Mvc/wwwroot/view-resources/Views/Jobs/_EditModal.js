@@ -591,7 +591,7 @@
     function confirmAndDeleteNote(noteId, $noteElement) {
         const confirmOptions = {
             message: l('DeleteNoteConfirmationMessage'),
-            title: l('AreYouSure'),
+            title: l('AreYouSureWantToDelete'),
             callback: (isConfirmed) => {
                 if (isConfirmed) {
                     handleNoteDeletion(noteId, $noteElement);
