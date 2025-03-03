@@ -61,7 +61,7 @@ namespace toyiyo.todo.Notifications.Handlers
                 await _notificationPublisher.PublishAsync(
                     notificationName: NotificationTypes.UserMentioned,
                     data: new MessageNotificationData(notificationData.Message),
-                    userIds: new[] { new Abp.UserIdentifier(_session.TenantId, eventData.MentionedByUserId) }
+                    userIds: new[] { new Abp.UserIdentifier(_session.TenantId, eventData.MentionedUserId) }
                 );
             }
 
