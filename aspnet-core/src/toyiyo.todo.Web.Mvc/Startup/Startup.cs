@@ -74,7 +74,7 @@ namespace toyiyo.todo.Web.Startup
                 var connectionString = Environment.GetEnvironmentVariable("ToyiyoDb");
                 if (string.IsNullOrEmpty(connectionString))
                 {
-                    throw new InvalidOperationException("NEON_DB connection string is not configured");
+                    throw new InvalidOperationException("ToyiyoDb connection string is not configured");
                 }
 
                 config.UsePostgreSqlStorage(connectionString, new PostgreSqlStorageOptions
