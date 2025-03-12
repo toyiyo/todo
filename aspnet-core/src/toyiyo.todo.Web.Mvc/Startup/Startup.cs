@@ -71,7 +71,7 @@ namespace toyiyo.todo.Web.Startup
             // Configure Hangfire with retry attempts
             services.AddHangfire(config =>
             {
-                var connectionString = Environment.GetEnvironmentVariable("NEON_DB");
+                var connectionString = Environment.GetEnvironmentVariable("ToyiyoDb");
                 if (string.IsNullOrEmpty(connectionString))
                 {
                     throw new InvalidOperationException("NEON_DB connection string is not configured");
@@ -79,7 +79,7 @@ namespace toyiyo.todo.Web.Startup
 
                 config.UsePostgreSqlStorage(connectionString, new PostgreSqlStorageOptions
                 {
-                    SchemaName = "hangfire",
+                    SchemaName = "public",
                     PrepareSchemaIfNecessary = true // We handle this manually above
                 })
                 .UseFilter(new AutomaticRetryAttribute { Attempts = 3 });
