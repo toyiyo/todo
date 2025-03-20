@@ -17,6 +17,8 @@ namespace toyiyo.todo.Projects
         public DateTime? DueDate { get; private set; }
         public int CompletedEpics { get; private set; }
         public decimal TotalTasksPercentage { get; private set; }
+        public decimal CompletedTasksPercentage { get; private set; }
+        public decimal InProgressPercentage { get; private set; }
 
         private ProjectProgress() { }
 
@@ -27,8 +29,9 @@ namespace toyiyo.todo.Projects
 
             var nonDeletedJobs = project.Jobs.Where(j => !j.IsDeleted);
             var nonEpicJobs = nonDeletedJobs.Where(j => j.Level != Job.JobLevel.Epic);
+            var totalNonEpicJobs = nonEpicJobs.Count();
 
-            return new ProjectProgress
+            var progress = new ProjectProgress
             {
                 // Only count non-epic jobs for task totals
                 TotalTasks = nonEpicJobs.Count(),
@@ -45,12 +48,22 @@ namespace toyiyo.todo.Projects
                 BugCount = nonDeletedJobs.Count(j => j.Level == Job.JobLevel.Bug),
                 
                 // Calculate percentages based on non-epic jobs only
-                TotalTasksPercentage = nonEpicJobs.Any() 
-                    ? (decimal)nonEpicJobs.Count(j => j.JobStatus == Job.Status.Done) / nonEpicJobs.Count() * 100 
+                TotalTasksPercentage = totalNonEpicJobs > 0
+                    ? (decimal)nonEpicJobs.Count(j => j.JobStatus == Job.Status.Done) / totalNonEpicJobs * 100 
                     : 0,
                 
+                CompletedTasksPercentage = totalNonEpicJobs > 0
+                    ? (decimal)nonEpicJobs.Count(j => j.JobStatus == Job.Status.Done) / totalNonEpicJobs * 100
+                    : 0,
+                    
+                InProgressPercentage = totalNonEpicJobs > 0
+                    ? (decimal)nonEpicJobs.Count(j => j.JobStatus == Job.Status.InProgress) / totalNonEpicJobs * 100
+                    : 0,
+
                 DueDate = nonDeletedJobs.Max(j => (DateTime?)j.DueDate) ?? null
             };
+
+            return progress;
         }
     }
 }

@@ -37,7 +37,9 @@ namespace toyiyo.todo.Projects {
             
             var dtos = projects.Select(p => {
                 var dto = ObjectMapper.Map<ProjectDto>(p);
-                dto.Progress = ObjectMapper.Map<ProjectProgressDto>(progressMap[p.Id]);
+                dto.Progress = progressMap.TryGetValue(p.Id, out var progress)
+                    ? ObjectMapper.Map<ProjectProgressDto>(progress)
+                    : new ProjectProgressDto(); // Provide default progress if missing
                 return dto;
             }).ToList();
             
