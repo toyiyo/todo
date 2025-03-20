@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
 using Abp.Timing;
 using Microsoft.EntityFrameworkCore;
 using toyiyo.todo.Authorization.Users;
+using toyiyo.todo.Jobs;
 
 namespace toyiyo.todo.Projects
 {
@@ -18,6 +20,8 @@ namespace toyiyo.todo.Projects
         public string Title { get; protected set; }
         [Required]
         public virtual int TenantId { get; set; }
+
+        public virtual ICollection<Job> Jobs { get; set; }
 
         /// <summary>
         /// We don't make constructor public and forcing to create events using <see cref="Create"/> method.

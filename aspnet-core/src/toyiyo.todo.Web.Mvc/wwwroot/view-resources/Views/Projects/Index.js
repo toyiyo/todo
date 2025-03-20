@@ -33,15 +33,108 @@
         columnDefs: [
             {
                 targets: 0,
-                data: 'title',
-                className: 'title',
-                defaultContent: '',
-                fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
-                    $(nTd).html('<a href="' + 'Projects/' + oData.id + '/jobs' + '">' + sData + '</a>');
+                data: null,
+                className: 'project-card',
+                render: function(data, type, row) {
+                    const progress = row.progress;
+                    const actions = [
+                        `<button type="button" class="btn btn-sm bg-secondary edit-project" data-project-id="${row.id}" data-toggle="modal" data-target="#ProjectEditModal">`,
+                        `   <i class="fas fa-pencil-alt" title=${l('Edit')}></i>`,
+                        `</button>`,
+                        `<button type="button" class="btn btn-sm bg-danger delete-project" data-project-id="${row.id}" data-toggle="modal" data-target="#ProjectDeleteModal">`,
+                        `   <i class="fas fa-trash-alt" title=${l('Delete')}></i>`,
+                        `</button>`
+                    ].join('');
+
+                    return `
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="h4 mb-0">
+                                        <a href="/Projects/${row.id}/jobs">${row.title}</a>
+                                    </div>
+                                    <div>
+                                        <span class="badge ${progress.statusClass}">${progress.status}</span>
+                                        <span class="ml-2">${actions}</span>
+                                    </div>
+                                </div>
+                                <div class="text-muted small mt-2">
+                                    <div class="d-flex gap-4">
+                                        <span class="d-inline-flex align-items-center">
+                                            <i class="fas fa-layer-group mr-1"></i>
+                                            ${progress.epicCount} Epics (${progress.completedEpics} done)
+                                        </span>
+                                        <span class="d-inline-flex align-items-center">
+                                            <i class="fas fa-tasks mr-1"></i>
+                                            ${progress.taskCount} Tasks 
+                                        </span>
+                                        <span class="d-inline-flex align-items-center">
+                                            <i class="fas fa-bug mr-1"></i>
+                                            ${progress.bugCount} Bugs
+                                        </span>
+                                        ${progress.dueDate ? `
+                                            <span class="d-inline-flex align-items-center">
+                                                <i class="fas fa-calendar mr-1"></i>
+                                                Due: ${moment(progress.dueDate).format('M/D/YYYY')}
+                                            </span>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer p-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height: 8px;">
+                                        <div class="progress-bar bg-primary" 
+                                             style="width: ${progress.totalTasksPercentage}%"
+                                             role="progressbar" 
+                                             aria-valuenow="${progress.totalTasksPercentage}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <span class="small font-weight-bold">${Math.round(progress.totalTasksPercentage)}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 }
             },
             {
                 targets: 1,
+                data: 'progress',
+                width: '300px',
+                render: function(data) {
+                    const total = data.totalTasks;
+                    if (total === 0) return '<small class="text-muted">No tasks</small>';
+                    
+                    const completed = data.completedTasks;
+                    const inProgress = data.inProgressTasks;
+                    const completedPct = (completed / total * 100).toFixed(0);
+                    const inProgressPct = (inProgress / total * 100).toFixed(0);
+                    
+                    return `
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-success" 
+                                 role="progressbar" 
+                                 style="width: ${completedPct}%"
+                                 data-toggle="tooltip" 
+                                 title="${completed} completed">
+                                ${completed}
+                            </div>
+                            <div class="progress-bar bg-info" 
+                                 role="progressbar" 
+                                 style="width: ${inProgressPct}%"
+                                 data-toggle="tooltip" 
+                                 title="${inProgress} in progress">
+                                ${inProgress}
+                            </div>
+                        </div>
+                        <small class="text-muted">${completed} of ${total} tasks completed</small>
+                    `;
+                }
+            },
+            {
+                targets: 2,
                 data: null,
                 sortable: false,
                 autoWidth: false,
@@ -59,6 +152,10 @@
                 }
             }
         ]
+    });
+
+    _$projectsTable.on('draw.dt', function() {
+        $('[data-toggle="tooltip"]').tooltip();
     });
 
     _$form.find('.save-button').on('click', (e) => {

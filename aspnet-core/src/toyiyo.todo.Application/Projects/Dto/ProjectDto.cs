@@ -22,5 +22,6 @@ namespace toyiyo.todo.Projects.Dto
         public string DeleterUserName { get; set; }
         public string DeleterUserId { get; set; }
         public DateTime? DeletionTime { get; set; }
+        public ProjectProgressDto Progress { get; set; }
     }
 }
