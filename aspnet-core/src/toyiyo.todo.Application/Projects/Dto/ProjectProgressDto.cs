@@ -33,10 +33,10 @@ namespace toyiyo.todo.Projects.Dto
         };
 
         public string StatusClass => Status switch {
-            "Completed" => "bg-green-100 text-green-800",
-            "On Track" => "bg-blue-100 text-blue-800",
-            "At Risk" => "bg-yellow-100 text-yellow-800",
-            _ => "bg-red-100 text-red-800"
+            "Completed" => "badge-success",
+            "On Track" => "badge-info",
+            "At Risk" => "badge-warning",
+            _ => "badge-danger"
         };
     }
 }

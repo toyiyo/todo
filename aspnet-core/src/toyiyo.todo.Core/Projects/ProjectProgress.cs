@@ -16,10 +16,7 @@ namespace toyiyo.todo.Projects
         public int BugCount { get; private set; }
         public DateTime? DueDate { get; private set; }
         public int CompletedEpics { get; private set; }
-        public decimal CompletedTasksPercentage { get; private set; }
-        public decimal InProgressPercentage { get; private set; }
         public decimal TotalTasksPercentage { get; private set; }
-        public decimal InProgressTasksPercentage { get; private set; }
 
         private ProjectProgress() { }
 
@@ -29,28 +26,30 @@ namespace toyiyo.todo.Projects
                 return new ProjectProgress();
 
             var nonDeletedJobs = project.Jobs.Where(j => !j.IsDeleted);
+            var nonEpicJobs = nonDeletedJobs.Where(j => j.Level != Job.JobLevel.Epic);
 
             return new ProjectProgress
             {
-                TotalTasks = nonDeletedJobs.Count(),
-                InProgressTasks = nonDeletedJobs.Count(j => j.JobStatus == Job.Status.InProgress),
-                CompletedTasks = nonDeletedJobs.Count(j => j.JobStatus == Job.Status.Done && j.Level != Job.JobLevel.Epic),
-                CompletedEpics = nonDeletedJobs.Count(j => j.JobStatus == Job.Status.Done && j.Level == Job.JobLevel.Epic),
-                CompletedTasksPercentage = nonDeletedJobs.Count(j => j.JobStatus == Job.Status.Done) > 0 
-                    ? (decimal)nonDeletedJobs.Count(j => j.JobStatus == Job.Status.Done) / nonDeletedJobs.Count() * 100 
-                    : 0,
-                InProgressTasksPercentage = nonDeletedJobs.Count(j => j.JobStatus == Job.Status.InProgress && j.Level != Job.JobLevel.Epic) > 0
-                    ? (decimal)nonDeletedJobs.Count(j => j.JobStatus == Job.Status.InProgress) / nonDeletedJobs.Count() * 100 
-                    : 0,
-                TotalTasksPercentage = nonDeletedJobs.Count() > 0
-                    ? (decimal)nonDeletedJobs.Count(j => j.JobStatus == Job.Status.Done) / nonDeletedJobs.Count() * 100 
-                    : 0,
-               
-                BacklogTasks = nonDeletedJobs.Count(j => j.JobStatus == Job.Status.Open),
+                // Only count non-epic jobs for task totals
+                TotalTasks = nonEpicJobs.Count(),
+                CompletedTasks = nonEpicJobs.Count(j => j.JobStatus == Job.Status.Done),
+                InProgressTasks = nonEpicJobs.Count(j => j.JobStatus == Job.Status.InProgress),
+                BacklogTasks = nonEpicJobs.Count(j => j.JobStatus == Job.Status.Open),
+                
+                // Epic counts are separate
                 EpicCount = nonDeletedJobs.Count(j => j.Level == Job.JobLevel.Epic),
+                CompletedEpics = nonDeletedJobs.Count(j => j.Level == Job.JobLevel.Epic && j.JobStatus == Job.Status.Done),
+                
+                // Specific job type counts
                 TaskCount = nonDeletedJobs.Count(j => j.Level == Job.JobLevel.Task),
                 BugCount = nonDeletedJobs.Count(j => j.Level == Job.JobLevel.Bug),
-                DueDate = nonDeletedJobs.Max(j => j.DueDate)
+                
+                // Calculate percentages based on non-epic jobs only
+                TotalTasksPercentage = nonEpicJobs.Any() 
+                    ? (decimal)nonEpicJobs.Count(j => j.JobStatus == Job.Status.Done) / nonEpicJobs.Count() * 100 
+                    : 0,
+                
+                DueDate = nonDeletedJobs.Max(j => (DateTime?)j.DueDate) ?? null
             };
         }
     }
