@@ -17,8 +17,8 @@ namespace toyiyo.todo.Projects
         public DateTime? DueDate { get; private set; }
         public int CompletedEpics { get; private set; }
         public decimal TotalTasksPercentage { get; private set; }
-        public decimal CompletedTasksPercentage { get; private set; }
         public decimal InProgressPercentage { get; private set; }
+        public ProjectHealthStatus HealthStatus { get; private set; }
 
         private ProjectProgress() { }
 
@@ -51,16 +51,19 @@ namespace toyiyo.todo.Projects
                 TotalTasksPercentage = totalNonEpicJobs > 0
                     ? (decimal)nonEpicJobs.Count(j => j.JobStatus == Job.Status.Done) / totalNonEpicJobs * 100 
                     : 0,
-                
-                CompletedTasksPercentage = totalNonEpicJobs > 0
-                    ? (decimal)nonEpicJobs.Count(j => j.JobStatus == Job.Status.Done) / totalNonEpicJobs * 100
-                    : 0,
                     
                 InProgressPercentage = totalNonEpicJobs > 0
                     ? (decimal)nonEpicJobs.Count(j => j.JobStatus == Job.Status.InProgress) / totalNonEpicJobs * 100
                     : 0,
 
-                DueDate = nonDeletedJobs.Max(j => (DateTime?)j.DueDate) ?? null
+                DueDate = nonDeletedJobs.Max(j => (DateTime?)j.DueDate) ?? null,
+
+                HealthStatus = ProjectHealthStatus.Calculate(
+                    totalTasks: totalNonEpicJobs,
+                    completedTasks: nonEpicJobs.Count(j => j.JobStatus == Job.Status.Done),
+                    bugCount: nonDeletedJobs.Count(j => j.Level == Job.JobLevel.Bug),
+                    dueDate: nonDeletedJobs.Max(j => (DateTime?)j.DueDate)
+                )
             };
 
             return progress;

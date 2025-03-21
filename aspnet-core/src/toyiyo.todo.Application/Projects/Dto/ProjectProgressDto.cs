@@ -1,12 +1,10 @@
 using System;
-using Abp.AutoMapper;
 
 namespace toyiyo.todo.Projects.Dto
 {
     /// <summary>
     /// Data transfer object for project progress statistics
     /// </summary>
-    [AutoMap(typeof(ProjectProgress))]
     public class ProjectProgressDto
     {
         // Base statistics mapped from domain
@@ -19,25 +17,32 @@ namespace toyiyo.todo.Projects.Dto
         public int BugCount { get; set; }
         public DateTime? DueDate { get; set; }
         public int CompletedEpics { get; set; }
-        
-        // Percentages mapped from domain
-        public decimal CompletedTasksPercentage { get; set; }
         public decimal InProgressPercentage { get; set; }
         public decimal TotalTasksPercentage { get; set; }
 
-        // Presentation-specific computed properties
-        public string Status => TotalTasksPercentage switch {
-            100 => "Completed",
-            > 65 => "On Track", 
-            > 35 => "At Risk",
-            _ => "Behind"
-        };
+        public string Status { get; set; }
+        public string StatusClass { get; set; }
 
-        public string StatusClass => Status switch {
-            "Completed" => "badge-success",
-            "On Track" => "badge-info", 
-            "At Risk" => "badge-warning",
-            _ => "badge-danger"
-        };
+        public static ProjectProgressDto FromDomain(ProjectProgress progress)
+        {
+            if (progress == null) return new ProjectProgressDto();
+            
+            return new ProjectProgressDto
+            {
+                TotalTasks = progress.TotalTasks,
+                CompletedTasks = progress.CompletedTasks,
+                InProgressTasks = progress.InProgressTasks,
+                BacklogTasks = progress.BacklogTasks,
+                EpicCount = progress.EpicCount,
+                TaskCount = progress.TaskCount,
+                BugCount = progress.BugCount,
+                DueDate = progress.DueDate,
+                CompletedEpics = progress.CompletedEpics,
+                InProgressPercentage = progress.InProgressPercentage,
+                TotalTasksPercentage = progress.TotalTasksPercentage,
+                Status = progress.HealthStatus?.Status,
+                StatusClass = progress.HealthStatus?.CssClass
+            };
+        }
     }
 }
