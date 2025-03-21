@@ -36,10 +36,10 @@ namespace toyiyo.todo.Projects
             if (isPastDue && completionRatio < 1m)
                 return new ProjectHealthStatus("Overdue", "badge-danger");
 
-            if (completionRatio >= (OnTrackThreshold/100) && bugRatio <= BugRatioThreshold)
+            if (completionRatio >= (OnTrackThreshold / 100) && bugRatio <= BugRatioThreshold)
                 return new ProjectHealthStatus("On Track", "badge-info");
 
-            if (completionRatio >= (RiskThreshold/100))
+            if (completionRatio >= (RiskThreshold / 100))
                 return new ProjectHealthStatus("At Risk", "badge-warning");
 
             return new ProjectHealthStatus("Behind", "badge-danger");

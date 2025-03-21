@@ -24,7 +24,14 @@ namespace toyiyo.todo.Projects {
         /// <summary> Gets a Project by Id. </summary>
         public async Task<ProjectDto> Get(Guid id) {
             var project = await _projectManager.Get(id);
-            return ObjectMapper.Map<ProjectDto>(project);
+            var progressMap = await _projectManager.GetProjectsProgress(
+                new Guid[] {project.Id}
+            );
+            var dto = ObjectMapper.Map<ProjectDto>(project);
+            dto.Progress = progressMap.TryGetValue(project.Id, out var progress)
+                ? ProjectProgressDto.FromDomain(progress)
+                : new ProjectProgressDto();
+            return dto;
         }
         /// <summary> Gets all Projects. Keyword filters by Title</summary>
         public async Task<PagedResultDto<ProjectDto>> GetAll(GetAllProjectsInput input) {
