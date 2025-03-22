@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . .
 
 # install libman library
-RUN dotnet tool install -g Microsoft.Web.LibraryManager.Cli
+RUN dotnet tool install -g Microsoft.Web.LibraryManager.Cli --version 2.1.175
 ENV PATH="$PATH:/root/.dotnet/tools"
 
 # Restore as distinct layers
