@@ -37,7 +37,7 @@
                 className: 'project-card',
                 render: function(data, type, row) {
                     const progress = row.progress;
-                    const total = progress.totalTasks;
+                    const total = progress.totalJobCount;
                     const completed = progress.completedTasks;
                     const actions = `
                         <div class="dropdown">
@@ -112,10 +112,10 @@
                                          aria-valuemin="0" 
                                          aria-valuemax="100"
                                          data-toggle="tooltip"
-                                         title="${completed} completed">
+                                         title="${completed} completed (${progress.totalTasksPercentage}%)">
                                     </div>
                                     <div class="position-absolute w-100 text-center" style="line-height: 20px;">
-                                        ${total === 0 ? 'No tasks' : `${completed} of ${total} tasks completed`}
+                                        ${total === 0 ? 'No tasks' : `${completed} of ${total} tasks completed (${progress.totalTasksPercentage}%)`}
                                     </div>
                                 </div>
                             </div>

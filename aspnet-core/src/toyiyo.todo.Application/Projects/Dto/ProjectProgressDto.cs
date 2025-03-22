@@ -8,7 +8,7 @@ namespace toyiyo.todo.Projects.Dto
     public class ProjectProgressDto
     {
         // Base statistics mapped from domain
-        public int TotalTasks { get; set; }
+        public int TotalJobCount { get; set; }
         public int CompletedTasks { get; set; }
         public int InProgressTasks { get; set; }
         public int BacklogTasks { get; set; }
@@ -29,7 +29,7 @@ namespace toyiyo.todo.Projects.Dto
             
             return new ProjectProgressDto
             {
-                TotalTasks = progress.TotalTasks,
+                TotalJobCount = progress.TotalJobCount,
                 CompletedTasks = progress.CompletedTasks,
                 InProgressTasks = progress.InProgressTasks,
                 BacklogTasks = progress.BacklogTasks,

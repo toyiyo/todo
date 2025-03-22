@@ -12,13 +12,13 @@ namespace toyiyo.todo.Tests.Projects
         public void Calculate_WhenNoTasks_ShouldReturnNotStarted()
         {
             // Arrange
-            int totalTasks = 0;
+            int TotalJobCount = 0;
             int completedTasks = 0;
             int bugCount = 0;
             DateTime? dueDate = null;
 
             // Act
-            var result = ProjectHealthStatus.Calculate(totalTasks, completedTasks, bugCount, dueDate);
+            var result = ProjectHealthStatus.Calculate(TotalJobCount, completedTasks, bugCount, dueDate);
 
             // Assert
             result.Status.ShouldBe("Not Started");
@@ -29,13 +29,13 @@ namespace toyiyo.todo.Tests.Projects
         public void Calculate_WhenAllTasksComplete_ShouldReturnCompleted()
         {
             // Arrange
-            int totalTasks = 100;
+            int TotalJobCount = 100;
             int completedTasks = 100; // 100% completion ratio
             int bugCount = 10;
             DateTime? dueDate = DateTime.UtcNow.AddDays(10);
 
             // Act
-            var result = ProjectHealthStatus.Calculate(totalTasks, completedTasks, bugCount, dueDate);
+            var result = ProjectHealthStatus.Calculate(TotalJobCount, completedTasks, bugCount, dueDate);
 
             // Assert
             result.Status.ShouldBe("Completed");
@@ -46,13 +46,13 @@ namespace toyiyo.todo.Tests.Projects
         public void Calculate_WhenPastDueAndNotComplete_ShouldReturnOverdue()
         {
             // Arrange
-            int totalTasks = 100;
+            int TotalJobCount = 100;
             int completedTasks = 90; // 90% completion ratio
             int bugCount = 5;
             DateTime? dueDate = DateTime.UtcNow.AddDays(-1); // Past due
 
             // Act
-            var result = ProjectHealthStatus.Calculate(totalTasks, completedTasks, bugCount, dueDate);
+            var result = ProjectHealthStatus.Calculate(TotalJobCount, completedTasks, bugCount, dueDate);
 
             // Assert
             result.Status.ShouldBe("Overdue");
@@ -67,12 +67,12 @@ namespace toyiyo.todo.Tests.Projects
             int completionPercentage, int bugCount, decimal bugRatio)
         {
             // Arrange
-            int totalTasks = 100;
+            int TotalJobCount = 100;
             int completedTasks = completionPercentage; // completionRatio = completionPercentage/100
             DateTime? dueDate = DateTime.UtcNow.AddDays(10);
 
             // Act
-            var result = ProjectHealthStatus.Calculate(totalTasks, completedTasks, bugCount, dueDate);
+            var result = ProjectHealthStatus.Calculate(TotalJobCount, completedTasks, bugCount, dueDate);
 
             // Assert
             result.Status.ShouldBe("On Track");
@@ -86,12 +86,12 @@ namespace toyiyo.todo.Tests.Projects
             int completionPercentage, int bugCount)
         {
             // Arrange
-            int totalTasks = 100;
+            int TotalJobCount = 100;
             int completedTasks = completionPercentage; // completionRatio = completionPercentage/100
             DateTime? dueDate = DateTime.UtcNow.AddDays(10);
 
             // Act
-            var result = ProjectHealthStatus.Calculate(totalTasks, completedTasks, bugCount, dueDate);
+            var result = ProjectHealthStatus.Calculate(TotalJobCount, completedTasks, bugCount, dueDate);
 
             // Assert
             result.Status.ShouldBe("At Risk");
@@ -105,13 +105,13 @@ namespace toyiyo.todo.Tests.Projects
         public void Calculate_WhenLowCompletion_ShouldReturnBehind(int completionPercentage)
         {
             // Arrange
-            int totalTasks = 100;
+            int TotalJobCount = 100;
             int completedTasks = completionPercentage; // completionRatio = completionPercentage/100
             int bugCount = 10;
             DateTime? dueDate = DateTime.UtcNow.AddDays(10);
 
             // Act
-            var result = ProjectHealthStatus.Calculate(totalTasks, completedTasks, bugCount, dueDate);
+            var result = ProjectHealthStatus.Calculate(TotalJobCount, completedTasks, bugCount, dueDate);
 
             // Assert
             result.Status.ShouldBe("Behind");
@@ -122,7 +122,7 @@ namespace toyiyo.todo.Tests.Projects
         public void Calculate_WithEdgeCaseCompletionRatio_ShouldHandleCorrectly()
         {
             // Arrange - exactly at threshold boundaries
-            int totalTasks = 100;
+            int TotalJobCount = 100;
             int justBelowRiskThreshold = 34;
             int exactlyAtRiskThreshold = 35;
             int justBelowOnTrackThreshold = 64;
@@ -131,16 +131,16 @@ namespace toyiyo.todo.Tests.Projects
             DateTime? dueDate = DateTime.UtcNow.AddDays(10);
 
             // Act & Assert - Testing the threshold boundaries
-            ProjectHealthStatus.Calculate(totalTasks, justBelowRiskThreshold, bugCount, dueDate)
+            ProjectHealthStatus.Calculate(TotalJobCount, justBelowRiskThreshold, bugCount, dueDate)
                 .Status.ShouldBe("Behind");
 
-            ProjectHealthStatus.Calculate(totalTasks, exactlyAtRiskThreshold, bugCount, dueDate)
+            ProjectHealthStatus.Calculate(TotalJobCount, exactlyAtRiskThreshold, bugCount, dueDate)
                 .Status.ShouldBe("At Risk");
 
-            ProjectHealthStatus.Calculate(totalTasks, justBelowOnTrackThreshold, bugCount, dueDate)
+            ProjectHealthStatus.Calculate(TotalJobCount, justBelowOnTrackThreshold, bugCount, dueDate)
                 .Status.ShouldBe("At Risk");
 
-            ProjectHealthStatus.Calculate(totalTasks, exactlyAtOnTrackThreshold, bugCount, dueDate)
+            ProjectHealthStatus.Calculate(TotalJobCount, exactlyAtOnTrackThreshold, bugCount, dueDate)
                 .Status.ShouldBe("On Track");
         }
 
@@ -148,7 +148,7 @@ namespace toyiyo.todo.Tests.Projects
         public void Calculate_WithDifferentCompletionRatios_ShouldReflectCorrectProgress()
         {
             // Arrange
-            int totalTasks = 200;
+            int TotalJobCount = 200;
             int[] completedTasksArray = { 0, 70, 130, 200 };
             int bugCount = 10;
             DateTime? dueDate = DateTime.UtcNow.AddDays(10);
@@ -161,9 +161,9 @@ namespace toyiyo.todo.Tests.Projects
                 int completedTasks = completedTasksArray[i];
                 string expectedStatus = expectedStatuses[i];
 
-                var result = ProjectHealthStatus.Calculate(totalTasks, completedTasks, bugCount, dueDate);
+                var result = ProjectHealthStatus.Calculate(TotalJobCount, completedTasks, bugCount, dueDate);
                 result.Status.ShouldBe(expectedStatus,
-                    $"Failed with completionRatio = {(decimal)completedTasks / totalTasks:P0}");
+                    $"Failed with completionRatio = {(decimal)completedTasks / TotalJobCount:P0}");
             }
         }
     }

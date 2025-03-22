@@ -7,7 +7,7 @@ namespace toyiyo.todo.Projects
 {
     public class ProjectProgress
     {
-        public int TotalTasks { get; private set; }
+        public int TotalJobCount { get; private set; }
         public int CompletedTasks { get; private set; }
         public int InProgressTasks { get; private set; }
         public int BacklogTasks { get; private set; }
@@ -34,7 +34,7 @@ namespace toyiyo.todo.Projects
             var progress = new ProjectProgress
             {
                 // Only count non-epic jobs for task totals
-                TotalTasks = nonEpicJobs.Count(),
+                TotalJobCount = totalNonEpicJobs,
                 CompletedTasks = nonEpicJobs.Count(j => j.JobStatus == Job.Status.Done),
                 InProgressTasks = nonEpicJobs.Count(j => j.JobStatus == Job.Status.InProgress),
                 BacklogTasks = nonEpicJobs.Count(j => j.JobStatus == Job.Status.Open),
@@ -49,17 +49,17 @@ namespace toyiyo.todo.Projects
                 
                 // Calculate percentages based on non-epic jobs only
                 TotalTasksPercentage = totalNonEpicJobs > 0
-                    ? (decimal)nonEpicJobs.Count(j => j.JobStatus == Job.Status.Done) / totalNonEpicJobs * 100 
+                    ? Math.Round((decimal)nonEpicJobs.Count(j => j.JobStatus == Job.Status.Done) / totalNonEpicJobs * 100, 2) 
                     : 0,
                     
                 InProgressPercentage = totalNonEpicJobs > 0
-                    ? (decimal)nonEpicJobs.Count(j => j.JobStatus == Job.Status.InProgress) / totalNonEpicJobs * 100
+                    ? Math.Round((decimal)nonEpicJobs.Count(j => j.JobStatus == Job.Status.InProgress) / totalNonEpicJobs * 100, 2)
                     : 0,
 
                 DueDate = nonDeletedJobs.Max(j => (DateTime?)j.DueDate) ?? null,
 
                 HealthStatus = ProjectHealthStatus.Calculate(
-                    totalTasks: totalNonEpicJobs,
+                    totalJobCount: totalNonEpicJobs,
                     completedTasks: nonEpicJobs.Count(j => j.JobStatus == Job.Status.Done),
                     bugCount: nonDeletedJobs.Count(j => j.Level == Job.JobLevel.Bug),
                     dueDate: nonDeletedJobs.Max(j => (DateTime?)j.DueDate)

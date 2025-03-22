@@ -18,16 +18,16 @@ namespace toyiyo.todo.Projects
         }
 
         public static ProjectHealthStatus Calculate(
-            int totalTasks,
+            int totalJobCount,
             int completedTasks,
             int bugCount,
             DateTime? dueDate)
         {
-            if (totalTasks == 0)
+            if (totalJobCount == 0)
                 return new ProjectHealthStatus("Not Started", "badge-secondary");
 
-            var completionRatio = (decimal)completedTasks / totalTasks;
-            var bugRatio = totalTasks > 0 ? (decimal)bugCount / totalTasks : 0;
+            var completionRatio = (decimal)completedTasks / totalJobCount;
+            var bugRatio = totalJobCount > 0 ? (decimal)bugCount / totalJobCount : 0;
             var isPastDue = dueDate.HasValue && DateTime.UtcNow > dueDate.Value;
 
             if (completionRatio == 1m)
