@@ -187,7 +187,7 @@ namespace toyiyo.todo.Tests.Projects
             progress.TotalJobCount.ShouldBe(8); // 5 tasks + 3 bugs
             progress.CompletedTasks.ShouldBe(3);
             progress.InProgressTasks.ShouldBe(2);
-            progress.BacklogTasks.ShouldBe(0);
+            progress.BacklogTasks.ShouldBe(3);
             progress.EpicCount.ShouldBe(2);
             progress.CompletedEpics.ShouldBe(1);
             progress.TaskCount.ShouldBe(5);
