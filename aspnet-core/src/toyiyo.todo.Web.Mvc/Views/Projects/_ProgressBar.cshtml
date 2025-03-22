@@ -1,0 +1,27 @@
+@model toyiyo.todo.Projects.Dto.ProjectProgressDto
+
+<div class="progress" style="height: 20px;">
+    <div class="progress-bar bg-success" 
+         role="progressbar" 
+         style="width: @Model.TotalTasksPercentage%"
+         aria-valuenow="@Model.TotalTasksPercentage" 
+         aria-valuemin="0" 
+         aria-valuemax="100"
+         data-toggle="tooltip" 
+         title="@Model.CompletedTasks completed">
+        @Model.CompletedTasks
+    </div>
+    <div class="progress-bar bg-info" 
+         role="progressbar" 
+         style="width: @Model.InProgressPercentage%"
+         aria-valuenow="@Model.InProgressPercentage" 
+         aria-valuemin="0" 
+         aria-valuemax="100"
+         data-toggle="tooltip" 
+         title="@Model.InProgressTasks in progress">
+        @Model.InProgressTasks
+    </div>
+</div>
+<small class="text-muted">
+    @Model.CompletedTasks of @Model.TotalJobCount tasks completed
+</small>

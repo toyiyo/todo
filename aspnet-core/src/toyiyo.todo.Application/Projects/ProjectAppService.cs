@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
@@ -23,13 +24,34 @@ namespace toyiyo.todo.Projects {
         /// <summary> Gets a Project by Id. </summary>
         public async Task<ProjectDto> Get(Guid id) {
             var project = await _projectManager.Get(id);
-            return ObjectMapper.Map<ProjectDto>(project);
+            var progressMap = await _projectManager.GetProjectsProgress(
+                new Guid[] {project.Id}
+            );
+            var dto = ObjectMapper.Map<ProjectDto>(project);
+            dto.Progress = progressMap.TryGetValue(project.Id, out var progress)
+                ? ProjectProgressDto.FromDomain(progress)
+                : new ProjectProgressDto();
+            return dto;
         }
         /// <summary> Gets all Projects. Keyword filters by Title</summary>
         public async Task<PagedResultDto<ProjectDto>> GetAll(GetAllProjectsInput input) {
             var projects = await _projectManager.GetAll(input);
+            
+            // Get progress for all projects in one batch
+            var progressMap = await _projectManager.GetProjectsProgress(
+                projects.Select(p => p.Id)
+            );
+            
+            var dtos = projects.Select(p => {
+                var dto = ObjectMapper.Map<ProjectDto>(p);
+                dto.Progress = progressMap.TryGetValue(p.Id, out var progress)
+                    ? ProjectProgressDto.FromDomain(progress)
+                    : new ProjectProgressDto(); 
+                return dto;
+            }).ToList();
+            
             var projectsTotalCount = await _projectManager.GetAllCount(input);
-            return new PagedResultDto<ProjectDto>(projectsTotalCount, ObjectMapper.Map<List<ProjectDto>>(projects));
+            return new PagedResultDto<ProjectDto>(projectsTotalCount, dtos);
         }
 
         /// <summary> Sets the project's title </summary>

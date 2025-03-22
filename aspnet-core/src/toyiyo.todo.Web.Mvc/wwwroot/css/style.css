@@ -93,3 +93,57 @@ table.dataTable td.reorder {
 .user-panel .image .user-initials {
   margin-right: 10px; /* Adjust as needed */
 }
+
+/* Project card styles */
+.dataTables_wrapper .project-title {
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  color: #2c3e50;
+  text-decoration: none;
+}
+
+.dataTables_wrapper .project-title:hover {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.dataTables_wrapper .card-title {
+  font-size: 18px !important;
+}
+
+.project-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #2c3e50;
+    text-decoration: none;
+}
+
+.project-title:hover {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.project-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.stat-item {
+    display: inline-flex;
+    align-items: center;
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+.stat-item i {
+    font-size: 1.1rem;
+    color: #495057;
+}
+
+/* Make sure badges look good with the new sizing */
+.badge.badge-pill {
+    font-size: 0.9rem;
+    padding: 0.4em 0.8em;
+}

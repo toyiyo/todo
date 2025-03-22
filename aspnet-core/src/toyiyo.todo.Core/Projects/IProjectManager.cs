@@ -12,5 +12,6 @@ namespace toyiyo.todo.Projects
         Task<int> GetAllCount(GetAllProjectsInput input);
         Task<Project> Update(Project inputProject);
         Task Delete(Project inputProject);
+        Task<Dictionary<Guid, ProjectProgress>> GetProjectsProgress(IEnumerable<Guid> projectIds);
     }
 }
