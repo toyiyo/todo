@@ -95,6 +95,22 @@ table.dataTable td.reorder {
 }
 
 /* Project card styles */
+.dataTables_wrapper .project-title {
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  color: #2c3e50;
+  text-decoration: none;
+}
+
+.dataTables_wrapper .project-title:hover {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.dataTables_wrapper .card-title {
+  font-size: 18px !important;
+}
+
 .project-title {
     font-size: 1.4rem;
     font-weight: 600;

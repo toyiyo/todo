@@ -39,7 +39,7 @@
                     const progress = row.progress;
                     const total = progress.totalJobCount;
                     const completed = progress.completedTasks;
-                    const actions = `
+                    const actions = DOMPurify.sanitize(`
                         <div class="dropdown">
                             <button class="btn btn-sm btn-light dropdown-toggle ml-2" type="button" data-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-ellipsis-v"></i>
@@ -60,7 +60,7 @@
                                 </button>
                             </div>
                         </div>
-                    `;
+                    `);
 
                     // Generate card content regardless of task count
                     return `
@@ -68,7 +68,7 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h5 class="card-title mb-0">
-                                        <a class="project-title" href="/Projects/${row.id}/jobs">${row.title}</a>
+                                        <a class="project-title" href="/Projects/${DOMPurify.sanitize(row.id)}/jobs">${DOMPurify.sanitize(row.title)}</a>
                                     </h5>
                                     <div>
                                         <span class="badge badge-pill ${progress.statusClass}">${progress.status}</span>
