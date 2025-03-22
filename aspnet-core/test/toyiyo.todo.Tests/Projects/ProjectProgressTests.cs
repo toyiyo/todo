@@ -192,8 +192,8 @@ namespace toyiyo.todo.Tests.Projects
             progress.CompletedEpics.ShouldBe(1);
             progress.TaskCount.ShouldBe(5);
             progress.BugCount.ShouldBe(3);
-            progress.TotalTasksPercentage.ShouldBe(60);
-            progress.InProgressPercentage.ShouldBe(40);
+            progress.TotalTasksPercentage.ShouldBe(37.50m); // 3 completed tasks out of 8 total jobs
+            progress.InProgressPercentage.ShouldBe(25.00m); // 2 in-progress tasks out of 8 total jobs
             progress.DueDate.ShouldNotBeNull();
             progress.HealthStatus.ShouldNotBeNull();
         }
