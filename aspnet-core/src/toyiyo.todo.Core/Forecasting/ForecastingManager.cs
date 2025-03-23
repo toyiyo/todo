@@ -27,37 +27,45 @@ namespace toyiyo.todo.Forecasting
             if (project == null) throw new ArgumentNullException(nameof(project));
 
             var relevantJobs = project.Jobs.Where(j => !j.IsDeleted && j.Level == level).ToList();
+            var remainingJobs = relevantJobs.Count(j => j.JobStatus != Job.Status.Done);
             var completedJobs = relevantJobs.Where(j => j.JobStatus == Job.Status.Done).ToList();
-            var remainingJobs = relevantJobs.Where(j => j.JobStatus != Job.Status.Done).Count();
 
             // Calculate velocity (tasks/week) based on last 6 weeks
-            var recentCompletions = completedJobs
-                .Where(j => j.LastModificationTime >= DateTime.UtcNow.AddDays(-HistoricalWeeks * 7))
-                .ToList();
+            var sixWeeksAgo = DateTime.UtcNow.AddDays(-HistoricalWeeks * 7);
+            var recentCompletionsCount = completedJobs.Count(j => j.LastModificationTime >= sixWeeksAgo);
 
-            var weeklyVelocity = recentCompletions.Count / (decimal)HistoricalWeeks;
-            if (weeklyVelocity == 0) weeklyVelocity = 1; // Minimum velocity
+            var weeklyVelocity = recentCompletionsCount / (decimal)HistoricalWeeks;
+            weeklyVelocity = Math.Max(1, weeklyVelocity); // Minimum velocity of 1
 
-            // Calculate estimated completion dates
-            var weeksToComplete = remainingJobs / weeklyVelocity;
-            var estimatedDate = DateTime.UtcNow.AddDays((double)(weeksToComplete * 7));
-            var optimisticDate = DateTime.UtcNow.AddDays((double)(weeksToComplete * 7 * P10_FACTOR));
-            var conservativeDate = DateTime.UtcNow.AddDays((double)(weeksToComplete * 7 * P90_FACTOR));
+            // Calculate completion dates using await Task.Run for CPU-bound work
+            var (estimatedDate, optimisticDate, conservativeDate) = await Task.Run(() =>
+            {
+                var weeksToComplete = remainingJobs / weeklyVelocity;
+                return (
+                    DateTime.UtcNow.AddDays((double)(weeksToComplete * 7)),
+                    DateTime.UtcNow.AddDays((double)(weeksToComplete * 7 * P10_FACTOR)),
+                    DateTime.UtcNow.AddDays((double)(weeksToComplete * 7 * P90_FACTOR))
+                );
+            });
 
             // Build progress points
-            var actualProgress = BuildActualProgressPoints(completedJobs, relevantJobs.Count);
-            var forecastProgress = BuildForecastProgress(
-                actualProgress.Last().CompletedTasks,
-                relevantJobs.Count,
-                weeklyVelocity,
-                DateTime.UtcNow,
-                estimatedDate);
+            var actualProgress = await Task.Run(() => 
+                BuildActualProgressPoints(completedJobs, relevantJobs.Count));
+            
+            var forecastProgress = await Task.Run(() => 
+                BuildForecastProgress(
+                    actualProgress[actualProgress.Count - 1].CompletedTasks,
+                    relevantJobs.Count,
+                    weeklyVelocity,
+                    DateTime.UtcNow,
+                    estimatedDate
+                ));
 
             return ForecastResult.Create(
                 estimatedDate,
                 optimisticDate,
                 conservativeDate,
-                0.8m, // 80% confidence
+                0.8m,
                 actualProgress,
                 forecastProgress
             );
@@ -82,7 +90,7 @@ namespace toyiyo.todo.Forecasting
             var progress = new List<ProgressPoint>();
             
             // No completed jobs case
-            if (!completedJobs.Any())
+            if (completedJobs.Count == 0)
             {
                 progress.Add(ProgressPoint.Create(DateTime.UtcNow.AddDays(-HistoricalWeeks * 7), 0, totalJobs));
                 progress.Add(ProgressPoint.Create(DateTime.UtcNow, 0, totalJobs));
@@ -102,9 +110,9 @@ namespace toyiyo.todo.Forecasting
                 currentDate = currentDate.Value.AddDays(7);
             }
 
-            // Add final point at current date
-            var lastPoint = progress.LastOrDefault();
-            if (lastPoint == null || lastPoint.Date < DateTime.UtcNow)
+            // Add final point at current date if needed
+            var lastPoint = progress.Count > 0 ? progress[progress.Count - 1] : null;
+            if (lastPoint?.Date < DateTime.UtcNow)
             {
                 progress.Add(ProgressPoint.Create(DateTime.UtcNow, completedJobs.Count, totalJobs));
             }
