@@ -61,6 +61,7 @@ namespace toyiyo.todo.Projects
                 .WhereIf(!input.keyword.IsNullOrWhiteSpace(), p => p.Title.ToUpper().Contains(input.keyword.ToUpper()));
         }
 
+        [UnitOfWork]
         public async Task<Project> Create(Project inputProject)
         {
             var project = await _projectRepository.InsertAsync(inputProject);

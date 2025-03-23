@@ -64,6 +64,7 @@ namespace toyiyo.todo.Jobs
             return query;
         }
 
+        [UnitOfWork]
         public async Task<Job> Create(Job inputJob)
         {
             var job = await _jobRepository.InsertAsync(inputJob);
