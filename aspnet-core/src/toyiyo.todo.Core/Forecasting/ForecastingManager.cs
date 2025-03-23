@@ -26,16 +26,23 @@ namespace toyiyo.todo.Forecasting
         {
             if (project == null) throw new ArgumentNullException(nameof(project));
 
-            var relevantJobs = project.Jobs.Where(j => !j.IsDeleted && j.Level == level).ToList();
+            // For task-level forecasting, include both tasks and bugs
+            var relevantJobs = level == Job.JobLevel.Task 
+                ? project.Jobs.Where(j => !j.IsDeleted && (j.Level == Job.JobLevel.Task || j.Level == Job.JobLevel.Bug))
+                : project.Jobs.Where(j => !j.IsDeleted && j.Level == level);
+
             var remainingJobs = relevantJobs.Count(j => j.JobStatus != Job.Status.Done);
             var completedJobs = relevantJobs.Where(j => j.JobStatus == Job.Status.Done).ToList();
 
-            // Calculate velocity (tasks/week) based on last 6 weeks
+            // Calculate weighted velocity based on job type
             var sixWeeksAgo = DateTime.UtcNow.AddDays(-HistoricalWeeks * 7);
-            var recentCompletionsCount = completedJobs.Count(j => j.LastModificationTime >= sixWeeksAgo);
+            var recentCompletions = completedJobs
+                .Where(j => j.LastModificationTime >= sixWeeksAgo)
+                .Select(j => new { Job = j, Weight = j.Level == Job.JobLevel.Bug ? 0.5m : 1m })
+                .ToList();
 
-            var weeklyVelocity = recentCompletionsCount / (decimal)HistoricalWeeks;
-            weeklyVelocity = Math.Max(1, weeklyVelocity); // Minimum velocity of 1
+            var weightedCompletions = recentCompletions.Sum(x => x.Weight);
+            var weeklyVelocity = Math.Max(1, weightedCompletions / HistoricalWeeks);
 
             // Calculate completion dates using await Task.Run for CPU-bound work
             var (estimatedDate, optimisticDate, conservativeDate) = await Task.Run(() =>
@@ -50,12 +57,12 @@ namespace toyiyo.todo.Forecasting
 
             // Build progress points
             var actualProgress = await Task.Run(() => 
-                BuildActualProgressPoints(completedJobs, relevantJobs.Count));
+                BuildActualProgressPoints(completedJobs, relevantJobs.Count()));
             
             var forecastProgress = await Task.Run(() => 
                 BuildForecastProgress(
                     actualProgress[actualProgress.Count - 1].CompletedTasks,
-                    relevantJobs.Count,
+                    relevantJobs.Count(),
                     weeklyVelocity,
                     DateTime.UtcNow,
                     estimatedDate
@@ -64,7 +71,7 @@ namespace toyiyo.todo.Forecasting
             var optimisticProgress = await Task.Run(() => 
                 BuildForecastProgress(
                     actualProgress[actualProgress.Count - 1].CompletedTasks,
-                    relevantJobs.Count,
+                    relevantJobs.Count(),
                     weeklyVelocity / P10_FACTOR,
                     DateTime.UtcNow,
                     optimisticDate
@@ -73,7 +80,7 @@ namespace toyiyo.todo.Forecasting
             var conservativeProgress = await Task.Run(() => 
                 BuildForecastProgress(
                     actualProgress[actualProgress.Count - 1].CompletedTasks,
-                    relevantJobs.Count,
+                    relevantJobs.Count(),
                     weeklyVelocity / P90_FACTOR,
                     DateTime.UtcNow,
                     conservativeDate

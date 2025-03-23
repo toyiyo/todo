@@ -79,15 +79,16 @@
                                     <div class="project-stats">
                                         <span class="stat-item">
                                             <i class="fas fa-layer-group mr-2"></i>
-                                            ${progress.epicCount} Epics (${progress.completedEpics} done)
+                                            ${progress.epicCount} Epics (${progress.completedEpics} ${progress.epicCount > 0 ? 
+                                            `- ${Math.round(progress.epicCompletionPercentage)}%` : ''} done)
                                         </span>
                                         <span class="stat-item">
                                             <i class="fas fa-tasks mr-2"></i>
-                                            ${progress.taskCount} Tasks 
+                                            ${progress.taskCount} Tasks (${progress.completedTasks} done)
                                         </span>
-                                        <span class="stat-item">
+                                        <span class="stat-item ${progress.bugCount > (progress.completedBugs * 2) ? 'text-danger' : ''}">
                                             <i class="fas fa-bug mr-2"></i>
-                                            ${progress.bugCount} Bugs
+                                            ${progress.bugCount} Bugs (${progress.completedBugs} resolved)
                                         </span>
                                         ${progress.dueDate && !moment(progress.dueDate).isSame('0001-01-01T00:00:00Z') ? `
                                             <span class="stat-item">
@@ -105,7 +106,7 @@
                             </div>
                             <div class="card-footer p-2">
                                 <div class="progress position-relative" style="height: 20px;">
-                                    <div class="progress-bar bg-success" 
+                                    <div class="progress-bar ${progress.status === 'At Risk' ? 'bg-warning' : 'bg-success'}" 
                                          style="width: ${progress.totalTasksPercentage}%"
                                          role="progressbar" 
                                          aria-valuenow="${progress.totalTasksPercentage}" 
