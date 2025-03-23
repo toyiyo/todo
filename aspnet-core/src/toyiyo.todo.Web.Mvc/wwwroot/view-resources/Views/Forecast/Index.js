@@ -55,35 +55,28 @@
                         data: generateDataPoints(sortedDates, result.actualProgress),
                         backgroundColor: '#1f77b4',
                         borderColor: '#1f77b4',
-                        fill: false,
-                        borderWidth: 2
+                        fill: false
                     },
                     {
                         label: 'Forecast',
                         data: generateDataPoints(sortedDates, result.forecastProgress),
                         backgroundColor: '#ff7f0e',
                         borderColor: '#ff7f0e',
-                        fill: false,
-                        borderDash: [5, 5],
-                        borderWidth: 2
+                        fill: false
                     },
                     {
                         label: 'Optimistic (P10)',
                         data: generateDataPoints(sortedDates, result.optimisticProgress),
                         backgroundColor: '#2ca02c',
                         borderColor: '#2ca02c',
-                        fill: false,
-                        borderDash: [3, 3],
-                        borderWidth: 2
+                        fill: false
                     },
                     {
                         label: 'Conservative (P90)',
                         data: generateDataPoints(sortedDates, result.conservativeProgress),
                         backgroundColor: '#d62728',
                         borderColor: '#d62728',
-                        fill: false,
-                        borderDash: [3, 3],
-                        borderWidth: 2
+                        fill: false
                     }
                 ]
             },
