@@ -40,7 +40,7 @@
             ...result.forecastProgress.map(p => p.date),
             ...result.optimisticProgress.map(p => p.date),
             ...result.conservativeProgress.map(p => p.date)
-        ].sort());
+        ].sort((a, b) => new Date(a) - new Date(b)));
 
         // Create a sorted array of all dates
         const sortedDates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
