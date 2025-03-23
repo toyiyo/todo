@@ -14,6 +14,8 @@ namespace toyiyo.todo.Forecasting.Dto
         public decimal ConfidenceLevel { get; set; }
         public List<ProgressPointDto> ActualProgress { get; set; }
         public List<ProgressPointDto> ForecastProgress { get; set; }
+        public List<ProgressPointDto> OptimisticProgress { get; set; }
+        public List<ProgressPointDto> ConservativeProgress { get; set; }
     }
 
     [AutoMapFrom(typeof(ProgressPoint))]

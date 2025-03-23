@@ -12,6 +12,8 @@ namespace toyiyo.todo.Forecasting
         public decimal ConfidenceLevel { get; private set; }
         public List<ProgressPoint> ActualProgress { get; private set; }
         public List<ProgressPoint> ForecastProgress { get; private set; }
+        public List<ProgressPoint> OptimisticProgress { get; private set; }
+        public List<ProgressPoint> ConservativeProgress { get; private set; }
 
         protected ForecastResult() { }
 
@@ -21,7 +23,9 @@ namespace toyiyo.todo.Forecasting
             DateTime conservativeDate,
             decimal confidence,
             List<ProgressPoint> actual,
-            List<ProgressPoint> forecast)
+            List<ProgressPoint> forecast,
+            List<ProgressPoint> optimistic,
+            List<ProgressPoint> conservative)
         {
             if (optimisticDate > estimatedDate)
                 throw new ArgumentException("Optimistic date must be before or equal to estimated date");
@@ -37,7 +41,9 @@ namespace toyiyo.todo.Forecasting
                 ConservativeCompletionDate = conservativeDate,
                 ConfidenceLevel = confidence,
                 ActualProgress = actual,
-                ForecastProgress = forecast
+                ForecastProgress = forecast,
+                OptimisticProgress = optimistic,
+                ConservativeProgress = conservative
             };
         }
 
@@ -49,6 +55,8 @@ namespace toyiyo.todo.Forecasting
             yield return ConfidenceLevel;
             yield return ActualProgress;
             yield return ForecastProgress;
+            yield return OptimisticProgress;
+            yield return ConservativeProgress;
         }
     }
 }

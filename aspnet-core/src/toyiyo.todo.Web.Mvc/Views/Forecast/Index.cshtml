@@ -6,48 +6,63 @@
 }
 
 <div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 class="page-header">@L("ForecastTitle{0}", Model.Title)</h1>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="alert alert-info" role="alert">
+                @L("ForecastInfoAlert")
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">@L("OptimisticCompletionDate")</h5>
+                </div>
+                <div class="card-body">
+                    <p id="optimisticDate" class="card-text"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">@L("EstimatedCompletionDate")</h5>
+                </div>
+                <div class="card-body">
+                    <p id="estimatedDate" class="card-text"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">@L("ConservativeCompletionDate")</h5>
+                </div>
+                <div class="card-body">
+                    <p id="conservativeDate" class="card-text"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">@L("CompletionForecast") - @Model.Title</h3>
+            <div class="form-group">
+                <label for="levelSelect">@L("SelectJobLevel")</label>
+                <select id="levelSelect" class="form-control">
+                    <option value="0">@L("Tasks")</option>
+                    <option value="2">@L("Epics")</option>
+                </select>
+            </div>
         </div>
         <div class="card-body">
-            <div class="row">
-                <div class="col-md-3">
-                    <select id="levelSelect" class="form-control">
-                        <option value="2">@L("Epics")</option>
-                        <option value="0">@L("Tasks")</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="forecast-info alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        @L("ForecastBasedOnVelocity")
-                    </div>
-                    <canvas id="forecastChart"></canvas>
-                </div>
-            </div>
-            <div class="row mt-4">
-                <div class="col-md-4">
-                    <div class="date-card optimistic">
-                        <h5>@L("OptimisticDate") (P10)</h5>
-                        <div class="date" id="optimisticDate"></div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="date-card estimated">
-                        <h5>@L("EstimatedDate") (P50)</h5>
-                        <div class="date" id="estimatedDate"></div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="date-card conservative">
-                        <h5>@L("ConservativeDate") (P90)</h5>
-                        <div class="date" id="conservativeDate"></div>
-                    </div>
-                </div>
-            </div>
+            <canvas id="forecastChart"></canvas>
         </div>
     </div>
 </div>

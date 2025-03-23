@@ -11,7 +11,7 @@
         const level = $('#levelSelect').val();
 
         abp.ui.setBusy($('body'));
-        _forecastService.getForecast(projectId, parseInt(level))  // Use projectId from view
+        _forecastService.getForecast(projectId, parseInt(level))
             .done(renderForecast)
             .always(() => abp.ui.clearBusy($('body')));
     }
@@ -34,27 +34,48 @@
             _forecastChart.destroy();
         }
 
+        // Combine all unique dates from actual and forecast data
+        const allDates = new Set([
+            ...result.actualProgress.map(p => p.date),
+            ...result.forecastProgress.map(p => p.date),
+            ...result.optimisticProgress.map(p => p.date),
+            ...result.conservativeProgress.map(p => p.date)
+        ].sort());
+
+        // Create a sorted array of all dates
+        const sortedDates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
+
         _forecastChart = new Chart(ctx, {
             type: 'line',
             data: {
+                labels: sortedDates.map(d => moment(d).format('LL')),
                 datasets: [
                     {
                         label: 'Actual Progress',
-                        data: result.actualProgress.map(p => ({
-                            x: moment(p.date).toDate(),
-                            y: p.completionPercentage
-                        })),
+                        data: generateDataPoints(sortedDates, result.actualProgress),
+                        backgroundColor: '#1f77b4',
                         borderColor: '#1f77b4',
                         fill: false
                     },
                     {
                         label: 'Forecast',
-                        data: result.forecastProgress.map(p => ({
-                            x: moment(p.date).toDate(),
-                            y: p.completionPercentage
-                        })),
+                        data: generateDataPoints(sortedDates, result.forecastProgress),
+                        backgroundColor: '#ff7f0e',
                         borderColor: '#ff7f0e',
-                        borderDash: [5, 5],
+                        fill: false
+                    },
+                    {
+                        label: 'Optimistic (P10)',
+                        data: generateDataPoints(sortedDates, result.optimisticProgress),
+                        backgroundColor: '#2ca02c',
+                        borderColor: '#2ca02c',
+                        fill: false
+                    },
+                    {
+                        label: 'Conservative (P90)',
+                        data: generateDataPoints(sortedDates, result.conservativeProgress),
+                        backgroundColor: '#d62728',
+                        borderColor: '#d62728',
                         fill: false
                     }
                 ]
@@ -63,9 +84,10 @@
                 responsive: true,
                 scales: {
                     x: {
-                        type: 'time',
-                        time: {
-                            unit: 'week'
+                        type: 'category',
+                        title: {
+                            display: true,
+                            text: 'Dates'
                         }
                     },
                     y: {
@@ -81,12 +103,24 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return `${context.dataset.label}: ${Math.round(context.parsed.y)}%`;
+                                return context.dataset.label + ': ' + context.parsed.y + '%';
                             }
                         }
                     }
                 }
             }
+        });
+    }
+
+    function generateDataPoints(dates, progressData) {
+        const progressMap = new Map(progressData.map(p => [p.date, p.completionPercentage]));
+        return dates.map(date => {
+            // Find the closest previous date with data
+            const progressDate = [...progressMap.keys()]
+                .filter(d => new Date(d) <= new Date(date))
+                .sort((a, b) => new Date(b) - new Date(a))[0];
+            
+            return progressDate ? progressMap.get(progressDate) : null;
         });
     }
 

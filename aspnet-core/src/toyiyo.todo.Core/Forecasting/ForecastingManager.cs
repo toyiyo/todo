@@ -61,13 +61,33 @@ namespace toyiyo.todo.Forecasting
                     estimatedDate
                 ));
 
+            var optimisticProgress = await Task.Run(() => 
+                BuildForecastProgress(
+                    actualProgress[actualProgress.Count - 1].CompletedTasks,
+                    relevantJobs.Count,
+                    weeklyVelocity / P10_FACTOR,
+                    DateTime.UtcNow,
+                    optimisticDate
+                ));
+
+            var conservativeProgress = await Task.Run(() => 
+                BuildForecastProgress(
+                    actualProgress[actualProgress.Count - 1].CompletedTasks,
+                    relevantJobs.Count,
+                    weeklyVelocity / P90_FACTOR,
+                    DateTime.UtcNow,
+                    conservativeDate
+                ));
+
             return ForecastResult.Create(
                 estimatedDate,
                 optimisticDate,
                 conservativeDate,
                 0.8m,
                 actualProgress,
-                forecastProgress
+                forecastProgress,
+                optimisticProgress,
+                conservativeProgress
             );
         }
 
@@ -125,32 +145,42 @@ namespace toyiyo.todo.Forecasting
             int totalJobs,
             decimal weeklyVelocity,
             DateTime startDate,
-            DateTime endDate)
+            DateTime _ /* endDate parameter kept for compatibility */)
         {
             var progress = new List<ProgressPoint>();
+            var twoYearsFromNow = DateTime.UtcNow.AddYears(2);
+            var currentDate = startDate;
+            var currentCompleted = startingCompleted;
             
             // Add starting point
-            progress.Add(ProgressPoint.Create(startDate, startingCompleted, totalJobs));
+            progress.Add(ProgressPoint.Create(startDate, currentCompleted, totalJobs));
 
-            // Calculate weekly forecast points
-            var currentDate = startDate.AddDays(7);
-            
-            while (currentDate <= endDate)
+            // Calculate weekly forecast points until completion or timeout
+            while (currentCompleted < totalJobs && currentDate < twoYearsFromNow)
             {
-                var completedTasks = Math.Min(totalJobs, 
+                currentDate = currentDate.AddDays(7);
+                currentCompleted = Math.Min(totalJobs, 
                     (int)(startingCompleted + (weeklyVelocity * ((currentDate - startDate).Days / 7))));
                 
-                progress.Add(ProgressPoint.Create(currentDate, completedTasks, totalJobs));
-                currentDate = currentDate.AddDays(7);
+                progress.Add(ProgressPoint.Create(currentDate, currentCompleted, totalJobs));
+
+                // Safety check - if velocity is too low to make progress
+                if (currentCompleted == progress[progress.Count - 2].CompletedTasks)
+                {
+                    break;
+                }
             }
 
-            // Add final point if not at end date
-            if (currentDate.AddDays(-7) < endDate)
+            // Add final 100% completion point if we haven't reached it
+            if (currentCompleted < totalJobs)
             {
-                var finalCompleted = Math.Min(totalJobs, 
-                    (int)(startingCompleted + (weeklyVelocity * ((endDate - startDate).Days / 7))));
+                var remainingTasks = totalJobs - startingCompleted;
+                var weeksToComplete = remainingTasks / weeklyVelocity;
+                var completionDate = startDate.AddDays((double)(weeksToComplete * 7));
                 
-                progress.Add(ProgressPoint.Create(endDate, finalCompleted, totalJobs));
+                // Cap the completion date at 2 years
+                completionDate = completionDate > twoYearsFromNow ? twoYearsFromNow : completionDate;
+                progress.Add(ProgressPoint.Create(completionDate, totalJobs, totalJobs));
             }
 
             return progress;

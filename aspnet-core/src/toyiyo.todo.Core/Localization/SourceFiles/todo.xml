@@ -16,6 +16,8 @@
     <text name="JobDescription" value="Description" />
     <text name="JobType" value="Type" />
     <text name="ParentEpic" value="Parent epic" />
+    <text name="Epics" value="Epics" />
+    <text name="Tasks" value="Tasks" />
     <text name="Subtasks" value="Subtasks" />
     <text name="DueDate" value="Due"/>
     <text name="WelcomeMessage" value="Welcome to todo!" />
@@ -197,5 +199,11 @@
     <text name="NotificationPreferencesSaved">Notification preferences saved successfully</text>
     <text name="ErrorSavingPreferences">Error saving notification preferences</text>
     <text name="HangfireDashboard">Hangfire Dashboard</text>
+    <text name="Forecast">Forecast</text>
+    <text name="ForecastInfoAlert">This page provides a forecast of the project's completion dates based on the current progress.</text>
+    <text name="ForecastTitle{0}">Forecast for project {0}</text>
+    <text name="OptimisticCompletionDate">Optimistic Completion Date</text>
+    <text name="EstimatedCompletionDate">Estimated Completion Date</text>
+    <text name="ConservativeCompletionDate">Conservative Completion Date</text>
   </texts>
 </localizationDictionary>
