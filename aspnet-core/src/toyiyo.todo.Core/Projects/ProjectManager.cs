@@ -26,7 +26,6 @@ namespace toyiyo.todo.Projects
         {
             var project = await _projectRepository.GetAll()
                 .Include(p => p.Jobs)  // Ensure Jobs are included
-                .AsNoTracking() // Use AsNoTracking for read-only scenarios to improve performance
                 .FirstOrDefaultAsync(p => p.Id == id);
                 
             if (project == null)

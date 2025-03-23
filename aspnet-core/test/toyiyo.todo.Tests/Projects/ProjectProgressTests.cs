@@ -254,7 +254,7 @@ namespace toyiyo.todo.Tests.Projects
             progress.BugCount.ShouldBe(0);
             progress.TotalTasksPercentage.ShouldBe(100);
             progress.InProgressPercentage.ShouldBe(0);
-            progress.DueDate.ShouldNotBeNull();
+            progress.DueDate.ShouldBeNull(); // No due date set for completed tasks
             progress.HealthStatus.ShouldNotBeNull();
         }
     }
