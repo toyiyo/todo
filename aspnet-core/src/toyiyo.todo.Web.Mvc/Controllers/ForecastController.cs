@@ -43,7 +43,7 @@ namespace toyiyo.todo.Web.Controllers
             catch (Exception ex)
             {
                 Logger.Error("Error retrieving project forecast", ex);
-                return BadRequest("Failed to retrieve project forecast");
+                return StatusCode(500, new { error = "Failed to retrieve forecast data" });
             }
         }
 
@@ -69,7 +69,7 @@ namespace toyiyo.todo.Web.Controllers
             catch (Exception ex)
             {
                 Logger.Error("Error getting forecast data", ex);
-                return BadRequest(new { error = "Failed to retrieve forecast data", details = ex.Message });
+                return StatusCode(500, new { error = "Failed to retrieve forecast data" });
             }
         }
     }
