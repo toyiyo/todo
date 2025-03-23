@@ -1,0 +1,69 @@
+@using toyiyo.todo.Web.Startup
+@model toyiyo.todo.Projects.Dto.ProjectDto
+@{
+    ViewBag.Title = L("Forecast");
+    ViewBag.CurrentPageName = PageNames.Forecast;
+}
+
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">@L("CompletionForecast") - @Model.Title</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <select id="levelSelect" class="form-control">
+                        <option value="2">@L("Epics")</option>
+                        <option value="0">@L("Tasks")</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="forecast-info alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        @L("ForecastBasedOnVelocity")
+                    </div>
+                    <canvas id="forecastChart"></canvas>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="date-card optimistic">
+                        <h5>@L("OptimisticDate") (P10)</h5>
+                        <div class="date" id="optimisticDate"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="date-card estimated">
+                        <h5>@L("EstimatedDate") (P50)</h5>
+                        <div class="date" id="estimatedDate"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="date-card conservative">
+                        <h5>@L("ConservativeDate") (P90)</h5>
+                        <div class="date" id="conservativeDate"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <environment names="Development">
+        <script src="~/libs/chartjs/dist/Chart.js" asp-append-version="true"></script>
+        <script src="~/view-resources/Views/Forecast/Index.js"></script>
+    </environment>
+
+    <environment names="Staging,Production">
+        <script src="~/view-resources/Views/_Bundles/home-index.min.js" asp-append-version="true"></script>
+        <script src="~/view-resources/Views/Forecast/Index.min.js"></script>
+    </environment>
+
+    <script>
+        var projectId = '@Model.Id';  // Pass projectId to JavaScript
+    </script>
+}

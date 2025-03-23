@@ -24,7 +24,14 @@ namespace toyiyo.todo.Projects
 
         public async Task<Project> Get(Guid id)
         {
-            var project = await _projectRepository.GetAsync(id);
+            var project = await _projectRepository.GetAll()
+                .Include(p => p.Jobs)  // Ensure Jobs are included
+                .AsNoTracking() // Use AsNoTracking for read-only scenarios to improve performance
+                .FirstOrDefaultAsync(p => p.Id == id);
+                
+            if (project == null)
+                throw new EntityNotFoundException(typeof(Project), id);
+                
             return project;
         }
         //GetAll() repository method requires a unit of work to be open. see https://aspnetboilerplate.com/Pages/Documents/Unit-Of-Work#irepository-getall-method
