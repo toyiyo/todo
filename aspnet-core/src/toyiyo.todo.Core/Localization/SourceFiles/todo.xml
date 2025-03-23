@@ -205,5 +205,6 @@
     <text name="OptimisticCompletionDate">Optimistic Completion Date</text>
     <text name="EstimatedCompletionDate">Estimated Completion Date</text>
     <text name="ConservativeCompletionDate">Conservative Completion Date</text>
+    <text name="SelectJobLevel">Select Job Level</text>
   </texts>
 </localizationDictionary>
