@@ -6,8 +6,9 @@ using toyiyo.todo.Forecasting;
 using toyiyo.todo.Projects;
 using toyiyo.todo.Jobs;
 
-namespace toyiyo.todo.Web.Mvc.Controllers
+namespace toyiyo.todo.Web.Controllers
 {
+    [Route("projects")]
     public class ForecastController : todoControllerBase
     {
         private readonly IForecastAppService _forecastAppService;
@@ -21,46 +22,55 @@ namespace toyiyo.todo.Web.Mvc.Controllers
             _projectAppService = projectAppService;
         }
 
-        //GET: /project/{id}/forecast
-        [HttpGet]  
-        [Route("projects/{projectId}/forecast")]  
-        public async Task<IActionResult> Index(Guid projectId)  
-        {  
-            try  
-            {  
-                var project = await _projectAppService.Get(projectId);  
-                if (project == null)  
-                {  
-                    return NotFound();  
-                }  
-                return View(project);  
-            }  
-            catch (Exception)  
-            {  
-                // Log the exception  
-                return RedirectToAction("Error", "Home", new { message = "Failed to load project forecast." });  
-            }  
-        }  
+        [HttpGet]
+        [Route("{projectId}/forecast")]
+        public async Task<IActionResult> Index(Guid projectId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-        [HttpGet]  
-        [Route("projects/{projectId}/forecast/{level}")]  
-        public async Task<JsonResult> GetForecast(Guid projectId, Job.JobLevel level)  
-        {  
-            if (!Enum.IsDefined(typeof(Job.JobLevel), level))  
-            {  
-                return Json(new { error = "Invalid job level specified" });  
-            }  
+            try
+            {
+                var project = await _projectAppService.Get(projectId);
+                if (project == null)
+                {
+                    return NotFound();
+                }
+                return View(project);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error retrieving project forecast", ex);
+                return BadRequest("Failed to retrieve project forecast");
+            }
+        }
 
-            try  
-            {  
-                var forecast = await _forecastAppService.GetForecast(projectId, level);  
-                return Json(forecast);  
-            }  
-            catch (Exception ex)  
-            {  
-                // Log the exception  
-                return Json(new { error = "Failed to retrieve forecast data", details = ex.Message });  
-            }  
-        } 
+        [HttpGet]
+        [Route("{projectId}/forecast/{level}")]
+        public async Task<IActionResult> GetForecast(Guid projectId, Job.JobLevel level)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!Enum.IsDefined(typeof(Job.JobLevel), level))
+            {
+                return BadRequest("Invalid job level specified");
+            }
+
+            try
+            {
+                var forecast = await _forecastAppService.GetForecast(projectId, level);
+                return Json(forecast);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error getting forecast data", ex);
+                return BadRequest(new { error = "Failed to retrieve forecast data", details = ex.Message });
+            }
+        }
     }
 }
