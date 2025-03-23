@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Abp.Domain.Values;
 
 namespace toyiyo.todo.Forecasting
@@ -10,10 +11,10 @@ namespace toyiyo.todo.Forecasting
         public DateTime OptimisticCompletionDate { get; private set; }
         public DateTime ConservativeCompletionDate { get; private set; }
         public decimal ConfidenceLevel { get; private set; }
-        public List<ProgressPoint> ActualProgress { get; private set; }
-        public List<ProgressPoint> ForecastProgress { get; private set; }
-        public List<ProgressPoint> OptimisticProgress { get; private set; }
-        public List<ProgressPoint> ConservativeProgress { get; private set; }
+        public IReadOnlyList<ProgressPoint> ActualProgress { get; private set; }
+        public IReadOnlyList<ProgressPoint> ForecastProgress { get; private set; }
+        public IReadOnlyList<ProgressPoint> OptimisticProgress { get; private set; }
+        public IReadOnlyList<ProgressPoint> ConservativeProgress { get; private set; }
 
         protected ForecastResult() { }
 
@@ -22,10 +23,10 @@ namespace toyiyo.todo.Forecasting
             DateTime optimisticDate,
             DateTime conservativeDate,
             decimal confidence,
-            List<ProgressPoint> actual,
-            List<ProgressPoint> forecast,
-            List<ProgressPoint> optimistic,
-            List<ProgressPoint> conservative)
+            IEnumerable<ProgressPoint> actual,
+            IEnumerable<ProgressPoint> forecast,
+            IEnumerable<ProgressPoint> optimistic,
+            IEnumerable<ProgressPoint> conservative)
         {
             if (optimisticDate > estimatedDate)
                 throw new ArgumentException("Optimistic date must be before or equal to estimated date");
@@ -40,10 +41,10 @@ namespace toyiyo.todo.Forecasting
                 OptimisticCompletionDate = optimisticDate,
                 ConservativeCompletionDate = conservativeDate,
                 ConfidenceLevel = confidence,
-                ActualProgress = actual,
-                ForecastProgress = forecast,
-                OptimisticProgress = optimistic,
-                ConservativeProgress = conservative
+                ActualProgress = actual?.ToList().AsReadOnly() ?? new List<ProgressPoint>().AsReadOnly(),
+                ForecastProgress = forecast?.ToList().AsReadOnly() ?? new List<ProgressPoint>().AsReadOnly(),
+                OptimisticProgress = optimistic?.ToList().AsReadOnly() ?? new List<ProgressPoint>().AsReadOnly(),
+                ConservativeProgress = conservative?.ToList().AsReadOnly() ?? new List<ProgressPoint>().AsReadOnly()
             };
         }
 

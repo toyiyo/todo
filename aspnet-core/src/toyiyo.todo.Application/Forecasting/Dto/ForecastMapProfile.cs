@@ -1,4 +1,6 @@
 using AutoMapper;
+using toyiyo.todo.Forecasting.Dto;  
+using toyiyo.todo.Forecasting; 
 
 namespace toyiyo.todo.Forecasting.Dto
 {

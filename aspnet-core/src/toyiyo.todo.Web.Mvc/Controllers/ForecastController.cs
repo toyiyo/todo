@@ -22,20 +22,45 @@ namespace toyiyo.todo.Web.Mvc.Controllers
         }
 
         //GET: /project/{id}/forecast
-        [HttpGet]
-        [Route("projects/{projectId}/forecast")]
-        public async Task<IActionResult> Index(Guid projectId)
-        {
-            var project = await _projectAppService.Get(projectId);
-            return View(project);
-        }
+        [HttpGet]  
+        [Route("projects/{projectId}/forecast")]  
+        public async Task<IActionResult> Index(Guid projectId)  
+        {  
+            try  
+            {  
+                var project = await _projectAppService.Get(projectId);  
+                if (project == null)  
+                {  
+                    return NotFound();  
+                }  
+                return View(project);  
+            }  
+            catch (Exception)  
+            {  
+                // Log the exception  
+                return RedirectToAction("Error", "Home", new { message = "Failed to load project forecast." });  
+            }  
+        }  
 
-        [HttpGet]
-        [Route("projects/{projectId}/forecast/{level}")]
-        public async Task<JsonResult> GetForecast(Guid projectId, Job.JobLevel level)
-        {
-            var forecast = await _forecastAppService.GetForecast(projectId, level);
-            return Json(forecast);
-        }
+        [HttpGet]  
+        [Route("projects/{projectId}/forecast/{level}")]  
+        public async Task<JsonResult> GetForecast(Guid projectId, Job.JobLevel level)  
+        {  
+            if (!Enum.IsDefined(typeof(Job.JobLevel), level))  
+            {  
+                return Json(new { error = "Invalid job level specified" });  
+            }  
+
+            try  
+            {  
+                var forecast = await _forecastAppService.GetForecast(projectId, level);  
+                return Json(forecast);  
+            }  
+            catch (Exception ex)  
+            {  
+                // Log the exception  
+                return Json(new { error = "Failed to retrieve forecast data", details = ex.Message });  
+            }  
+        } 
     }
 }

@@ -162,7 +162,7 @@
 
 
     $(document).on('click', '.edit-project', function (e) {
-        var projectId = $(this).attr("data-project-id");
+        const projectId = $(this).attr("data-project-id");
 
         e.preventDefault();
         abp.ajax({
@@ -176,12 +176,7 @@
     });
 
     $(document).on('click', '.forecast-project', function (e) {
-        var projectId = $(this).data("project-id");
-        window.location.href = '/projects/' + projectId + '/forecast';
-    });
-
-    abp.event.on('project.edited', () => {
-        var projectId = $(this).attr("data-project-id");
+        const projectId = $(this).data("project-id");
         window.location.href = '/projects/' + projectId + '/forecast';
     });
 
