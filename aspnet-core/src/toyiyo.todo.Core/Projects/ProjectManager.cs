@@ -22,6 +22,7 @@ namespace toyiyo.todo.Projects
             _projectRepository = projectRepository;
         }
 
+        [UnitOfWork]
         public async Task<Project> Get(Guid id)
         {
             var project = await _projectRepository.GetAll()

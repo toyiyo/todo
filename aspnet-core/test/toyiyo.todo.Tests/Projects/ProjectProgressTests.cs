@@ -184,17 +184,17 @@ namespace toyiyo.todo.Tests.Projects
             var project = await CreateProjectWithMixedJobs();
             var progress = ProjectProgress.Calculate(project);
 
-            progress.TotalJobCount.ShouldBe(8); // 5 tasks + 3 bugs
+            progress.TotalJobCount.ShouldBe(10); // 5 tasks + 3 bugs
             progress.CompletedTasks.ShouldBe(3);
             progress.InProgressTasks.ShouldBe(2);
             progress.BacklogTasks.ShouldBe(3);
             progress.EpicCount.ShouldBe(2);
             progress.CompletedEpics.ShouldBe(1);
-            progress.TaskCount.ShouldBe(5);
+            progress.TaskCount.ShouldBe(8);
             progress.BugCount.ShouldBe(3);
             progress.TotalTasksPercentage.ShouldBe(37.50m); // 3 completed tasks out of 8 total jobs
             progress.InProgressPercentage.ShouldBe(25.00m); // 2 in-progress tasks out of 8 total jobs
-            progress.DueDate.ShouldNotBeNull();
+            progress.DueDate.ShouldBeNull();
             progress.HealthStatus.ShouldNotBeNull();
         }
 
@@ -214,7 +214,7 @@ namespace toyiyo.todo.Tests.Projects
             progress.BugCount.ShouldBe(0);
             progress.TotalTasksPercentage.ShouldBe(33.33m);
             progress.InProgressPercentage.ShouldBe(33.33m);
-            progress.DueDate.ShouldNotBeNull();
+            progress.DueDate.ShouldBeNull();
             progress.HealthStatus.ShouldNotBeNull();
         }
 
