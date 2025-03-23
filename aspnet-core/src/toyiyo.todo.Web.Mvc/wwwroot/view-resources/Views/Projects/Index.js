@@ -51,6 +51,12 @@
                                     </svg>
                                     ${l('Edit')}
                                 </button>
+                                <button type="button" class="dropdown-item forecast-project" data-project-id="${row.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-graph-up mr-2" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07Z"/>
+                                    </svg>
+                                    ${l('Forecast')}
+                                </button>
                                 <button type="button" class="dropdown-item delete-project" data-project-id="${row.id}" data-toggle="modal" data-target="#ProjectDeleteModal">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash mr-2" viewBox="0 0 16 16">
                                         <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
@@ -167,6 +173,16 @@
                 $('#ProjectEditModal div.modal-content').html(content);
             }
         })
+    });
+
+    $(document).on('click', '.forecast-project', function (e) {
+        var projectId = $(this).data("project-id");
+        window.location.href = '/projects/' + projectId + '/forecast';
+    });
+
+    abp.event.on('project.edited', () => {
+        var projectId = $(this).attr("data-project-id");
+        window.location.href = '/projects/' + projectId + '/forecast';
     });
 
     abp.event.on('project.edited', () => {

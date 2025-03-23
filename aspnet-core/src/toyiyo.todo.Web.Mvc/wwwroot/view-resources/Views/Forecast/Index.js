@@ -55,6 +55,7 @@
                         data: generateDataPoints(sortedDates, result.actualProgress),
                         backgroundColor: '#1f77b4',
                         borderColor: '#1f77b4',
+                        borderWidth: 2,
                         fill: false
                     },
                     {
@@ -62,6 +63,8 @@
                         data: generateDataPoints(sortedDates, result.forecastProgress),
                         backgroundColor: '#ff7f0e',
                         borderColor: '#ff7f0e',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
                         fill: false
                     },
                     {
@@ -69,6 +72,8 @@
                         data: generateDataPoints(sortedDates, result.optimisticProgress),
                         backgroundColor: '#2ca02c',
                         borderColor: '#2ca02c',
+                        borderDash: [10, 5],
+                        borderWidth: 2,
                         fill: false
                     },
                     {
@@ -76,6 +81,8 @@
                         data: generateDataPoints(sortedDates, result.conservativeProgress),
                         backgroundColor: '#d62728',
                         borderColor: '#d62728',
+                        borderDash: [3, 3],
+                        borderWidth: 2,
                         fill: false
                     }
                 ]
