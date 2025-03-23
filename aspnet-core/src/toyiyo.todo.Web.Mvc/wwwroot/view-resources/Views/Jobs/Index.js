@@ -496,6 +496,21 @@
     });
 
     // Epics Panel
+    const epicsPanel = document.getElementById('epicsPanel');
+    const toggleEpicsButton = document.getElementById('toggle-epics');
+    const epicIcon = document.getElementById('epic-icon');
+
+    toggleEpicsButton.addEventListener('click', () => {
+        epicsPanel.classList.toggle('d-none');
+        if (epicsPanel.classList.contains('d-none')) {
+            epicIcon.classList.remove('fa-chevron-left');
+            epicIcon.classList.add('fa-chevron-right');
+        } else {
+            epicIcon.classList.remove('fa-chevron-right');
+            epicIcon.classList.add('fa-chevron-left');
+        }
+    });
+    
     $('#toggle-epics').on('click', function () {
         $('#epics-panel').toggleClass('d-none');
         var tableDiv = $('.table-responsive');
