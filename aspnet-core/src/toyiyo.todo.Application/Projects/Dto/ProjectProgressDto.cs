@@ -1,13 +1,11 @@
 using System;
+using Abp.AutoMapper;
 
 namespace toyiyo.todo.Projects.Dto
 {
-    /// <summary>
-    /// Data transfer object for project progress statistics
-    /// </summary>
+    [AutoMapFrom(typeof(ProjectProgress))]
     public class ProjectProgressDto
     {
-        // Base statistics mapped from domain
         public int TotalJobCount { get; set; }
         public int CompletedTasks { get; set; }
         public int InProgressTasks { get; set; }
@@ -15,11 +13,12 @@ namespace toyiyo.todo.Projects.Dto
         public int EpicCount { get; set; }
         public int TaskCount { get; set; }
         public int BugCount { get; set; }
-        public DateTime? DueDate { get; set; }
+        public int CompletedBugs { get; set; }
         public int CompletedEpics { get; set; }
+        public DateTime? DueDate { get; set; }
         public decimal InProgressPercentage { get; set; }
         public decimal TotalTasksPercentage { get; set; }
-
+        public decimal EpicCompletionPercentage { get; set; }
         public string Status { get; set; }
         public string StatusClass { get; set; }
 
@@ -32,16 +31,18 @@ namespace toyiyo.todo.Projects.Dto
                 TotalJobCount = progress.TotalJobCount,
                 CompletedTasks = progress.CompletedTasks,
                 InProgressTasks = progress.InProgressTasks,
-                BacklogTasks = progress.BacklogTasks,
+                BacklogTasks = progress.BacklogTasks, 
                 EpicCount = progress.EpicCount,
                 TaskCount = progress.TaskCount,
                 BugCount = progress.BugCount,
-                DueDate = progress.DueDate,
+                CompletedBugs = progress.CompletedBugs,
                 CompletedEpics = progress.CompletedEpics,
+                DueDate = progress.DueDate,
                 InProgressPercentage = progress.InProgressPercentage,
                 TotalTasksPercentage = progress.TotalTasksPercentage,
-                Status = progress.HealthStatus?.Status,
-                StatusClass = progress.HealthStatus?.CssClass
+                EpicCompletionPercentage = progress.EpicCompletionPercentage,
+                Status = progress.Status,
+                StatusClass = progress.StatusClass
             };
         }
     }

@@ -22,9 +22,16 @@ namespace toyiyo.todo.Projects
             _projectRepository = projectRepository;
         }
 
+        [UnitOfWork]
         public async Task<Project> Get(Guid id)
         {
-            var project = await _projectRepository.GetAsync(id);
+            var project = await _projectRepository.GetAll()
+                .Include(p => p.Jobs)  // Ensure Jobs are included
+                .FirstOrDefaultAsync(p => p.Id == id);
+                
+            if (project == null)
+                throw new EntityNotFoundException(typeof(Project), id);
+                
             return project;
         }
         //GetAll() repository method requires a unit of work to be open. see https://aspnetboilerplate.com/Pages/Documents/Unit-Of-Work#irepository-getall-method
@@ -54,6 +61,7 @@ namespace toyiyo.todo.Projects
                 .WhereIf(!input.keyword.IsNullOrWhiteSpace(), p => p.Title.ToUpper().Contains(input.keyword.ToUpper()));
         }
 
+        [UnitOfWork]
         public async Task<Project> Create(Project inputProject)
         {
             var project = await _projectRepository.InsertAsync(inputProject);

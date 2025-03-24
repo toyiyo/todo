@@ -211,7 +211,7 @@ namespace toyiyo.todo.Tests
             var userId = AbpSession.GetUserId();
             return await UsingDbContext(context => 
                 context.Users
-                    .AsNoTracking()  // Add this line to prevent change tracking
+                    //.AsNoTracking()  // Add this line to prevent change tracking
                     .SingleAsync(u => u.Id == userId));
         }
 
@@ -224,7 +224,7 @@ namespace toyiyo.todo.Tests
             var tenantId = AbpSession.GetTenantId();
             return await UsingDbContext(context => 
                 context.Tenants
-                    .AsNoTracking()  // Add this line to prevent change tracking
+                    //.AsNoTracking()  // Add this line to prevent change tracking
                     .SingleAsync(t => t.Id == tenantId));
         }
 
